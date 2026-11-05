@@ -806,14 +806,25 @@ const WEAPONS = {
   dmr:    {name:"Fusil de tireur d'élite", short:'Tireur', dmg:62, rate:.45, mag:12, reload:2.4, spread:.05, ads:.002, range:330, auto:false, zoom:2.2, kick:.03, reserve:36, pref:50, head:2.0, snd:'sniper', build:1.2},
   revolver:{name:'Revolver', short:'Revolver', dmg:48, rate:.55, mag:6, reload:2.2, spread:.02, ads:.005, range:150, auto:false, zoom:1.3, kick:.04, reserve:30, pref:20, head:2.0, snd:'pistol', build:1},
   sniper: {name:'Fusil de précision', short:'Précision', dmg:110, rate:1.5, mag:4, reload:2.8, spread:.07, ads:.0008, range:420, auto:false, zoom:4.2, kick:.06, reserve:12, pref:70, head:2.2, snd:'sniper', build:1.4},
+  roquettes:{name:'Lance-roquettes', short:'Roquettes', dmg:40, splash:4.5, sdmg:95, rate:1.6, mag:1, reload:3.2, spread:.02, ads:.004, range:200, auto:false, zoom:1.3, kick:.09, reserve:6, pref:60, head:1, snd:'rocket', build:3},
+  arbalete:{name:'Arbalète', short:'Arbalète', dmg:85, rate:1.1, mag:1, reload:1.6, spread:.03, ads:.001, range:260, auto:false, zoom:1.8, kick:.03, reserve:15, pref:45, head:2.0, snd:'bow', quiet:1, build:.6},
+  mitrailleuse:{name:'Mitrailleuse légère', short:'Mitrailleuse', dmg:24, rate:.09, mag:80, reload:4.2, spread:.05, ads:.02, range:200, auto:true, zoom:1.3, kick:.008, reserve:160, pref:30, head:1.5, snd:'ar', build:1.1},
+  double:{name:'Fusil à double canon', short:'Double', dmg:13, pellets:12, rate:.3, mag:2, reload:2.4, spread:.1, ads:.085, range:30, auto:false, zoom:1.15, kick:.07, reserve:16, pref:6, head:1.5, snd:'shotgun', build:.9},
+  lourd:{name:'Mitraillette lourde', short:'Lourde', dmg:19, rate:.1, mag:25, reload:2.0, spread:.04, ads:.022, range:110, auto:true, zoom:1.25, kick:.009, reserve:75, pref:12, head:1.6, snd:'smg', build:1},
+  pompeauto:{name:'Fusil à pompe automatique', short:'Pompe auto', dmg:7, pellets:9, rate:.22, mag:10, reload:3.0, spread:.1, ads:.08, range:34, auto:true, zoom:1.15, kick:.03, reserve:30, pref:6, head:1.4, snd:'shotgun', build:.7},
 };
-const GUN_TYPES = ['pistol','revolver','smg','compacte','ar','carabine','shotgun','tactique','sniper','dmr'];
-const GUN_W = [16,8,12,8,16,12,13,8,7,6];
-const WCATS=[{id:'fa',name:"Fusils d'assaut",g:['ar','carabine']},{id:'mit',name:'Mitraillettes',g:['smg','compacte']},{id:'pom',name:'Fusils à pompe',g:['shotgun','tactique']},{id:'pre',name:'Précision',g:['sniper','dmr']},{id:'pis',name:'Pistolets',g:['pistol','revolver']}];
+const GUN_TYPES = ['pistol','revolver','smg','compacte','ar','carabine','shotgun','tactique','sniper','dmr','roquettes','arbalete','mitrailleuse','double','lourd','pompeauto'];
+const GUN_W = [16,8,12,8,16,12,13,8,7,6,2,4,3,5,6,4];
+const WCATS=[{id:'fa',name:"Fusils d'assaut",g:['ar','carabine']},{id:'mit',name:'Mitraillettes',g:['smg','compacte','lourd']},{id:'pom',name:'Fusils à pompe',g:['shotgun','tactique','double','pompeauto']},{id:'pre',name:'Précision',g:['sniper','dmr','arbalete']},{id:'lou',name:'Armes lourdes',g:['mitrailleuse','roquettes']},{id:'pis',name:'Pistolets',g:['pistol','revolver']}];
 const WDESC={ar:'Polyvalent, efficace à toutes les distances.',carabine:'Plus lente que le fusil d\'assaut mais plus puissante.',smg:'Cadence élevée pour le combat rapproché.',compacte:'Cadence extrême, très courte portée.',
-  shotgun:'Dévastateur à bout portant.',tactique:'Semi-automatique : 8 cartouches, tirs rapides.',sniper:'Un tir bien placé suffit.',dmr:'Semi-automatique pour la moyenne et longue portée.',pistol:'Arme de secours fiable.',revolver:'Lent mais très puissant.'};
+  shotgun:'Dévastateur à bout portant.',tactique:'Semi-automatique : 8 cartouches, tirs rapides.',sniper:'Un tir bien placé suffit.',dmr:'Semi-automatique pour la moyenne et longue portée.',pistol:'Arme de secours fiable.',revolver:'Lent mais très puissant.',
+  roquettes:'Explosion de zone : détruit les constructions et blesse tout ce qui est autour.',arbalete:'Silencieuse et précise, un carreau à la fois.',mitrailleuse:'Chargeur de 80 balles, rechargement long.',
+  double:'Deux coups dévastateurs à bout portant.',lourd:'Mitraillette plus puissante, un peu plus lente.',pompeauto:'Fusil à pompe automatique : 10 cartouches en rafale.'};
 const NEWGUN={carabine:{base:'ar',tip:.71,ty:.035,grip:[0,-.1,.01],fore:[0,0,-.38]},compacte:{base:'smg',tip:.26,ty:.02,grip:[0,-.075,.0],fore:[0,-.06,-.125]},
-  tactique:{base:'shotgun',tip:.705,ty:.03,grip:[0,-.08,.02],fore:[0,-.015,-.38]},dmr:{base:'sniper',tip:1.01,ty:.025,grip:[0,-.075,.02],fore:[0,-.01,-.5]},revolver:{base:'pistol',tip:.255,ty:.03,grip:[0,-.06,.045],fore:null}};
+  tactique:{base:'shotgun',tip:.705,ty:.03,grip:[0,-.08,.02],fore:[0,-.015,-.38]},dmr:{base:'sniper',tip:1.01,ty:.025,grip:[0,-.075,.02],fore:[0,-.01,-.5]},revolver:{base:'pistol',tip:.255,ty:.03,grip:[0,-.06,.045],fore:null},
+  roquettes:{base:'sniper',tip:.686,ty:.075,grip:[0,-.05,-.002],fore:[0,-.05,-.245]},arbalete:{base:'sniper',tip:.755,ty:.067,grip:[0,-.065,-.002],fore:[0,-.03,-.25]},
+  mitrailleuse:{base:'ar',tip:.93,ty:.035,grip:[0,-.08,-.002],fore:[0,-.02,-.36]},double:{base:'shotgun',tip:.82,ty:.035,grip:[0,-.05,.03],fore:[0,-.035,-.24]},
+  lourd:{base:'smg',tip:.37,ty:.03,grip:[0,-.07,.018],fore:[0,-.06,-.218]},pompeauto:{base:'shotgun',tip:.76,ty:.035,grip:[0,-.08,-.002],fore:[0,-.03,-.40]}};
 const RAR_W = [46,30,17,7];
 const PHASES = [
   {wait:100,shrink:60, r:225, dps:1},
@@ -1216,14 +1227,18 @@ function loadAssets(){
   const L=new THREE.GLTFLoader();
   if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('vendor/draco/');L.setDRACOLoader(d);}
   const get=f=>new Promise(res=>{try{L.load('models/'+f,g=>res(g),undefined,()=>res(null));}catch(err){res(null);}});
-  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb','structures.glb','voiture.glb','accessoires.glb','armes_acc.glb'].map(get)).then(r=>{
-    const [c,t1,t2,r1,r2,ar,bq,stc,vt,acs,aac]=r;
+  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb','structures.glb','voiture.glb','accessoires.glb','armes_acc.glb','armes_nouvelles.glb'].map(get)).then(r=>{
+    const [c,t1,t2,r1,r2,ar0,bq,stc,vt,acs,aac,anw]=r;
     if(aac)for(const o of aac.scene.children){const k=/^att_([a-z]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.att[k[1]]=pk;}}
     if(acs)for(const o of acs.scene.children){const k=/^acc_([a-zA-Z_]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.acc[k[1]]=pk;}}
     for(const sc of [stc,vt])if(sc)for(const o of sc.scene.children){const k=/^(st|voiture)_([a-z_]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.st[k[1]==='st'?k[2]:'voiture_'+k[2]]=pk;}}
     if(bq)ASSETS.shop=bq.scene;
-    if(ar){ar.scene.updateMatrixWorld(true);ar.scene.traverse(m=>{if(!m.isMesh)return;let o=m,ty=null;while(o&&!ty){const k=/^arme_([a-z]+)/.exec(o.name||'');if(k)ty=k[1];o=o.parent;}if(!ty)return;
+    for(const ar of [ar0,anw])if(ar){ar.scene.updateMatrixWorld(true);ar.scene.traverse(m=>{if(!m.isMesh)return;let o=m,ty=null;while(o&&!ty){const k=/^arme_([a-z]+)/.exec(o.name||'');if(k)ty=k[1];o=o.parent;}if(!ty)return;
       const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);g.userData.shared=true;boxProjUV(g,5);(ASSETS.guns[ty]=ASSETS.guns[ty]||[]).push({geo:g,k:m.material.name});});}
+    // rail des viseurs des nouvelles armes : dessus de la carcasse au-dessus de la poignée
+    for(const t in MOUNT){const MT=MOUNT[t],GL=ASSETS.guns[t];if(!MT.auto||!GL)continue;let top=-1;
+      for(const q of GL){const a=q.geo.attributes.position;for(let i=0;i<a.count;i++){const z=-a.getZ(i);if(z>MT.auto[0]&&z<MT.auto[1]&&Math.abs(a.getX(i))<.02)top=Math.max(top,a.getY(i));}}
+      if(top>0)MT.optic=[0,(MT.auto[0]+MT.auto[1])/2,top];}
     if(c){const clips={};for(const cl of c.animations){clips[cl.name]=cl;
         if(LEGCLIPS.includes(cl.name))clips[cl.name+'_j']=new THREE.AnimationClip(cl.name+'_j',cl.duration,cl.tracks.filter(t=>!ARMB.test(t.name)));
         if(['vise','pioche'].includes(cl.name))clips[cl.name+'_b']=new THREE.AnimationClip(cl.name+'_b',cl.duration,cl.tracks.filter(t=>ARMB.test(t.name)));}
@@ -1739,7 +1754,9 @@ const ATT_FOR={
   compacte:{optic:['none','reddot','holo'],muzzle:['none','silencieux','compensateur'],mag:['std','etendu','rapide']},
   tactique:{optic:['none','reddot','holo'],muzzle:['none','choke'],mag:['std','etendu','rapide']},
   dmr:{optic:['none','reddot','holo','x2','x4','x8'],muzzle:['none','silencieux','compensateur','frein'],grip:['none','verticale','angulaire'],mag:['std','etendu','rapide']},
-  revolver:{optic:['none','reddot'],muzzle:['none','compensateur'],mag:['std','rapide']}};
+  revolver:{optic:['none','reddot'],muzzle:['none','compensateur'],mag:['std','rapide']},
+  roquettes:{optic:['none']},arbalete:{optic:['none','x2','x4']},mitrailleuse:{optic:['none','reddot','holo','x2']},
+  double:{optic:['none']},lourd:{optic:['none','reddot','holo']},pompeauto:{optic:['none','reddot','holo']}};
 const MOUNT={
   pistol:{optic:[0,.035,.046],muzzle:[0,.19,.024],mag:[0,-.025,-.135],iron:.056,ironS:-.038,ms:.75},
   smg:{optic:[0,.06,.073],muzzle:[0,.42,.022],mag:[0,.069,-.24],iron:.086,ironS:-.055,ms:.9},
@@ -1750,7 +1767,9 @@ const MOUNT={
   compacte:{optic:[0,.05,.057],muzzle:[0,.26,.02],mag:[0,.004,-.239],iron:.075,ironS:-.02,ms:.8},
   tactique:{optic:[0,.09,.064],muzzle:[0,.705,.03],mag:[0,.137,-.175],iron:.088,ironS:-.04,ms:1},
   dmr:{optic:[0,.12,.071],muzzle:[0,1.01,.025],grip:[0,.5,-.008],mag:[0,.18,-.164],iron:.1,ironS:0,ms:1},
-  revolver:{optic:[0,.13,.049],muzzle:[0,.255,.03],iron:.052,ironS:-.04,ms:.75}};
+  revolver:{optic:[0,.13,.049],muzzle:[0,.255,.03],iron:.052,ironS:-.04,ms:.75},
+  roquettes:{iron:.19,ironS:-.03,adsZ:-.05},arbalete:{auto:[-.05,.12],optic:[0,.03,.09],iron:.1,ironS:-.03},mitrailleuse:{auto:[-.02,.18],optic:[0,.08,.08],iron:.14,ironS:-.02,adsZ:-.05},
+  double:{iron:.068,ironS:-.04},lourd:{auto:[-.02,.14],optic:[0,.06,.08],iron:.115,ironS:-.04},pompeauto:{auto:[-.02,.16],optic:[0,.07,.06],iron:.088,ironS:-.04,adsZ:-.05}};
 function cleanLoad(ld){
   const out={};ld=ld&&typeof ld==='object'?ld:{};
   for(const t in ATT_FOR){const src=ld[t]&&typeof ld[t]==='object'?ld[t]:{},o={};
@@ -2127,7 +2146,7 @@ function refreshHeld(e){
 }
 
 // ---------- butin ----------
-const AMMO_CLASS={pistol:'leg',smg:'leg',compacte:'leg',ar:'moy',carabine:'moy',dmr:'moy',shotgun:'cart',tactique:'cart',sniper:'lourd',revolver:'lourd'};
+const AMMO_CLASS={pistol:'leg',smg:'leg',compacte:'leg',lourd:'leg',ar:'moy',carabine:'moy',dmr:'moy',mitrailleuse:'moy',shotgun:'cart',tactique:'cart',double:'cart',pompeauto:'cart',sniper:'lourd',revolver:'lourd',roquettes:'roquette',arbalete:'carreau'};
 function newWeapon(type,rarity){const d=WEAPONS[type];return {type,rarity,ammo:d.mag,reserve:Math.round(d.reserve*1.5)};}
 function spawnLoot(kind,x,z,data,netId,y){
   const g=new THREE.Group();let item={kind,mesh:g,pos:new THREE.Vector3(x,0,z),bob:rand(0,6)};
@@ -2662,7 +2681,7 @@ function initAudio(){
     noise=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}catch(err){AC=null;}
 }
 const SND={step:[900,.06,.22,70],pistol:[2600,.16,.7,140],smg:[3200,.09,.5,160],ar:[2100,.15,.75,110],shotgun:[1300,.35,1,80],sniper:[900,.7,1,60],
-  pickaxe:[700,.12,.5,200],build:[1500,.08,.4,320],break:[900,.3,.6,90]};
+  pickaxe:[700,.12,.5,200],build:[1500,.08,.4,320],break:[900,.3,.6,90],rocket:[700,.45,.8,90],bow:[2200,.1,.35,260],boom:[420,1.1,1,38]};
 const camRight=new THREE.Vector3();
 function sfx(kind,pos,vm){
   if(!AC)return;
@@ -2743,12 +2762,14 @@ function tryFire(e,dir){
     }
   }
   for(const [t,a] of agg)damage(t,a.dmg,e,a.head,w.type,a.pt);
+  let boomAt=null;
+  if(def.splash){const d=dir.clone().normalize(),h=castRay(o,d,def.range,e);boomAt=h?h.point.clone().addScaledVector(d,-.3):o.clone().addScaledVector(d,def.range);explode(boomAt,def.splash,def.sdmg*mult,e,w.type);}
   sfx(def.snd,e.pos,def.quiet?.3:1);
   if(!def.quiet)soundCue(e,'shot',80);
   // les bots entendent les tirs non silencieux : direction approximative seulement
   if(!def.quiet&&NET.role!=='client')for(const o of entities){if(o.human||!o.alive||o.team===e.team||o.canSee)continue;const d=Math.hypot(o.pos.x-e.pos.x,o.pos.z-e.pos.z);
     if(d<75&&(!o.heard||T-o.heard.t>2.5))o.heard={x:e.pos.x+rand(-1,1)*d*.15,z:e.pos.z+rand(-1,1)*d*.15,t:T};}
-  if(NET.role==='host')broadcast({t:'s',i:e.id,w:w.type,o:r2a(mz),e:ends,q:def.quiet?1:0});
+  if(NET.role==='host')broadcast({t:'s',i:e.id,w:w.type,o:r2a(mz),e:ends,q:def.quiet?1:0,x:boomAt?r2a(boomAt):undefined});
   if(e.isPlayer){
     e.pitch=clamp(e.pitch+def.kick*(e.ads?.6:1),-1.5,1.5);e.yaw+=(Math.random()-.5)*def.kick*.5;
     recoil=Math.min(1,recoil+(def.kick*8+.15));flashT=.05;ejectShell();e.shotT=T;e.shotW=w.type;
@@ -2757,6 +2778,15 @@ function tryFire(e,dir){
   }
   if(w.ammo<=0&&w.reserve>0)e.autoReload=T+def.rate;
   return true;
+}
+// explosion : dégâts dégressifs autour du point d'impact (joueurs, constructions, voitures)
+function boomFx(p){puff(p,0xff7a1a,14,4.5);puff(p,0xffd166,8,3);puff(p,0x3a3a3a,10,2.2);sfx('boom',p,1.4);}
+function explode(p,r,dmg,src,wtype){
+  boomFx(p);
+  for(const t of entities){if(!t.alive||t===src)continue;const d=Math.hypot(t.pos.x-p.x,t.pos.y+.9-p.y,t.pos.z-p.z);if(d>r)continue;
+    damage(t,dmg*(1-.65*d/r),src,false,wtype,t.pos.clone().add(new THREE.Vector3(0,1.6,0)));}
+  for(const col of [...builds.values()]){if(col.removed||!col.mesh)continue;const d=col.mesh.position.distanceTo(p);if(d<r+1.5)damageBuild(col,dmg*2.2*(1-.5*Math.min(1,d/(r+1.5))));}
+  for(const c of cars){if(!c.alive)continue;const d=Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z);if(d<r+1)damageCar(c,dmg*(1-.5*d/(r+1)),src);}
 }
 function melee(e,dir){
   const o=eyePos(e,tmpO);
@@ -4204,6 +4234,7 @@ function onClientData(m){
   }
 }
 function onShot(m){
+  if(m.x)boomFx(v3(m.x));
   const e=entities[m.i];if(!e||e===player)return;
   if(m.w==='pickaxe'){e.swingT=T;sfx('pickaxe',v3(m.o));return;}
   const o=v3(m.o);for(const a of m.e||[])tracer(o,v3(a),false);
@@ -4626,7 +4657,7 @@ function setPreview(skin,wrap,gun){
   const key=skin+'|'+wrap+'|'+(gun?gun.t+JSON.stringify(gun.a):'');if(key===pvKey)return;pvKey=key;
   const rot=pvGroup?pvGroup.rotation.y:-.5;
   if(pvGroup)pvScene.remove(pvGroup);
-  if(gun){const rot0=pvGroup?pvGroup.rotation.y:-.5;if(pvGroup)pvScene.remove(pvGroup);const gg=new THREE.Group(),gm=gunMesh(gun.t,3,wrap,gun.a);const GL0={pistol:[.3,.06],revolver:[.33,.1],smg:[.78,.035],compacte:[.52,.0],ar:[1.36,.29],carabine:[1.05,.18],shotgun:[1.18,.17],tactique:[1.12,.15],sniper:[1.48,.28],dmr:[1.48,.28]}[gun.t]||[1,0],sc=Math.min(5,2.3/GL0[0]);gm.scale.setScalar(sc);gm.position.set(0,1.2,GL0[1]*sc);gm.traverse(o=>{if(o.isMesh)o.castShadow=true;});gg.add(gm);gg.rotation.y=rot0;gg.userData.gun=true;pvGroup=gg;pvMixer=null;pvScene.add(gg);pvCam.position.set(0,1.42,3.3);pvCam.lookAt(0,1.2,0);return;}
+  if(gun){const rot0=pvGroup?pvGroup.rotation.y:-.5;if(pvGroup)pvScene.remove(pvGroup);const gg=new THREE.Group(),gm=gunMesh(gun.t,3,wrap,gun.a);const GL0={pistol:[.3,.06],revolver:[.33,.1],smg:[.78,.035],compacte:[.52,.0],ar:[1.36,.29],carabine:[1.05,.18],shotgun:[1.18,.17],tactique:[1.12,.15],sniper:[1.48,.28],dmr:[1.48,.28]}[gun.t]||(()=>{const b=new THREE.Box3().setFromObject(gm);return [b.max.z-b.min.z,-(b.min.z+b.max.z)/2];})(),sc=Math.min(5,2.3/GL0[0]);gm.scale.setScalar(sc);gm.position.set(0,1.2,GL0[1]*sc);gm.traverse(o=>{if(o.isMesh)o.castShadow=true;});gg.add(gm);gg.rotation.y=rot0;gg.userData.gun=true;pvGroup=gg;pvMixer=null;pvScene.add(gg);pvCam.position.set(0,1.42,3.3);pvCam.lookAt(0,1.2,0);return;}
   pvCam.position.set(0,1.5,5.6);pvCam.lookAt(0,1.1,0);
   const ch=makeCharacter(HUMAN_COLORS[0],null,skin,true);
   ch.gunHolder.add(gunMesh('ar',3,wrap));ch.handHolder.visible=false;
