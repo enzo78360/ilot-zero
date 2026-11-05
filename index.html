@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Îlot Zéro : FPS battle royale dans le navigateur, en solo ou avec des amis.">
 <title>Îlot Zéro</title>
@@ -2487,6 +2488,7 @@ function botThink(b){
     if(it){b.goal={x:it.pos.x,z:it.pos.z};b.goalKind='loot';}else if(!b.goal)roam(b);
   }else if(!b.target&&leadD>(lead.human?14:22)&&!lead.gliding){
     b.goal={x:lead.pos.x+Math.cos(b.seed)*4,z:lead.pos.z+Math.sin(b.seed)*4};b.goalKind='follow';
+  }else if(!b.target&&botDropGoal(b)){
   }else if(!b.target){
     const it=nearestLoot(b,28,x=>canUse(b,x)&&(x.kind!=='weapon'||true));
     if(it){b.goal={x:it.pos.x,z:it.pos.z};b.goalKind='loot';}
@@ -2498,6 +2500,12 @@ function roam(b){
   const sc=safeCircle();
   if(Math.random()<.5&&houses.length){const cand=houses.filter(h=>Math.hypot(h.cx-sc.cx,h.cz-sc.cz)<sc.r*.85);if(cand.length){const h=cand[Math.floor(rand(0,cand.length))];b.goal={x:h.cx+rand(-2,2),z:h.cz+rand(-2,2)};b.goalKind='roam';return;}}
   b.goal=randIn(sc,.8);b.goalKind='roam';
+}
+function botDropGoal(b){
+  for(const d of drops){if(!d.landed)continue;const dd=Math.hypot(d.x-b.pos.x,d.z-b.pos.z);if(dd>110||dd<3)continue;
+    if(!loot.some(i=>i.kind==='weapon'&&i.weapon.rarity>=3&&Math.hypot(i.pos.x-d.x,i.pos.z-d.z)<3))continue;
+    b.goal={x:d.x,z:d.z};b.goalKind='drop';return true;}
+  return false;
 }
 function updateBot(b,dt){
   b.think-=dt;if(b.think<=0){b.think=rand(.18,.32);botThink(b);}
