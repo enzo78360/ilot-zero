@@ -27,6 +27,8 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
 - **Armurerie** : choisis les accessoires de chaque arme (viseur point rouge, holographique, lunettes ×2, ×4 et ×8, silencieux, compensateur, frein de bouche, choke, poignées, chargeurs étendus ou rapides). Ils modifient les statistiques et apparaissent sur l'arme. La visée se fait réellement dans le viseur. Certains se débloquent en montant de niveau.
+- **Largages de ravitaillement** : toutes les 80 s environ, une caisse descend en parachute dans la zone, avec une fumée rouge et un losange orange sur la carte. Elle contient une arme légendaire et du matériel rare.
+- **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
 - **Voitures** : 9 voitures sont garées près des lieux-dits. Monte avec `E`, la caméra passe à la troisième personne. Elles écrasent les adversaires, cassent les constructions et explosent sous les tirs.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
