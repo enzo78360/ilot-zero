@@ -1,0 +1,29 @@
+{
+  "name": "ilot-zero",
+  "productName": "Îlot Zéro",
+  "version": "1.0.0",
+  "description": "Battle royale en 3D, version de bureau",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist": "electron-builder --mac --win"
+  },
+  "devDependencies": {
+    "electron": "38.4.0",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "io.github.ilotzero",
+    "productName": "Ilot Zero",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["index.html", "favicon.svg", "models/**", "vendor/**", "electron/**", "package.json"],
+    "asar": true,
+    "mac": { "category": "public.app-category.games", "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }, { "target": "zip", "arch": ["arm64", "x64"] }], "identity": null },
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "signAndEditExecutable": false },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "shortcutName": "Îlot Zéro" },
+    "portable": { "artifactName": "IlotZero-${version}-portable.exe" }
+  }
+}

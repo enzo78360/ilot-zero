@@ -12,7 +12,7 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 ## Menu
 
-Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Passe de combat** et **Paramètres** (sensibilité de la souris, sensibilité en visée, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
+Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Passe de combat** et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
 
 ## Progression
 
@@ -32,7 +32,9 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 - **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
 - **Ambiances** : chaque partie se joue de jour, au matin dans la brume ou au coucher du soleil, avec vent, vagues près des côtes et chants d'oiseaux.
 - **Île agrandie** (×1,5) : 11 lieux dont la grande **Cité Zéro**, avec des **immeubles à étage** (escalier intérieur et toit-terrasse), des **stations-service** et des **entrepôts**.
-- **Voitures** : 9 voitures sont garées près des lieux-dits. Monte avec `E`, la caméra passe à la troisième personne. Elles écrasent les adversaires, cassent les constructions et explosent sous les tirs.
+- **Voitures** : des voitures sont garées près des lieux-dits et des stations-service. Monte avec `E`, la caméra passe à la troisième personne. Elles roulent jusqu'à 75 km/h, suivent le relief et piquent du nez en fin de saut. Les chocs et les réceptions abîment la voiture, pas le conducteur. Elles écrasent les adversaires, s'arrêtent contre les murs et les constructions (qu'elles abîment à grande vitesse) et explosent sous les tirs.
+- **Munitions** : chaque arme a sa réserve. Si tu échanges une arme contre une autre du même calibre (par exemple deux fusils d'assaut), la réserve suit. Les caisses de munitions remplissent trois chargeurs par arme.
+- **Bots** : ils ont un champ de vision, mettent un instant à te repérer (plus longtemps de loin ou accroupi), entendent les tirs sans connaître ta position exacte, visent moins bien en début d'échange et reculent pour se soigner.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
 
@@ -57,6 +59,19 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 | G (ou clic droit en construction) | Changer de matériau |
 | T / B | Poser un trampoline / un feu de camp |
 | H | Se soigner |
+
+## Version de bureau (Windows et macOS)
+
+Le jeu peut être empaqueté en application avec [Electron](https://www.electronjs.org/). Les bibliothèques (three.js, PeerJS, décodeur Draco) sont dans `vendor/`, donc le jeu solo marche hors ligne. Le multijoueur a toujours besoin d'Internet.
+
+```bash
+npm install
+npm start            # lancer la version de bureau
+npm run dist:mac     # dist/ : .dmg et .zip (Apple Silicon et Intel)
+npm run dist:win     # dist/ : installateur .exe et version portable
+```
+
+Les applications ne sont pas signées. Sur macOS, au premier lancement : clic droit sur l'app, puis « Ouvrir ». Sur Windows, SmartScreen peut demander « Informations complémentaires », puis « Exécuter quand même ». `F11` passe en plein écran.
 
 ## Comment marche le multijoueur
 
