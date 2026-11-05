@@ -47,6 +47,8 @@ Mise à jour du 5 novembre 2026.
 - **Partie sans bots** : uniquement les joueurs du salon (il faut au moins 2 équipes).
 - **Listes plus rapides** : amis, staff, bannissements et codes chargés en parallèle dès la connexion, gardés en mémoire pour un affichage instantané, et rafraîchis toutes les 10 secondes dans le menu (60 secondes en partie).
 - **Codes cadeaux** : coquillages ou XP, une fois par compte.
+- **Touches configurables** (Paramètres, section Touches) : clique sur une action puis appuie sur la nouvelle touche ; une touche déjà prise est échangée ; bouton « Touches par défaut ». Les aides à l'écran affichent tes touches.
+- **Chat textuel** : dans le salon (bloc « Chat du salon ») et en partie (touche Entrée, Échap pour fermer). 120 caractères maximum, un message par seconde. Il passe par l'hôte, entre les joueurs du salon.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
 ## Guide du staff
@@ -57,7 +59,13 @@ Toutes ces actions se font dans le jeu, onglet **Compte**, avec un compte staff.
 Section **Membres du staff** : entre son adresse Gmail, puis clique sur **Ajouter**. Il devient staff tout de suite s'il s'est déjà connecté, sinon à sa première connexion. Le bouton **Retirer** est à côté de chaque membre. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
 
 ### Bannir un joueur
-Section **Modération** : entre son pseudo, choisis la durée (1 h, 24 h, 7 jours, 30 jours ou définitif) et un motif, que le joueur verra, puis clique sur **Bannir**. La liste en dessous montre les bannissements en cours, avec un bouton **Débannir**. Un joueur banni est bloqué en moins d'une minute, même en pleine partie. Un membre du staff ne peut pas être banni.
+Section **Modération** : entre son pseudo, choisis une durée libre (un nombre en minutes, heures ou jours, ou définitif) et un motif, que le joueur verra, puis clique sur **Bannir**. La liste en dessous montre les bannissements en cours avec le temps restant (« encore 2 h 15 min »), le motif, qui a banni, et un bouton **Débannir**. Un joueur banni est bloqué en moins d'une minute, même en pleine partie. Un membre du staff ne peut pas être banni.
+
+### Voir les comptes des joueurs
+Section **Comptes des joueurs** : tous les comptes, en ligne d'abord, avec recherche par pseudo. Pour chacun : en ligne ou dernière connexion, niveau, coquillages, badges Staff et Banni, et le temps de bannissement restant. Boutons **Gérer**, **Bannir** ou **Débannir**.
+
+### Donner ou retirer de l'XP et des coquillages
+Section **Gérer un joueur** (ou bouton **Gérer** dans la liste) : entre le pseudo et une quantité, puis **Ajouter**, **Retirer** ou **Régler à**. Le joueur reçoit le changement dès qu'il est connecté (moins de 10 secondes dans le menu), avec une notification.
 
 ### Créer un code cadeau
 Section **Codes cadeaux (staff)** : choisis un code (par exemple `NOEL2026`), la récompense (coquillages ou XP), la quantité, la durée de validité et, si tu veux, un nombre maximum d'utilisations, puis clique sur **Créer**. Les joueurs l'entrent dans la section **Code cadeau** de leur onglet Compte. La liste montre les utilisations, et le bouton **Supprimer** désactive un code.
@@ -94,7 +102,7 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : la Release 1.2.0 contient la connexion obligatoire, les amis, les codes et la modération, mais pas encore le nouveau salon, les invitations ni les listes plus rapides. Il faudra une version 1.3.0 (voir « Publier une nouvelle version »).
+- **Applications Windows et Mac** : la Release 1.2.0 contient tout ce qui précède.
 - **Bug corrigé** : l'écran restait bloqué sur « Connexion… » en navigation privée ou au premier lancement.
 
 ## Limites connues

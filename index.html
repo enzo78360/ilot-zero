@@ -111,6 +111,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 #staffMenu .smh small{color:var(--muted)}#staffMenu .smsec{margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
 #staffMenu button{text-align:left;padding:7px 10px;font-size:13px}#staffMenu button.on{background:var(--accent);color:#1b0f08;border-color:var(--accent)}
 #staffMenu .smnote{margin:4px 0 0;font-size:13px;color:var(--muted);min-height:1.2em}
+#chat{position:absolute;left:18px;bottom:190px;width:min(380px,calc(100vw - 36px));display:flex;flex-direction:column;gap:6px;pointer-events:none;z-index:25}
+#chatLog{display:flex;flex-direction:column;gap:3px}
+#chatLog div,.chatlog div{font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+#chatLog div{background:rgba(5,16,20,.62);padding:4px 9px;border-radius:6px;transition:opacity .6s}
+#chatLog div b,.chatlog div b{color:var(--accent);margin-right:6px}#chatLog div.sys,.chatlog div.sys{color:var(--muted);font-style:italic}
+#chatIn{pointer-events:auto;font-family:var(--body);font-size:15px;color:var(--fg);background:rgba(5,16,20,.88);border:1px solid var(--accent);border-radius:8px;padding:8px 10px}
+.chatlog{height:150px;overflow:auto;display:flex;flex-direction:column;gap:4px;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,.18)}
+#lbChatIn{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:15px;text-align:left}
 #sndRing{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 #sndRing i{position:absolute;left:-34px;top:-118px;width:68px;height:18px;transform-origin:34px 118px;border-radius:50% 50% 0 0;border-top:4px solid #fff;opacity:0;filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
 #sndRing i.shot{border-top-color:#ffc04a;border-top-width:6px}
@@ -282,6 +290,9 @@ button:disabled{opacity:.5;cursor:default}
 .setgrid section{display:flex;flex-direction:column;gap:4px}
 .srow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:15px}
 .srow span{min-width:0}
+#bindList{display:flex;flex-direction:column;max-height:340px;overflow:auto;padding-right:4px}
+#bindList .brow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+#bindList .brow button{min-width:92px;padding:5px 10px;font-size:13px;letter-spacing:.04em}#bindList .brow button.wait{background:var(--accent);color:#1b0f08}
 .acctgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-content:start}
 .acuser{display:flex;align-items:center;gap:12px}.acuser img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.08)}
 .acuser div{display:flex;flex-direction:column;min-width:0;flex:1}.acuser small{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
@@ -297,8 +308,10 @@ button:disabled{opacity:.5;cursor:default}
 .pfield input.code{text-transform:uppercase;letter-spacing:.12em}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#59656a;margin-right:6px;vertical-align:middle}.dot.on{background:#5fff8a;box-shadow:0 0 6px #5fff8a}
 .salist li .btns{display:flex;gap:6px}
+.mglab{align-self:center;color:var(--muted);font-size:14px;min-width:84px}
+.rtag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.08);margin-left:6px;vertical-align:middle}.rtag.staff{background:var(--accent);color:#1b0f08}.rtag.ban{background:#b3343f;color:#fff}
 #hubTabs button .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:5px;border-radius:8px;background:var(--accent);color:#1b0f08;font-size:11px;line-height:16px}
-#saEmail,#frIn,#mdPseudo{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
+#saEmail,#frIn,#mdPseudo,#mgPseudo,#apSearch{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
 .salist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .salist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05)}
 .salist li div{flex:1;min-width:0;display:flex;flex-direction:column}.salist li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
@@ -342,6 +355,7 @@ button:disabled{opacity:.5;cursor:default}
   <div id="hitm"></div>
   <div id="dmgdir"></div>
   <div id="sndRing"></div>
+  <div id="chat"><div id="chatLog"></div><input id="chatIn" maxlength="120" autocomplete="off" placeholder="Message · Entrée pour envoyer, Échap pour fermer" hidden aria-label="Message du chat"></div>
   <div id="staffMenu" class="panel" hidden>
     <div class="smh"><b>Menu staff</b><small><kbd>O</kbd> pour fermer</small></div>
     <div class="smsec">Pouvoirs</div>
@@ -378,13 +392,13 @@ button:disabled{opacity:.5;cursor:default}
     <div class="res" id="cardsRow" hidden><span>Cartes de rappel<b id="cards"></b></span></div>
   </div>
   <div id="buildbar">
-    <div class="bpiece panel" id="bpWall"><span class="keys"><kbd>F</kbd></span>Mur</div>
-    <div class="bpiece panel" id="bpFloor"><span class="keys"><kbd>C</kbd></span>Sol</div>
-    <div class="bpiece panel" id="bpRamp"><span class="keys"><kbd>V</kbd></span>Rampe</div>
-    <div class="bpiece panel"><span class="keys"><kbd>G</kbd></span><span id="bpMat">Bois</span></div>
-    <div class="bpiece panel"><span class="keys"><kbd>T</kbd></span>Trampoline</div>
-    <div class="bpiece panel"><span class="keys"><kbd>B</kbd></span>Feu</div>
-    <div class="bpiece panel"><span class="keys"><kbd>H</kbd></span>Soin</div>
+    <div class="bpiece panel" id="bpWall"><span class="keys"><kbd data-bind="mur">F</kbd></span>Mur</div>
+    <div class="bpiece panel" id="bpFloor"><span class="keys"><kbd data-bind="sol">C</kbd></span>Sol</div>
+    <div class="bpiece panel" id="bpRamp"><span class="keys"><kbd data-bind="rampe">V</kbd></span>Rampe</div>
+    <div class="bpiece panel"><span class="keys"><kbd data-bind="materiau">G</kbd></span><span id="bpMat">Bois</span></div>
+    <div class="bpiece panel"><span class="keys"><kbd data-bind="trampo">T</kbd></span>Trampoline</div>
+    <div class="bpiece panel"><span class="keys"><kbd data-bind="feu">B</kbd></span>Feu</div>
+    <div class="bpiece panel"><span class="keys"><kbd data-bind="soin">H</kbd></span>Soin</div>
   </div>
   <div id="xpToast"></div>
   <div id="fpsBox" class="panel" hidden>-- i/s</div>
@@ -519,11 +533,31 @@ button:disabled{opacity:.5;cursor:default}
         <h3>Modération</h3>
         <div class="pfield">
           <div class="row"><input id="mdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à bannir">
-            <select id="mdDur" aria-label="Durée"><option value="1">1 heure</option><option value="24" selected>24 heures</option><option value="168">7 jours</option><option value="720">30 jours</option><option value="">Définitif</option></select></div>
+          </div>
+          <div class="row"><input id="mdNum" type="number" min="1" max="99999" value="24" aria-label="Durée" style="max-width:110px">
+            <select id="mdUnit" aria-label="Unité"><option value="1">minutes</option><option value="60" selected>heures</option><option value="1440">jours</option><option value="0">définitif</option></select></div>
           <div class="row"><input id="mdWhy" maxlength="200" placeholder="Motif (visible par le joueur)" autocomplete="off" aria-label="Motif"><button id="mdBan">Bannir</button></div>
         </div>
         <p class="acsync" id="mdMsg"></p>
         <ul class="salist" id="mdList"></ul>
+      </div>
+      <div class="pane panel" id="accountsPane" hidden>
+        <h3>Comptes des joueurs</h3>
+        <div class="pfield"><div class="row"><input id="apSearch" maxlength="14" placeholder="Chercher un pseudo" autocomplete="off" aria-label="Chercher un pseudo"></div></div>
+        <p class="acsync" id="apSum"></p>
+        <ul class="salist" id="apList"></ul>
+      </div>
+      <div class="pane panel" id="managePane" hidden>
+        <h3>Gérer un joueur</h3>
+        <p class="tag">Le joueur reçoit le changement dès qu'il est connecté (en moins de 10 secondes dans le menu).</p>
+        <div class="pfield">
+          <div class="row"><input id="mgPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à gérer"></div>
+          <div class="row"><input id="mgCoins" type="number" min="0" value="1000" aria-label="Coquillages" style="max-width:120px"><span class="mglab">coquillages</span>
+            <button data-g="coins_add">Ajouter</button><button data-g="coins_sub">Retirer</button><button data-g="coins_set">Régler à</button></div>
+          <div class="row"><input id="mgXp" type="number" min="0" value="1000" aria-label="XP" style="max-width:120px"><span class="mglab">XP</span>
+            <button data-g="xp_add">Ajouter</button><button data-g="xp_sub">Retirer</button><button data-g="xp_set">Régler à</button></div>
+        </div>
+        <p class="acsync" id="mgMsg"></p>
       </div>
       <div class="pane panel" id="codesPane" hidden>
         <h3>Codes cadeaux (staff)</h3>
@@ -560,6 +594,12 @@ button:disabled{opacity:.5;cursor:default}
             <label class="srow"><span>Champ de vision</span><input type="range" id="sFov" min="65" max="105" step="1"><output id="oFov"></output></label>
             <label class="srow"><span>Balancement de l'arme</span><input type="checkbox" id="sBob"></label>
             <label class="srow"><span>Indicateur visuel des sons (tirs, pas)</span><input type="checkbox" id="sSndViz"></label>
+          </section>
+          <section id="bindSec">
+            <h3>Touches</h3>
+            <p class="note" style="margin:0 0 6px">Clique sur une touche puis appuie sur la nouvelle. Échap annule. Une touche déjà prise est échangée.</p>
+            <div id="bindList"></div>
+            <button class="wide" id="bindReset" style="margin-top:8px">Touches par défaut</button>
           </section>
           <section>
             <h3>Graphismes</h3>
@@ -627,6 +667,11 @@ button:disabled{opacity:.5;cursor:default}
         <div class="lbset"><span>Bots</span><div class="diff" id="lbBots"><button data-b="1">Avec bots</button><button data-b="0">Sans bots</button></div></div>
         <div class="lbset" id="lbDiffRow"><span>Difficulté des bots</span><div class="diff" id="lbDiffs"><button data-d="facile">Facile</button><button data-d="normal">Normal</button><button data-d="difficile">Difficile</button></div></div>
         <p class="note" id="lobbyMode"></p>
+      </section>
+      <section class="lbsec" id="lbChat">
+        <h4 class="lbl">Chat du salon</h4>
+        <div class="chatlog" id="lbChatLog"></div>
+        <div class="joinrow"><input id="lbChatIn" maxlength="120" placeholder="Écris un message…" autocomplete="off" aria-label="Message du chat"><button id="lbChatSend">Envoyer</button></div>
       </section>
       <section class="lbsec" id="lbInvite">
         <h4 class="lbl">Inviter des amis</h4>
@@ -3876,6 +3921,7 @@ function peerErr(err){
 }
 function makeCode(){const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<4;i++)s+=A[Math.floor(Math.random()*A.length)];return s;}
 function leaveNet(){
+  chatMsgs.length=0;chatRender();
   const wasHost=NET.role==='host';const p=NET.peer;NET.peer=null;NET.role='solo';NET.conns=[];NET.host=null;
   try{if(p)p.destroy();}catch(err){}
   if(wasHost)try{accHeartbeat();}catch(err){}
@@ -3976,6 +4022,7 @@ function lobbyUpdate(){
 function onHostData(conn,m){
   conn.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
+  if(m.t==='chat'){if(!NET.conns.includes(conn)||performance.now()-(conn._chatT||0)<700)return;conn._chatT=performance.now();const x=chatClean(m.x);if(x)chatPost(conn.pname||'?',x,conn);return;}
   if(m.t==='join'){
     if(NET.conns.includes(conn))return;
     if(state.running&&!state.globalOver){send(conn,{t:'deny',r:'Une partie est déjà en cours dans ce salon. Réessaie à la fin de la partie.'});setTimeout(()=>conn.close(),800);return;}
@@ -4062,6 +4109,7 @@ function sendSnapshots(){
 function onClientData(m){
   NET.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
+  if(m.t==='chat'){chatAdd(cleanName(m.n||'?'),chatClean(m.x));return;}
   if(m.t==='lobby'){renderLobby((m.p||[]).map(cleanName),m.m,m.d,m.b!==0);return;}
   if(m.t==='deny'){leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg(m.r);return;}
   if(m.t==='init'){startClientGame(m);return;}
@@ -4171,14 +4219,52 @@ function chooseSlot(i){
 }
 
 // ================== ENTRÉES ==================
+// touches configurables : la touche physique est traduite vers la touche « par défaut » attendue par le jeu
+const BIND_DEF=[['avancer','KeyW','Avancer'],['reculer','KeyS','Reculer'],['gauche','KeyA','Aller à gauche'],['droite','KeyD','Aller à droite'],
+  ['sauter','Space','Sauter, escalader'],['sprint','ShiftLeft','Sprinter'],['accroupir','KeyX',"S'accroupir, glisser"],['recharger','KeyR','Recharger'],
+  ['interagir','KeyE','Ramasser, interagir, voiture'],['soin','KeyH','Se soigner'],['mur','KeyF','Construire un mur'],['sol','KeyC','Construire un sol'],
+  ['rampe','KeyV','Construire une rampe'],['materiau','KeyG','Changer de matériau'],['trampo','KeyT','Poser un trampoline'],['feu','KeyB','Poser un feu de camp'],
+  ['carte','KeyM','Grande carte'],['emote','KeyN','Emote'],['vue','KeyP','Vue 1re / 3e personne'],['chat','Enter','Ouvrir le chat'],['staff','KeyO','Menu staff']];
+let BINDS=(()=>{try{return JSON.parse(localStorage.getItem('ilotzero-touches')||'{}')||{};}catch(err){return {};}})();
+let canonMap=null;
+function bindCode(a){const d=BIND_DEF.find(x=>x[0]===a);return BINDS[a]&&BINDS[a].code||d[1];}
+function keyLabel(code,key){
+  const named={Space:'Espace',Enter:'Entrée',ShiftLeft:'Maj',ShiftRight:'Maj D',ControlLeft:'Ctrl',ControlRight:'Ctrl D',AltLeft:'Alt',AltRight:'Alt Gr',Tab:'Tab',Backspace:'Retour',CapsLock:'Verr Maj',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+  if(named[code])return named[code];if(key&&key.length===1&&key!==' ')return key.toUpperCase();return code.replace(/^Key|^Digit|^Numpad/,'');}
+function bindLabel(a){return BINDS[a]&&BINDS[a].label||keyLabel(bindCode(a));}
+function buildCanon(){canonMap={};const taken=new Set();for(const [a,def] of BIND_DEF){const c=bindCode(a);canonMap[c]=def;taken.add(c);}
+  for(const [a,def] of BIND_DEF)if(!taken.has(def))canonMap[def]=null; // touche par défaut réattribuée ailleurs : ignorée
+}
+function canonKey(code){if(!canonMap)buildCanon();if(code in canonMap)return canonMap[code];if(code==='ShiftRight'&&bindCode('sprint')==='ShiftLeft')return 'ShiftRight';return code;}
+function saveBinds(){try{localStorage.setItem('ilotzero-touches',JSON.stringify(BINDS));}catch(err){}canonMap=null;renderBinds();
+  document.querySelectorAll('kbd[data-bind]').forEach(k=>k.textContent=bindLabel(k.dataset.bind));}
+let bindWait=null;
+function renderBinds(){const box=$('bindList');if(!box)return;box.textContent='';
+  for(const [a,def,lab] of BIND_DEF){const r=document.createElement('div');r.className='brow';const sp=document.createElement('span');sp.textContent=lab;
+    const b=document.createElement('button');b.textContent=bindWait===a?'Appuie…':bindLabel(a);b.classList.toggle('wait',bindWait===a);
+    b.addEventListener('click',()=>{bindWait=bindWait===a?null:a;renderBinds();});r.append(sp,b);box.append(r);}}
 addEventListener('keydown',e=>{
-  keys[e.code]=true;
+  if(!bindWait)return;e.preventDefault();e.stopImmediatePropagation();
+  const a=bindWait;bindWait=null;
+  if(e.code!=='Escape'&&!/^Digit[1-5]$/.test(e.code)){
+    const other=BIND_DEF.find(([x])=>x!==a&&bindCode(x)===e.code);
+    if(other){const old=bindCode(a);BINDS[other[0]]={code:old,label:bindLabel(a)};}
+    BINDS[a]={code:e.code,label:keyLabel(e.code,e.key)};}
+  saveBinds();
+},true);
+$('bindReset').addEventListener('click',()=>{BINDS={};bindWait=null;saveBinds();});
+renderBinds();document.querySelectorAll('kbd[data-bind]').forEach(k=>k.textContent=bindLabel(k.dataset.bind));
+addEventListener('keydown',e=>{
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA'))return;
+  const code=canonKey(e.code);if(code===null)return;
+  if(code==='Enter'&&state.running&&!state.over&&player&&NET.role!=='solo'){e.preventDefault();chatOpen();return;}
+  keys[code]=true;
   if(!state.running||state.paused||state.over||!player.alive)return;
-  if(['Space','Tab','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();
+  if(['Space','Tab','ArrowUp','ArrowDown'].includes(code))e.preventDefault();
   if(e.repeat)return;
   const p=player;
   if(p.downed)return;
-  switch(e.code){
+  switch(code){
     case 'Digit1':chooseSlot(0);break;case 'Digit2':chooseSlot(1);break;case 'Digit3':chooseSlot(2);break;case 'Digit4':chooseSlot(3);break;
     case 'KeyN':if(p.car||!p.onGround)break;p.emote=(p.emote||0)%3+1;buildType=null;showBanner(EMOTEN[p.emote],'N : suivante · bouge pour arrêter',1.4);break;
     case 'KeyM':toggleBigMap(!bigMapOn);break;
@@ -4193,11 +4279,11 @@ addEventListener('keydown',e=>{
     case 'KeyC':buildType=buildType==='floor'?null:'floor';cancelHeal(p);p.reloading=false;break;
     case 'KeyV':buildType=buildType==='ramp'?null:'ramp';cancelHeal(p);p.reloading=false;break;
     case 'KeyG':buildMatSel=MAT_KEYS[(MAT_KEYS.indexOf(buildMatSel)+1)%3];break;
-    case 'KeyT':case 'KeyB':{const k=e.code==='KeyT'?'tramp':'camp';buildType=null;if(NET.role==='client')sendHost({t:'pp',k});else placeProp(p,k);break;}
+    case 'KeyT':case 'KeyB':{const k=code==='KeyT'?'tramp':'camp';buildType=null;if(NET.role==='client')sendHost({t:'pp',k});else placeProp(p,k);break;}
     case 'KeyH':case 'Digit5':buildType=null;if(NET.role==='client')sendHost({t:'hl'});else startHeal(p);break;
   }
 });
-addEventListener('keyup',e=>{keys[e.code]=false;});
+addEventListener('keyup',e=>{const c=canonKey(e.code);if(c)keys[c]=false;keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouseL=mouseR=false;});
 canvas.addEventListener('mousedown',e=>{
   if(!state.running||state.over)return;
@@ -4541,6 +4627,9 @@ async function accPull(){
   renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();renderGate();accHeartbeat();accRefresh(true);
 }
 // échec à la connexion (compte supprimé, réseau…) : on revient proprement à l'écran de connexion
+// n'affiche que la réponse de la requête la plus récente pour chaque liste (évite qu'une ancienne réponse écrase la nouvelle)
+const LSEQ={};
+async function latestRpc(fn,args){const my=LSEQ[fn]=(LSEQ[fn]||0)+1;const r=await ACC.sb.rpc(fn,args);return {data:r.data,error:r.error,stale:my!==LSEQ[fn]};}
 // cache local des listes (par compte) pour un affichage instantané
 const LC={k(){return 'ilotzero-cache-'+(ACC.user&&ACC.user.id||'x');},get(){try{return JSON.parse(localStorage.getItem(this.k())||'{}');}catch(err){return {};}},
   set(o){try{localStorage.setItem(this.k(),JSON.stringify(Object.assign(this.get(),o)));}catch(err){}}};
@@ -4549,7 +4638,8 @@ let accRefreshT=0;
 async function accRefresh(all){
   if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;accRefreshT=Date.now();
   const jobs=[friendsLoad(),invitesLoad()];
-  if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),codesLoad());
+  jobs.push(grantsLoad());
+  if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),codesLoad(),playersLoad());
   await Promise.all(jobs);
 }
 async function accFail(msg){try{await ACC.sb.auth.signOut({scope:'local'});}catch(err){}ACC.user=null;ACC.ready=false;ACC.state=msg;renderAccount();renderGate();}
@@ -4596,7 +4686,7 @@ function renderAccount(){
   if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
     setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
-  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';
+  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';$('accountsPane').hidden=ACC.role!=='staff';$('managePane').hidden=ACC.role!=='staff';
   $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
   if(u&&ACC.ready&&hubTab==='compte'&&Date.now()-accRefreshT>8000)accRefresh(true);
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
@@ -4605,7 +4695,7 @@ function renderAccount(){
 const errFr=e=>e&&e.message?e.message:'erreur inconnue';
 async function staffAdminLoad(cached){
   if(!ACC.sb||ACC.role!=='staff')return;
-  const {data,error}=cached?{data:cached}:await ACC.sb.rpc('staff_list');ACC.staffListT=0;if(!error)LC.set({st:data});
+  const {data,error,stale}=cached?{data:cached}:await latestRpc('staff_list');if(stale)return;ACC.staffListT=0;if(!error)LC.set({st:data});
   const ul=$('saList');ul.textContent='';
   if(error){setText($('saMsg'),'Impossible de charger la liste : '+errFr(error));$('saMsg').classList.add('err');return;}
   const me=(ACC.user&&ACC.user.email||'').toLowerCase();
@@ -4685,7 +4775,7 @@ function friendsBadge(){const n=frData.filter(f=>f.status==='recue').length,b=do
   let s=b.querySelector('.badge');if(n&&!s){s=document.createElement('span');s.className='badge';b.append(s);}if(s){if(n)s.textContent=n;else s.remove();}}
 async function friendsLoad(cached){
   if(!ACC.sb||!ACC.user||(!cached&&(!ACC.ready||ACC.ban)))return;
-  const {data,error}=cached?{data:cached}:await ACC.sb.rpc('friends_list');if(error)return;frData=data||[];friendsBadge();if(!cached)LC.set({fr:frData});lobbyFriendsRender();
+  const {data,error,stale}=cached?{data:cached}:await latestRpc('friends_list');if(stale)return;if(error)return;frData=data||[];friendsBadge();if(!cached)LC.set({fr:frData});lobbyFriendsRender();
   const ul=$('frList');ul.textContent='';
   const lab={recue:'Demande reçue',envoyee:'Demande envoyée'};
   if(!frData.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun ami pour l\'instant. Ajoute quelqu\'un avec son pseudo.</small></div>';ul.append(li);}
@@ -4714,6 +4804,32 @@ async function friendAdd(){
 }
 $('frAdd').addEventListener('click',friendAdd);$('frIn').addEventListener('keydown',e=>{if(e.key==='Enter')friendAdd();});
 
+// ----- chat (salon et partie, passe par l'hôte) -----
+const chatMsgs=[];let chatLastSend=0;
+function chatClean(x){return String(x||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,120);}
+function chatAdd(n,x,sys){if(!x)return;chatMsgs.push({n,x,sys:!!sys,t:performance.now()});if(chatMsgs.length>60)chatMsgs.shift();chatRender();if(!sys&&n!==NET.name)beep(1180,.04,.04,'sine');}
+function chatPost(n,x,from){chatAdd(n,x);if(NET.role==='host')for(const c of NET.conns)if(c!==from)send(c,{t:'chat',n,x});}
+function chatSend(txt){
+  const x=chatClean(txt);if(!x||NET.role==='solo')return false;
+  if(performance.now()-chatLastSend<700){chatAdd('','Doucement : un message toutes les secondes.',true);return false;}
+  chatLastSend=performance.now();
+  if(NET.role==='host')chatPost(NET.name,x);else{sendHost({t:'chat',x});chatAdd(NET.name,x);}
+  return true;
+}
+function chatLine(m){const d=document.createElement('div');if(m.sys){d.className='sys';d.textContent=m.x;}else{const b=document.createElement('b');b.textContent=m.n;d.append(b,document.createTextNode(m.x));}return d;}
+function chatRender(){
+  const lb=$('lbChatLog');if(lb){lb.textContent='';for(const m of chatMsgs)lb.append(chatLine(m));lb.scrollTop=lb.scrollHeight;}
+  const g=$('chatLog');if(g){g.textContent='';const open=!$('chatIn').hidden,now=performance.now();
+    for(const m of chatMsgs.slice(open?-10:-6)){const age=(now-m.t)/1000;if(!open&&age>10)continue;const d=chatLine(m);if(!open&&age>8)d.style.opacity=String(Math.max(0,(10-age)/2));g.append(d);}}
+}
+setInterval(()=>{if(state.running&&chatMsgs.length)chatRender();},1000);
+function chatOpen(){const i=$('chatIn');for(const k in keys)keys[k]=false;mouseL=mouseR=false;i.hidden=false;i.value='';i.focus();chatRender();}
+function chatClose(){const i=$('chatIn');i.blur();i.hidden=true;chatRender();}
+$('chatIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){chatSend(e.target.value);chatClose();}else if(e.key==='Escape')chatClose();});
+$('chatIn').addEventListener('blur',()=>{if(!$('chatIn').hidden)setTimeout(chatClose,50);});
+$('lbChatSend').addEventListener('click',()=>{if(chatSend($('lbChatIn').value))$('lbChatIn').value='';});
+$('lbChatIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&chatSend(e.target.value))e.target.value='';});
+
 // ----- invitations reçues : carte en haut à droite du menu -----
 let invData=[];const invSeen=new Set();
 async function invitesLoad(){
@@ -4721,11 +4837,11 @@ async function invitesLoad(){
   const {data,error}=await ACC.sb.rpc('my_invites');if(error)return;invData=data||[];invitesRender();
 }
 function invitesRender(){
-  const box=$('invites');box.textContent='';
+  const box=$('invites');box.querySelectorAll('.invc').forEach(x=>x.remove());
   if(state.running||!$('lobby').hidden&&NET.role==='client')return;
   for(const v of invData.slice(0,3)){
     const key=v.from_pseudo+v.lobby_code+v.created_at;if(!invSeen.has(key)){invSeen.add(key);beep(760,.12,.08,'triangle');}
-    const c=document.createElement('div');c.className='inv';
+    const c=document.createElement('div');c.className='inv invc';
     const p=document.createElement('div');p.append(Object.assign(document.createElement('b'),{textContent:v.from_pseudo}),document.createTextNode(" t'invite dans son salon."));
     const row=document.createElement('div');row.className='row';
     const go=document.createElement('button');go.className='go';go.textContent='Rejoindre';
@@ -4750,26 +4866,72 @@ async function giftRedeem(){
 $('gcOk').addEventListener('click',giftRedeem);$('gcIn').addEventListener('keydown',e=>{if(e.key==='Enter')giftRedeem();});
 
 // ----- modération (staff) -----
+function fmtDur(ms){const m=Math.max(1,Math.round(ms/60000));if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;if(h<48)return h+' h'+(r?' '+r+' min':'');const d=Math.floor(h/24),hh=h%24;return d+' j'+(hh?' '+hh+' h':'');}
+function fmtAgo(d){if(!d)return 'jamais connecté';const s=(Date.now()-new Date(d))/1000;if(s<120)return 'en ligne';if(s<3600)return 'vu il y a '+Math.round(s/60)+' min';if(s<172800)return 'vu il y a '+Math.round(s/3600)+' h';return 'vu il y a '+Math.round(s/86400)+' j';}
+// ----- comptes des joueurs (staff) -----
+let apT=0;
+async function playersLoad(){
+  if(ACC.role!=='staff'||!ACC.sb)return;const {data,error,stale}=await latestRpc('staff_players',{search:$('apSearch').value.trim()});if(stale)return;
+  const ul=$('apList');if(error){setText($('apSum'),'Impossible : '+errFr(error));return;}ul.textContent='';
+  const on=data.filter(x=>x.online).length;setText($('apSum'),on+' en ligne · '+data.length+' compte'+(data.length>1?'s':'')+($('apSearch').value.trim()?' trouvés':''));
+  for(const x of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small'),btns=document.createElement('div');btns.className='btns';
+    const dot=document.createElement('span');dot.className='dot'+(x.online?' on':'');t.append(dot,document.createTextNode(x.pseudo));
+    if(x.role==='staff')t.append(Object.assign(document.createElement('span'),{className:'rtag staff',textContent:'Staff'}));
+    if(x.banned)t.append(Object.assign(document.createElement('span'),{className:'rtag ban',textContent:'Banni'}));
+    sm.textContent=(x.banned?(x.banned_until?'banni encore '+fmtDur(new Date(x.banned_until)-Date.now()):'banni définitivement')+' · ':'')+fmtAgo(x.last_seen)+' · niveau '+levelOf(x.xp)+' · '+fmtN(x.coins)+' coquillages';
+    d.append(t,sm);li.append(d,btns);
+    const btn=(lab,fn)=>{const b=document.createElement('button');b.textContent=lab;b.addEventListener('click',fn);btns.append(b);};
+    btn('Gérer',()=>{$('mgPseudo').value=x.pseudo;$('mgCoins').value=x.coins;$('mgXp').value=x.xp;$('managePane').scrollIntoView({behavior:'smooth',block:'nearest'});setText($('mgMsg'),'');});
+    if(x.role!=='staff'){if(x.banned)btn('Débannir',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:x.pseudo});modMsg(e?'Impossible : '+errFr(e):x.pseudo+' est débanni.',!e);playersLoad();modLoad();});
+      else btn('Bannir',()=>{$('mdPseudo').value=x.pseudo;$('modPane').scrollIntoView({behavior:'smooth',block:'nearest'});$('mdWhy').focus();});}
+    ul.append(li);}
+}
+$('apSearch').addEventListener('input',()=>{clearTimeout(apT);apT=setTimeout(playersLoad,350);});
+document.querySelectorAll('#managePane [data-g]').forEach(b=>b.addEventListener('click',async()=>{
+  const p=$('mgPseudo').value.trim(),m=$('mgMsg');m.className='acsync';const g=b.dataset.g,isC=g.startsWith('coins'),v=Math.round(+$(isC?'mgCoins':'mgXp').value);
+  if(!p){m.classList.add('err');setText(m,'Entre le pseudo du joueur.');return;}
+  if(!(v>=0)||v>100000000){m.classList.add('err');setText(m,'Entre un nombre entre 0 et 100 000 000.');return;}
+  const kind=g.endsWith('_sub')?g.replace('_sub','_add'):g,amount=g.endsWith('_sub')?-v:v;
+  const {error}=await ACC.sb.rpc('staff_grant',{target_pseudo:p,p_kind:kind,p_amount:amount});
+  if(error){m.classList.add('err');setText(m,'Impossible : '+errFr(error));return;}
+  m.classList.add('ok');setText(m,{coins_add:'+'+fmtN(v)+' coquillages envoyés à ',coins_sub:'−'+fmtN(v)+' coquillages pour ',coins_set:'Coquillages réglés à '+fmtN(v)+' pour ',xp_add:'+'+fmtN(v)+' XP envoyés à ',xp_sub:'−'+fmtN(v)+' XP pour ',xp_set:'XP réglée à '+fmtN(v)+' pour '}[g]+p+'.');
+}));
+// ----- dons du staff reçus par le joueur : réclamés un par un (une seule fois), puis appliqués -----
+let grantsBusy=false;
+async function grantsLoad(){
+  if(grantsBusy||!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;grantsBusy=true;
+  try{const {data}=await ACC.sb.rpc('my_grants');
+    for(const g of data||[]){const {data:ok}=await ACC.sb.rpc('grant_claim',{grant_id:g.id});if(!ok)continue;
+      const k=g.kind.startsWith('coins')?'coins':'xp',before=prof[k];
+      prof[k]=Math.max(0,g.kind.endsWith('_set')?g.amount:prof[k]+g.amount);if(k==='xp')claimRewards();
+      const d=prof[k]-before;toast((g.by_pseudo?g.by_pseudo+' (staff)':'Le staff')+' : '+(g.kind.endsWith('_set')?(k==='coins'?'coquillages réglés à ':'XP réglée à ')+fmtN(prof[k]):(d>=0?'+':'−')+fmtN(Math.abs(d))+(k==='coins'?' coquillages':' XP')));}
+    if(data&&data.length){saveProf();renderProfile();}
+  }finally{grantsBusy=false;}
+}
+function toast(txt){const box=$('invites'),c=document.createElement('div');c.className='inv';c.textContent=txt;box.prepend(c);beep(880,.12,.08,'triangle');setTimeout(()=>c.remove(),7000);}
 const fmtDate=d=>new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 async function modLoad(cached){
-  if(ACC.role!=='staff')return;const {data,error}=cached?{data:cached}:await ACC.sb.rpc('mod_bans_list');if(!error&&!cached)LC.set({bans:data});const ul=$('mdList');ul.textContent='';if(error)return;
+  if(ACC.role!=='staff')return;const {data,error,stale}=cached?{data:cached}:await latestRpc('mod_bans_list');if(stale)return;if(!error&&!cached)LC.set({bans:data});const ul=$('mdList');ul.textContent='';if(error)return;
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun joueur banni.</small></div>';ul.append(li);}
   for(const b of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
-    t.textContent=b.pseudo;sm.textContent=(b.until?'Jusqu\'au '+fmtDate(b.until):'Définitif')+(b.reason?' · '+b.reason:'')+(b.banned_by?' · par '+b.banned_by:'');d.append(t,sm);
+    t.textContent=b.pseudo;sm.textContent=(b.until?'Encore '+fmtDur(new Date(b.until)-Date.now())+' (jusqu\'au '+fmtDate(b.until)+')':'Définitif')+(b.reason?' · '+b.reason:'')+(b.banned_by?' · par '+b.banned_by:'');d.append(t,sm);
     const x=document.createElement('button');x.textContent='Débannir';x.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:b.pseudo});modMsg(e?'Impossible : '+errFr(e):b.pseudo+' est débanni.',!e);modLoad();});
     li.append(d,x);ul.append(li);}
 }
 function modMsg(t,ok){const m=$('mdMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
 $('mdBan').addEventListener('click',async()=>{
   const p=$('mdPseudo').value.trim();if(!p){modMsg('Entre le pseudo du joueur.',false);return;}
-  const h=$('mdDur').value;const {error}=await ACC.sb.rpc('mod_ban',{target_pseudo:p,hours:h?+h:null,why:$('mdWhy').value.trim()});
+  const unit=+$('mdUnit').value,n=Math.round(+$('mdNum').value);
+  if(unit&&!(n>=1)){modMsg('Entre une durée (nombre supérieur à 0).',false);return;}
+  const mins=unit?Math.min(5256000,n*unit):null;
+  const {error}=await ACC.sb.rpc('mod_ban_minutes',{target_pseudo:p,minutes:mins,why:$('mdWhy').value.trim()});
   if(error){modMsg('Impossible : '+errFr(error),false);return;}
-  modMsg(p+' est banni.',true);$('mdPseudo').value='';$('mdWhy').value='';modLoad();
+  modMsg(p+' est banni'+(mins?' pour '+fmtDur(mins*60000)+'.':' définitivement.'),true);$('mdPseudo').value='';$('mdWhy').value='';modLoad();playersLoad();
 });
 
 // ----- codes cadeaux (staff) -----
 async function codesLoad(cached){
-  if(ACC.role!=='staff')return;const {data,error}=cached?{data:cached}:await ACC.sb.rpc('codes_list');if(!error&&!cached)LC.set({codes:data});const ul=$('ccList');ul.textContent='';if(error)return;
+  if(ACC.role!=='staff')return;const {data,error,stale}=cached?{data:cached}:await latestRpc('codes_list');if(stale)return;if(!error&&!cached)LC.set({codes:data});const ul=$('ccList');ul.textContent='';if(error)return;
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun code pour l\'instant.</small></div>';ul.append(li);}
   for(const c of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
     const exp=c.expires_at&&new Date(c.expires_at)<=new Date();
