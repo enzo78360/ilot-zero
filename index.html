@@ -598,7 +598,7 @@ camera.rotation.order='YXZ';
 scene.add(camera);
 
 const hemi=new THREE.HemisphereLight(lin(0xcfe2ff),lin(0x5a6b3a),.55);scene.add(hemi);
-const sun=new THREE.DirectionalLight(lin(0xfff0dc),3.1);
+const sun=new THREE.DirectionalLight(lin(0xfff0dc),3.1);sun.shadow.camera.layers.enable(1);
 const sunDir=new THREE.Vector3().setFromSphericalCoords(1,THREE.MathUtils.degToRad(90-34),THREE.MathUtils.degToRad(140));
 sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
@@ -2697,8 +2697,11 @@ function commonUpdate(e,dt){
   }
   poseChar(e,dt);
 }
+// vue 1re personne : le corps du joueur local passe sur le calque 1 (invisible pour la caméra, mais projette son ombre)
+function selfLayer(e,m){const L=e===player&&e.alive&&!state.spectate?1:0;m._ly=L;m.group.traverse(o=>{if(o.isMesh&&!o.userData.part)o.layers.set(L);});}
 function poseChar(e,dt){
   const m=e.model,R=(o,x,y,z)=>o.rotation.set(x,y||0,z||0);
+  if(e===player||m._ly)selfLayer(e,m);
   if(m.glb){poseGLB(e,m,dt);return;}
   m.group.position.copy(e.pos);m.group.rotation.set(0,e.yaw,0);
   m.hips.position.y=.96;m.glider.visible=false;
