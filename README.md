@@ -31,6 +31,7 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 - **Largages de ravitaillement** : toutes les 80 s environ, une caisse descend en parachute dans la zone, avec une fumée rouge et un losange orange sur la carte. Elle contient une arme légendaire et du matériel rare.
 - **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
 - **Ambiances** : chaque partie se joue de jour, au matin dans la brume ou au coucher du soleil, avec vent, vagues près des côtes et chants d'oiseaux.
+- **Île agrandie** (×1,5) : 11 lieux dont la grande **Cité Zéro**, avec des **immeubles à étage** (escalier intérieur et toit-terrasse), des **stations-service** et des **entrepôts**.
 - **Voitures** : 9 voitures sont garées près des lieux-dits. Monte avec `E`, la caméra passe à la troisième personne. Elles écrasent les adversaires, cassent les constructions et explosent sous les tirs.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
