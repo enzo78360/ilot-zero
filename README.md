@@ -10,6 +10,19 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 - **Contre les bots** : tout seul, les bots complètent les 20 places.
 - **Avec des amis** : un joueur clique sur « Créer un salon » et donne le code à 4 caractères. Les autres l'entrent dans « Rejoindre ». Jusqu'à 8 joueurs, les bots complètent jusqu'à 20. En duo ou en escouade, les amis sont placés dans la même équipe.
 
+## Progression
+
+- **Niveaux** : chaque partie rapporte de l'XP (éliminations, mises à terre, réanimations, rappels, récolte, temps de survie, classement). 1 000 XP par niveau.
+- **Passe de combat** : 50 paliers. Chaque palier donne 100 coquillages, ou une tenue ou un revêtement exclusif (paliers 5, 10, 20, 25, 30, 40, 45, 50).
+- **Boutique** : les coquillages servent à acheter des tenues de personnage et des revêtements d'armes. Le **casier** sert à équiper ce que tu possèdes. Tes amis voient ta tenue en multijoueur.
+- La progression est enregistrée dans le navigateur (stockage local). Changer de navigateur ou vider ses données repart de zéro.
+
+## En partie
+
+- **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
+- **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
+- **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
+
 ## Commandes
 
 | Touche | Action |
@@ -18,9 +31,11 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 | Maj / Espace | Sprinter / sauter |
 | Clic gauche / clic droit | Tirer / viser |
 | 1 à 4, molette | Pioche et armes |
-| E | Ramasser, maintenir pour réanimer |
+| E | Ramasser, maintenir pour réanimer ou rappeler |
 | R | Recharger |
 | F / C / V | Construire mur / sol / rampe |
+| G (ou clic droit en construction) | Changer de matériau |
+| T / B | Poser un trampoline / un feu de camp |
 | H | Se soigner |
 
 ## Comment marche le multijoueur
