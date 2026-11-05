@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 5 novembre 2026.
+Mise à jour du 6 novembre 2026.
 
 ## Liens utiles
 
@@ -49,6 +49,10 @@ Mise à jour du 5 novembre 2026.
 - **Codes cadeaux** : coquillages ou XP, une fois par compte.
 - **Touches configurables** (Paramètres, section Touches) : clique sur une action puis appuie sur la nouvelle touche ; une touche déjà prise est échangée ; bouton « Touches par défaut ». Les aides à l'écran affichent tes touches.
 - **Chat textuel** : dans le salon (bloc « Chat du salon ») et en partie (touche Entrée, Échap pour fermer). 120 caractères maximum, un message par seconde. Il passe par l'hôte, entre les joueurs du salon.
+- **Jeu plus fluide** : rendu environ 4 fois plus rapide (arbres et petits objets affichés selon la distance et le champ de vision, résolution plafonnée selon la qualité choisie).
+- **6 nouvelles armes modélisées dans Blender** : lance-roquettes (explosion de zone, détruit les constructions), arbalète silencieuse, mitrailleuse légère, fusil à double canon, mitraillette lourde, fusil à pompe automatique. Nouvelle catégorie « Armes lourdes » dans l'armurerie.
+- **Viseurs refaits** : nouveaux modèles 3D (point rouge, holographique, lunettes ×2, ×4, ×8), nouveaux réticules lumineux et lunettes plein écran redessinées.
+- **Boutique agrandie** : 51 objets, dont 20 nouvelles tenues et 20 nouveaux revêtements d'armes à motifs.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
 ## Guide du staff

@@ -43,7 +43,7 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 
 - **Niveaux** : chaque partie rapporte de l'XP (éliminations, mises à terre, réanimations, rappels, récolte, temps de survie, classement). 1 000 XP par niveau.
 - **Passe de combat** : 50 paliers. Chaque palier donne 100 coquillages, ou une tenue ou un revêtement exclusif (paliers 5, 10, 20, 25, 30, 40, 45, 50).
-- **Boutique** : les coquillages servent à acheter des tenues de personnage et des revêtements d'armes. Le **casier** sert à équiper ce que tu possèdes. Tes amis voient ta tenue en multijoueur.
+- **Boutique** : 51 objets. Les coquillages servent à acheter des tenues de personnage et des revêtements d'armes à motifs. Le **casier** sert à équiper ce que tu possèdes. Tes amis voient ta tenue en multijoueur.
 - La progression est enregistrée sur ton compte (voir plus haut) et aussi dans le navigateur.
 
 ## En partie
@@ -51,7 +51,7 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 - **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
-- **10 armes en 5 catégories** : fusil d'assaut et carabine, mitraillette et mitraillette compacte, fusil à pompe et fusil tactique, fusil de précision et fusil de tireur d'élite, pistolet et revolver.
+- **16 armes en 6 catégories** : fusil d'assaut et carabine ; mitraillette, mitraillette compacte et mitraillette lourde ; fusil à pompe, fusil tactique, fusil à double canon et fusil à pompe automatique ; fusil de précision, fusil de tireur d'élite et arbalète silencieuse ; **armes lourdes** (mitrailleuse légère de 80 balles, lance-roquettes à explosion de zone qui détruit les constructions) ; pistolet et revolver.
 - **Armurerie** : choisis une catégorie, une arme, puis les accessoires de chaque emplacement (viseur point rouge, holographique, lunettes ×2, ×4 et ×8, silencieux, compensateur, frein de bouche, choke, poignées, chargeurs étendus ou rapides). Ils modifient les statistiques et apparaissent sur l'arme. La visée se fait réellement dans le viseur. Certains se débloquent en montant de niveau.
 - **Largages de ravitaillement** : toutes les 80 s environ, une caisse descend en parachute dans la zone, avec une fumée rouge et un losange orange sur la carte. Elle contient une arme légendaire et du matériel rare.
 - **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
