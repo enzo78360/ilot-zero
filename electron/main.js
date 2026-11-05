@@ -4,6 +4,33 @@
 const { app, BrowserWindow, protocol, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+
+// Connexion Google : Google refuse les fenêtres intégrées, on passe donc par le navigateur du système,
+// qui revient sur ce petit serveur local (adresse autorisée dans Supabase) avec les jetons dans l'URL.
+const LOOPBACK_PORT = 53682;
+let mainWin = null;
+function startLoopback() {
+  const page = (body) => `<!doctype html><meta charset="utf-8"><title>Îlot Zéro</title><body style="font:18px system-ui;background:#0b1a20;color:#f2efe6;display:grid;place-items:center;height:100vh;margin:0">${body}</body>`;
+  const srv = http.createServer((req, res) => {
+    const u = new URL(req.url, 'http://127.0.0.1');
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+    if (u.pathname === '/fin') {
+      const h = u.searchParams.get('h') || '';
+      if (mainWin) {
+        mainWin.webContents.executeJavaScript(`window.__ilotOAuth && window.__ilotOAuth(${JSON.stringify(h)})`).catch(() => {});
+        if (mainWin.isMinimized()) mainWin.restore();
+        mainWin.focus();
+      }
+      res.end(page(h.includes('access_token') ? '<p>Connexion réussie. Tu peux fermer cet onglet et revenir au jeu.</p>' : '<p>Connexion annulée. Tu peux fermer cet onglet.</p>'));
+      return;
+    }
+    // les jetons sont dans le fragment (#…), invisible pour le serveur : la page les renvoie en paramètre
+    res.end(page('<p>Connexion…</p><script>location.replace("/fin?h="+encodeURIComponent(location.hash))</script>'));
+  });
+  srv.on('error', () => {});
+  srv.listen(LOOPBACK_PORT, '127.0.0.1');
+}
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.glb': 'model/gltf-binary', '.wasm': 'application/wasm', '.css': 'text/css; charset=utf-8' };
@@ -18,7 +45,7 @@ protocol.registerSchemesAsPrivileged([
 const ROOT = path.join(__dirname, '..');
 
 function createWindow() {
-  const win = new BrowserWindow({
+  const win = mainWin = new BrowserWindow({
     width: 1600, height: 900, minWidth: 960, minHeight: 540,
     backgroundColor: '#0b1a20', title: 'Îlot Zéro', autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false },
@@ -50,6 +77,7 @@ app.whenReady().then(() => {
     } catch (err) { return new Response('Introuvable', { status: 404 }); }
   });
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
+  startLoopback();
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });

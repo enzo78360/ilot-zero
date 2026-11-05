@@ -248,6 +248,7 @@ button:disabled{opacity:.5;cursor:default}
 .hubtabs button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;padding:12px 9px;font-size:13px;letter-spacing:.06em;white-space:nowrap;color:var(--muted)}
 .hubtabs button:hover{background:rgba(255,255,255,.06);color:var(--fg)}
 .hubtabs button.sel{border-bottom-color:var(--accent);color:var(--fg)}
+@media (max-width:1320px){.hubtabs button{padding:12px 6px;font-size:12px;letter-spacing:.03em}.hubbar{gap:12px}.hubbar .prof{min-width:236px}}
 .hubbar .prof{margin:0;padding:6px 10px;min-width:280px}
 .hubmain{flex:1;display:flex;gap:18px;min-height:0;padding-block:18px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
 .hubleft{flex:1;min-width:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:2px}
@@ -262,6 +263,12 @@ button:disabled{opacity:.5;cursor:default}
 .setgrid section{display:flex;flex-direction:column;gap:4px}
 .srow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:15px}
 .srow span{min-width:0}
+.acctgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-content:start}
+.acuser{display:flex;align-items:center;gap:12px}.acuser img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.08)}
+.acuser div{display:flex;flex-direction:column;min-width:0;flex:1}.acuser small{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.acrole{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.08)}
+.acrole.staff{background:var(--accent);color:#1b0f08}
+.acsync{margin:0;font-size:14px;color:var(--muted)}.acsync.err{color:#ff8a8a}
 .srow output{font-family:var(--display);min-width:58px;text-align:right;color:var(--accent)}
 .srow input[type=range]{width:170px;accent-color:var(--accent)}
 .srow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);justify-self:end;grid-column:2/4}
@@ -345,6 +352,7 @@ button:disabled{opacity:.5;cursor:default}
       <button data-tab="armurerie">Armurerie</button>
       <button data-tab="boutique">Boutique</button>
       <button data-tab="passe">Passe de combat</button>
+      <button data-tab="compte">Compte</button>
       <button data-tab="param">Paramètres</button>
     </nav>
     <div class="prof panel">
@@ -401,6 +409,25 @@ button:disabled{opacity:.5;cursor:default}
           <div class="gsslots" id="gsSlots"></div>
         </div>
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
+      </div>
+    </div></section>
+    <section class="hubleft" id="tabCompte" hidden><div class="acctgrid">
+      <div class="pane panel">
+        <h3>Compte</h3>
+        <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
+        <div class="acuser" id="acUser" hidden><img id="acPic" alt="" referrerpolicy="no-referrer"><div><b id="acName"></b><small id="acMail"></small></div><span class="acrole" id="acRole"></span></div>
+        <p class="acsync" id="acSync"></p>
+        <button class="go" id="acLogin">Se connecter avec Google</button>
+        <button class="wide" id="acLogout" hidden>Se déconnecter</button>
+      </div>
+      <div class="pane panel" id="staffPane" hidden>
+        <h3>Espace staff</h3>
+        <p class="tag">Pouvoirs réservés aux comptes staff. En partie, ils marchent en solo et quand tu héberges le salon.</p>
+        <label class="srow"><span>Coquillages illimités</span><input type="checkbox" id="stCoins"></label>
+        <label class="srow"><span>Vie illimitée</span><input type="checkbox" id="stGod"></label>
+        <label class="srow"><span>Munitions illimitées</span><input type="checkbox" id="stAmmo"></label>
+        <label class="srow"><span>Matériaux illimités</span><input type="checkbox" id="stMats"></label>
+        <button class="wide" id="stXp">XP illimitée : débloquer tout le passe de combat</button>
       </div>
     </div></section>
     <section class="hubleft" id="tabParam" hidden><div id="paramHome">
@@ -515,6 +542,7 @@ button:disabled{opacity:.5;cursor:default}
 <script src="vendor/GLTFLoader.js"></script>
 <script src="vendor/DRACOLoader.js"></script>
 <script src="vendor/SkeletonUtils.js"></script>
+<script src="vendor/supabase.js"></script>
 <script>
 (function(){
 'use strict';
@@ -611,6 +639,13 @@ const v3=a=>new THREE.Vector3(a[0],a[1],a[2]);
 function hexCss(h){return '#'+(h>>>0).toString(16).padStart(6,'0');}
 function fmtN(n){return Math.round(n).toLocaleString('fr-FR');}
 function defaultProf(){return {xp:0,coins:500,skins:['base'],wraps:['base'],skin:'base',wrap:'base',claimed:1};}
+function cleanProf(p){
+  if(!p||typeof p.xp!=='number')return null;const d=Object.assign(defaultProf(),p);
+  d.xp=Math.max(0,d.xp|0);d.coins=Math.max(0,d.coins|0);d.skins=Array.isArray(d.skins)?d.skins:['base'];d.wraps=Array.isArray(d.wraps)?d.wraps:['base'];
+  d.skins=d.skins.filter(k=>SKINS[k]);d.wraps=d.wraps.filter(k=>WRAPS[k]);
+  if(!d.skins.includes('base'))d.skins.unshift('base');if(!d.wraps.includes('base'))d.wraps.unshift('base');
+  if(!d.skins.includes(d.skin))d.skin='base';if(!d.wraps.includes(d.wrap))d.wrap='base';return d;
+}
 function loadProf(){
   try{const p=JSON.parse(localStorage.getItem('ilotzero-profil')||'null');
     if(p&&typeof p.xp==='number'){const d=Object.assign(defaultProf(),p);
@@ -620,7 +655,7 @@ function loadProf(){
   return defaultProf();
 }
 let prof=loadProf();
-function saveProf(){try{localStorage.setItem('ilotzero-profil',JSON.stringify(prof));}catch(err){}}
+function saveProf(){try{localStorage.setItem('ilotzero-profil',JSON.stringify(prof));}catch(err){}try{accPushSoon();}catch(err){}}
 function levelOf(xp){return Math.floor(xp/XP_LVL)+1;}
 function claimRewards(){
   const lv=levelOf(prof.xp),got=[];
@@ -2500,6 +2535,7 @@ function melee(e,dir){
 }
 function damage(t,amount,src,head,wtype,pt){
   if(!t.alive)return;
+  if(t.isPlayer&&staffOn('god'))return;
   if(src&&src!==t&&src.team===t.team)return;
   amount=Math.round(amount);
   if(src&&src.isPlayer){chal('degats',amount);
@@ -3260,6 +3296,8 @@ function tryVault(p){
 function updatePlayer(dt){
   const p=player;
   if(!p.alive){$('prompt').hidden=true;ghost.visible=false;engineSound(false,0);return;}
+  if(staffOn('mats'))for(const k of MAT_KEYS)p.mats[k]=999;
+  if(staffOn('ammo'))for(let i=1;i<4;i++){const sw=p.slots[i];if(sw){sw.reserve=Math.max(sw.reserve,999);if(i===p.cur&&!p.reloading)sw.ammo=WS(p,sw.type).mag;}}
   if(p.car){updatePlayerCar(dt);return;}
   if(p.emote&&(keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD||keys.Space||mouseL||mouseR||p.downed||!p.onGround))p.emote=0;
   $('prompt').classList.remove('drive');
@@ -4060,6 +4098,7 @@ let fpsN=0,fpsT=0;
 
 // ================== BOUTIQUE ==================
 function renderProfile(){
+  if(staffOn('coins')&&prof.coins<999999){prof.coins=999999;saveProf();}
   const lv=levelOf(prof.xp),inLv=prof.xp%XP_LVL;
   setText($('pLvl'),String(lv));$('pXpBar').style.width=(inLv/XP_LVL*100)+'%';
   setText($('pXpTxt'),`${fmtN(inLv)} / ${fmtN(XP_LVL)} XP`+(lv<PASS_TIERS?` · palier ${lv+1} du passe`:''));
@@ -4075,9 +4114,10 @@ let storeTab='shop',storeSel=null;
 let hubTab='salon';
 function setHubTab(t){
   hubTab=t;document.querySelectorAll('#hubTabs button').forEach(b=>b.classList.toggle('sel',b.dataset.tab===t));
-  $('tabSalon').hidden=t!=='salon';$('tabArmory').hidden=t!=='armurerie';$('tabStore').hidden=!['inventaire','boutique','passe'].includes(t);$('tabParam').hidden=t!=='param';$('pvPane').hidden=t==='param'||t==='armurerie';if(t!=='armurerie'&&$('pv').parentNode!==$('pvPane'))$('pvPane').insertBefore($('pv'),$('pvName'));
-  storeTab={inventaire:'locker',boutique:'shop',passe:'pass',salon:'salon'}[t]||storeTab;storeSel=null;
+  $('tabSalon').hidden=t!=='salon';$('tabArmory').hidden=t!=='armurerie';$('tabStore').hidden=!['inventaire','boutique','passe'].includes(t);$('tabParam').hidden=t!=='param';$('tabCompte').hidden=t!=='compte';$('pvPane').hidden=t==='param'||t==='armurerie'||t==='compte';if(t!=='armurerie'&&$('pv').parentNode!==$('pvPane'))$('pvPane').insertBefore($('pv'),$('pvName'));
+  storeTab={inventaire:'locker',boutique:'shop',passe:'pass',salon:'salon'}[t]||storeTab;if(t==='compte'){renderProfile();return;}storeSel=null;
   if(t==='param'){mountSettings($('paramHome'));refreshSettingsUI();}
+  else if(t==='compte')renderAccount();
   else if(t==='salon'){updatePreviewPane();renderDaily();}else if(t==='armurerie')renderArmory();else renderStore();
   renderProfile();
 }
@@ -4254,6 +4294,95 @@ function renderPreview(dt){
   pvCam.aspect=w/h;pvCam.updateProjectionMatrix();if(pvGroup.userData.gun)pvGroup.rotation.y=Math.PI/2+Math.sin(performance.now()/1500)*.5;else pvGroup.rotation.y+=dt*.7;if(pvMixer)pvMixer.update(dt);pvR.render(pvScene,pvCam);
 }
 document.querySelectorAll('#hubTabs button').forEach(b=>b.addEventListener('click',()=>setHubTab(b.dataset.tab)));
+
+// ================== COMPTE (connexion Google + sauvegarde en ligne, Supabase) ==================
+// Clé publique (faite pour le navigateur). Les données sont protégées par les règles d'accès de la base :
+// chacun ne lit et n'écrit que son profil, et le rôle « staff » ne se modifie que depuis le tableau de bord Supabase.
+const SB_URL='https://kweiabsweqxwoiiqbkpa.supabase.co',SB_KEY='sb_publishable_DwCiEaptGubyznBFj55Mww_ntr9AArh';
+const IS_APP=location.protocol==='app:',APP_LOOPBACK='http://127.0.0.1:53682/';
+const ACC={sb:null,user:null,role:'joueur',ready:false,state:'',pushT:0};
+const STAFF=(()=>{try{return Object.assign({coins:false,god:false,ammo:false,mats:false},JSON.parse(localStorage.getItem('ilotzero-staff')||'{}'));}catch(err){return {coins:false,god:false,ammo:false,mats:false};}})();
+function staffOn(k){try{return ACC.role==='staff'&&!!STAFF[k];}catch(err){return false;}}
+function accInit(){
+  if(!window.supabase||!supabase.createClient){ACC.state='Connexion indisponible (bibliothèque non chargée).';return;}
+  ACC.sb=supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:'implicit',persistSession:true,autoRefreshToken:true,detectSessionInUrl:!IS_APP}});
+  ACC.sb.auth.onAuthStateChange((ev,session)=>{
+    const u=session?session.user:null;
+    if((u&&u.id)===(ACC.user&&ACC.user.id))return;
+    ACC.user=u;ACC.ready=false;
+    if(u){setTimeout(accPull,0);if(location.hash.includes('access_token'))history.replaceState(null,'',location.pathname+location.search);}
+    else{ACC.role='joueur';ACC.state='';renderAccount();}
+  });
+}
+async function accPull(){
+  const u=ACC.user;if(!u)return;ACC.state='Synchronisation…';renderAccount();
+  const {data,error}=await ACC.sb.from('profiles').select('progress,role').eq('id',u.id).maybeSingle();
+  if(ACC.user!==u)return;
+  if(error){ACC.state='Erreur de synchronisation : '+error.message;renderAccount();return;}
+  const md=u.user_metadata||{},name=String(md.full_name||md.name||u.email||'').slice(0,40);
+  if(!data){
+    const {error:e2}=await ACC.sb.from('profiles').insert({id:u.id,name,progress:prof});
+    if(e2){ACC.state='Erreur de création du profil : '+e2.message;renderAccount();return;}
+    ACC.role='joueur';ACC.state='Profil créé : ta progression est sauvegardée en ligne.';
+  }else{
+    ACC.role=data.role==='staff'?'staff':'joueur';
+    const r=cleanProf(data.progress);
+    if(r){const base=r.xp>prof.xp?r:prof,m=JSON.parse(JSON.stringify(base));
+      m.skins=[...new Set([...prof.skins,...r.skins])];m.wraps=[...new Set([...prof.wraps,...r.wraps])];m.claimed=Math.max(prof.claimed||1,r.claimed||1);
+      prof=cleanProf(m)||prof;try{localStorage.setItem('ilotzero-profil',JSON.stringify(prof));}catch(err){}}
+    ACC.state='Progression synchronisée.';
+  }
+  ACC.ready=true;accPush();
+  renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();
+}
+function accPushSoon(){if(!ACC.user||!ACC.ready)return;clearTimeout(ACC.pushT);ACC.pushT=setTimeout(accPush,1500);}
+async function accPush(){
+  if(!ACC.user||!ACC.ready)return;
+  const {error}=await ACC.sb.from('profiles').update({progress:prof,updated_at:new Date().toISOString()}).eq('id',ACC.user.id);
+  if(error){ACC.state='Sauvegarde en ligne impossible : '+error.message;renderAccount();}
+}
+async function accLogin(){
+  if(!ACC.sb){renderAccount();return;}
+  if(IS_APP){
+    // application de bureau : Google n'autorise pas la connexion dans une fenêtre intégrée → navigateur du système
+    const {data,error}=await ACC.sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_LOOPBACK,skipBrowserRedirect:true}});
+    if(error){ACC.state='Connexion impossible : '+error.message;renderAccount();return;}
+    ACC.state='Termine la connexion dans ton navigateur, puis reviens ici.';renderAccount();window.open(data.url,'_blank');
+  }else{
+    const {error}=await ACC.sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});
+    if(error){ACC.state='Connexion impossible : '+error.message;renderAccount();}
+  }
+}
+// retour de connexion de l'application de bureau (appelé par electron/main.js)
+window.__ilotOAuth=async hash=>{
+  if(!ACC.sb)return;const q=new URLSearchParams(String(hash||'').replace(/^#/,''));
+  const at=q.get('access_token'),rt=q.get('refresh_token');
+  if(at&&rt){const {error}=await ACC.sb.auth.setSession({access_token:at,refresh_token:rt});if(error){ACC.state='Connexion impossible : '+error.message;renderAccount();}}
+  else{ACC.state='Connexion annulée.';renderAccount();}
+};
+async function accLogout(){
+  if(!ACC.sb)return;ACC.state='Déconnexion…';renderAccount();clearTimeout(ACC.pushT);await accPush();
+  ACC.ready=false;await ACC.sb.auth.signOut();
+  // la progression reste sur le compte ; cet appareil repart d'un profil invité
+  prof=defaultProf();try{localStorage.setItem('ilotzero-profil',JSON.stringify(prof));}catch(err){}
+  ACC.state='Déconnecté. Ta progression est conservée sur ton compte.';renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();
+}
+function renderAccount(){
+  const u=ACC.user,md=u?(u.user_metadata||{}):{};
+  $('acUser').hidden=!u;$('acLogin').hidden=!!u;$('acLogout').hidden=!u;
+  setText($('acTxt'),u?'Ta progression est enregistrée sur ce compte et suit sur tous tes appareils.':"Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.");
+  if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
+    setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
+  const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
+  $('staffPane').hidden=ACC.role!=='staff';
+  for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
+}
+$('acLogin').addEventListener('click',accLogin);
+$('acLogout').addEventListener('click',accLogout);
+for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])
+  $(id).addEventListener('change',e=>{STAFF[k]=e.target.checked;try{localStorage.setItem('ilotzero-staff',JSON.stringify(STAFF));}catch(err){}renderProfile();});
+$('stXp').addEventListener('click',()=>{if(ACC.role!=='staff')return;prof.xp=Math.max(prof.xp,(PASS_TIERS-1)*XP_LVL);claimRewards();saveProf();renderProfile();ACC.state='Passe de combat débloqué : niveau '+levelOf(prof.xp)+'.';renderAccount();});
+accInit();
 claimRewards();saveProf();renderProfile();
 
 // ================== HÔTE EN ARRIÈRE-PLAN ==================

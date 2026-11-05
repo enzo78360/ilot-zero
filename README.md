@@ -14,6 +14,12 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Passe de combat** et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
 
+## Compte et sauvegarde en ligne
+
+L'onglet **Compte** permet de se connecter avec Google. La progression (niveau, XP, coquillages, tenues, revêtements, accessoires) est alors enregistrée en ligne et suit sur tous les appareils, y compris dans la version de bureau. Sans compte, elle reste dans le navigateur. Les données sont stockées dans [Supabase](https://supabase.com/) : chaque joueur ne peut lire et modifier que son propre profil.
+
+**Staff** : un compte marqué « staff » voit un **Espace staff** dans l'onglet Compte (coquillages illimités, XP illimitée, vie, munitions et matériaux illimités). En partie, ces pouvoirs marchent en solo et quand le staff héberge le salon. Le rôle ne peut pas être modifié depuis le jeu : il se donne dans le tableau de bord Supabase (table `profiles`, colonne `role` = `staff`).
+
 ## Progression
 
 - **Niveaux** : chaque partie rapporte de l'XP (éliminations, mises à terre, réanimations, rappels, récolte, temps de survie, classement). 1 000 XP par niveau.
