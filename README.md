@@ -18,7 +18,7 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 
 L'onglet **Compte** permet de se connecter avec Google. La progression (niveau, XP, coquillages, tenues, revêtements, accessoires) est alors enregistrée en ligne et suit sur tous les appareils, y compris dans la version de bureau. Sans compte, elle reste dans le navigateur. Les données sont stockées dans [Supabase](https://supabase.com/) : chaque joueur ne peut lire et modifier que son propre profil.
 
-**Staff** : un compte marqué « staff » voit un **Espace staff** dans l'onglet Compte (coquillages illimités, XP illimitée, vie, munitions et matériaux illimités). En partie, ces pouvoirs marchent en solo et quand le staff héberge le salon. Le rôle ne peut pas être modifié depuis le jeu : il se donne dans le tableau de bord Supabase (table `profiles`, colonne `role` = `staff`).
+**Staff** : un compte marqué « staff » voit un **Espace staff** dans l'onglet Compte (coquillages illimités, XP illimitée, vie, munitions et matériaux illimités). En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent). Le rôle ne peut pas être modifié depuis le jeu : il se donne dans le tableau de bord Supabase (table `profiles`, colonne `role` = `staff`).
 
 ## Progression
 
@@ -67,6 +67,7 @@ L'onglet **Compte** permet de se connecter avec Google. La progression (niveau, 
 | G (ou clic droit en construction) | Changer de matériau |
 | T / B | Poser un trampoline / un feu de camp |
 | H | Se soigner |
+| O | Menu staff (comptes staff uniquement) |
 
 ## Version de bureau (Windows et macOS)
 

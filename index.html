@@ -105,6 +105,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 #scope::before,#scope::after{content:"";position:absolute;background:#000}
 #scope::before{left:50%;top:0;bottom:0;width:1px}
 #scope::after{top:50%;left:0;right:0;height:1px}
+#staffMenu{position:absolute;left:18px;top:16px;width:min(300px,calc(100vw - 36px));padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:5px;pointer-events:auto;z-index:30;max-height:calc(100vh - 210px);overflow:auto}
+#staffMenu[hidden]{display:none}
+#staffMenu .smh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}#staffMenu .smh b{font-family:var(--display);color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+#staffMenu .smh small{color:var(--muted)}#staffMenu .smsec{margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+#staffMenu button{text-align:left;padding:7px 10px;font-size:13px}#staffMenu button.on{background:var(--accent);color:#1b0f08;border-color:var(--accent)}
+#staffMenu .smnote{margin:4px 0 0;font-size:13px;color:var(--muted);min-height:1.2em}
 #sndRing{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 #sndRing i{position:absolute;left:-34px;top:-118px;width:68px;height:18px;transform-origin:34px 118px;border-radius:50% 50% 0 0;border-top:4px solid #fff;opacity:0;filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
 #sndRing i.shot{border-top-color:#ffc04a;border-top-width:6px}
@@ -311,6 +317,22 @@ button:disabled{opacity:.5;cursor:default}
   <div id="hitm"></div>
   <div id="dmgdir"></div>
   <div id="sndRing"></div>
+  <div id="staffMenu" class="panel" hidden>
+    <div class="smh"><b>Menu staff</b><small><kbd>O</kbd> pour fermer</small></div>
+    <div class="smsec">Pouvoirs</div>
+    <button data-st="god">Vie illimitée</button>
+    <button data-st="ammo">Munitions illimitées</button>
+    <button data-st="mats">Matériaux illimités</button>
+    <button data-st="speed">Super vitesse</button>
+    <button data-st="radar">Radar des ennemis</button>
+    <div class="smsec">Actions</div>
+    <button data-sa="heal">Soin complet (vie + bouclier)</button>
+    <button data-sa="gun">Arme légendaire</button>
+    <button data-sa="kit">Kit : soins, trampolines, feux</button>
+    <button data-sa="tp">Aller au marqueur de la carte</button>
+    <button data-sa="sky">Redéployer en planeur</button>
+    <p class="smnote" id="smNote"></p>
+  </div>
   <div id="reload" hidden><span id="reloadBar"></span></div><div id="reloadLbl" hidden>Rechargement</div>
   <div id="banner"></div>
   <div id="prompt" class="panel" hidden></div>
@@ -427,7 +449,7 @@ button:disabled{opacity:.5;cursor:default}
       </div>
       <div class="pane panel" id="staffPane" hidden>
         <h3>Espace staff</h3>
-        <p class="tag">Pouvoirs réservés aux comptes staff. En partie, ils marchent en solo et quand tu héberges le salon.</p>
+        <p class="tag">Pouvoirs réservés aux comptes staff. En partie, appuie sur <kbd>O</kbd> pour ouvrir le menu staff (vitesse, radar, arme légendaire, téléportation…). Ils marchent en solo et quand tu héberges le salon.</p>
         <label class="srow"><span>Coquillages illimités</span><input type="checkbox" id="stCoins"></label>
         <label class="srow"><span>Vie illimitée</span><input type="checkbox" id="stGod"></label>
         <label class="srow"><span>Munitions illimitées</span><input type="checkbox" id="stAmmo"></label>
@@ -3324,7 +3346,7 @@ function updatePlayer(dt){
   const w=p.slots[p.cur];
   p.ads=mouseR&&!buildType&&w&&w.type!=='pickaxe'&&!p.reloading&&!p.healing&&!p.gliding&&!p.downed&&!p.reviving;
   const sprint=(keys.ShiftLeft||keys.ShiftRight)&&f>0&&!p.ads&&!p.crouch;
-  let speed=sprint?9.4:6.4;if(p.crouch)speed=3.4;
+  let speed=sprint?9.4:6.4;if(p.crouch)speed=3.4;if(staffOn('speed'))speed*=1.8;
   if(p.ads)speed=3.8;if(p.healing)speed=2.6;if(p.gliding)speed=17;
   if(p.downed){speed=1.8;buildType=null;}
   if(p.reviving||p.rebooting){wx=0;wz=0;}
@@ -3604,6 +3626,7 @@ function drawMap(mini,mx){
   for(const m of marks){const e=entities[m.id];mx.fillStyle=e?hexCss(e.color):'#ffd23a';mx.save();mx.translate(X(m.x),X(m.z));mx.rotate(Math.PI/4);mx.fillRect(-4*k,-4*k,8*k,8*k);mx.restore();}
   for(const d of drops){const px=X(d.x),pz=X(d.z),s=(7+(d.landed?0:Math.sin(T*6)*2))*k;mx.fillStyle='#ffa23a';mx.strokeStyle='#0b1d24';mx.lineWidth=2;mx.beginPath();mx.moveTo(px,pz-s);mx.lineTo(px+s,pz);mx.lineTo(px,pz+s);mx.lineTo(px-s,pz);mx.closePath();mx.fill();mx.stroke();}
   for(let i=pings.length-1;i>=0;i--){const p=pings[i];const a=1-(T-p.t)/1.5;if(a<=0){pings.splice(i,1);continue;}mx.fillStyle=`rgba(255,77,94,${a})`;mx.beginPath();mx.arc(X(p.x),X(p.z),5,0,Math.PI*2);mx.fill();}
+  if(staffOn('radar'))for(const e of entities){if(!e.alive||e.team===player.team)continue;mx.fillStyle='#ff4d5e';mx.strokeStyle='#0b1d24';mx.lineWidth=2;mx.beginPath();mx.arc(X(e.pos.x),X(e.pos.z),4.5*k,0,Math.PI*2);mx.fill();mx.stroke();}
   for(const m of mates){if(m.isPlayer||!m.alive)continue;mx.fillStyle=m.downed?(Math.sin(T*8)>0?'#ff4d5e':'#fff'):'#5fd0ff';mx.strokeStyle='#0b1d24';mx.lineWidth=2;mx.beginPath();mx.arc(X(m.pos.x),X(m.pos.z),6*k,0,Math.PI*2);mx.fill();mx.stroke();}
   if(player&&player.alive){const px=X(player.pos.x),pz=X(player.pos.z),a=Math.atan2(-Math.cos(player.yaw),-Math.sin(player.yaw));
     mx.save();mx.translate(px,pz);mx.rotate(a);mx.scale(k,k);mx.fillStyle='#ff8a4c';mx.strokeStyle='#1b0f08';mx.lineWidth=2;mx.beginPath();mx.moveTo(14,0);mx.lineTo(-9,-8);mx.lineTo(-5,0);mx.lineTo(-9,8);mx.closePath();mx.fill();mx.stroke();mx.restore();}
@@ -3641,7 +3664,7 @@ function renderXpSum(r){
   }else setText($('unl'),`Niveau ${r.lv1} · ${fmtN(prof.xp%XP_LVL)} / ${fmtN(XP_LVL)} XP`);
 }
 function endGame(win){
-  if(state.over)return;state.over=true;
+  if(state.over)return;state.over=true;if(staffMenuOn)toggleStaffMenu(false);
   const teams=new Set(entities.filter(e=>e.alive).map(e=>e.team));
   const rank=win?1:teams.size+1;
   const solo=MODES[state.mode].size===1;
@@ -3686,7 +3709,7 @@ function startClientGame(m){
 }
 function commonStart(){
   T=0;state.startT=0;state.over=false;state.globalOver=false;state.mx={};state.aliveT=0;state.awarded=false;state.spectate=null;state.running=true;state.paused=false;state.buildsPlaced=0;
-  buildType=null;buildRepeat=0;recoil=0;mouseL=mouseR=false;
+  buildType=null;buildRepeat=0;recoil=0;mouseL=mouseR=false;if(staffMenuOn)toggleStaffMenu(false);
   $('feed').innerHTML='';$('dnums').innerHTML='';dnums.length=0;
   $('menu').hidden=true;$('end').hidden=true;$('pause').hidden=true;$('lobby').hidden=true;$('hud').hidden=false;
   setText($('pauseTxt'),NET.role==='solo'?'La partie est figée. Clique pour reprendre le contrôle de la souris.':'La partie continue pendant la pause. Clique vite pour reprendre.');
@@ -3709,6 +3732,7 @@ function refreshEndButtons(){
   }else{again.disabled=false;setText(again,'Rejouer');setText(note,'');}
 }
 function backToMenu(msg){
+  if(staffMenuOn)toggleStaffMenu(false);
   if(state.running&&!state.awarded)finalizeMatch(null,false);
   setHubTab('salon');$('setScreen').hidden=true;
   state.running=false;state.over=false;state.paused=false;
@@ -3724,7 +3748,7 @@ function lockPointer(){
 }
 document.addEventListener('pointerlockchange',()=>{
   state.locked=document.pointerLockElement===canvas;
-  if(!state.locked&&state.running&&!state.over&&state.lockOK&&!bigMapOn){state.paused=true;$('pause').hidden=false;mouseL=mouseR=false;}
+  if(!state.locked&&state.running&&!state.over&&state.lockOK&&!bigMapOn&&!staffMenuOn){state.paused=true;$('pause').hidden=false;mouseL=mouseR=false;}
   if(state.locked){state.paused=false;$('pause').hidden=true;}
 });
 document.addEventListener('pointerlockerror',()=>{state.lockOK=false;state.paused=false;$('pause').hidden=true;});
@@ -4017,6 +4041,7 @@ addEventListener('keydown',e=>{
     case 'Digit1':chooseSlot(0);break;case 'Digit2':chooseSlot(1);break;case 'Digit3':chooseSlot(2);break;case 'Digit4':chooseSlot(3);break;
     case 'KeyN':if(p.car||!p.onGround)break;p.emote=(p.emote||0)%3+1;buildType=null;showBanner(EMOTEN[p.emote],'N : suivante · bouge pour arrêter',1.4);break;
     case 'KeyM':toggleBigMap(!bigMapOn);break;
+    case 'KeyO':if(ACC.role==='staff')toggleStaffMenu(!staffMenuOn);break;
     case 'KeyP':tpView=!tpView;try{localStorage.setItem('ilotzero-tp',tpView?'1':'0');}catch(err){}showBanner(tpView?'Vue à la 3e personne':'Vue à la 1re personne','P pour changer',1.4);break;
     case 'KeyX':if(p.car)break;if(!p.crouch&&p.onGround&&Math.hypot(p.vel.x,p.vel.z)>8){const l=Math.hypot(p.vel.x,p.vel.z);p.sliding=true;p.slideEnd=T+.95;p.slideDir={x:p.vel.x/l,z:p.vel.z/l};p.crouch=true;sfx('step',p.pos,1.2);}else{p.crouch=!p.crouch;p.sliding=false;}break;
     case 'KeyR':if(NET.role==='client')sendHost({t:'rl'});else startReload(p);break;
@@ -4035,7 +4060,7 @@ addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouseL=mouseR=false;});
 canvas.addEventListener('mousedown',e=>{
   if(!state.running||state.over)return;
-  if(state.lockOK&&!state.locked){lockPointer();return;}
+  if(state.lockOK&&!state.locked){if(staffMenuOn){toggleStaffMenu(false);return;}lockPointer();return;}
   if(e.button===0){mouseL=true;mouseLEdge=true;if(!buildType)NET.fe++;}
   if(e.button===1){e.preventDefault();placeMark();}
   if(e.button===2){if(buildType)buildMatSel=MAT_KEYS[(MAT_KEYS.indexOf(buildMatSel)+1)%3];else mouseR=true;}
@@ -4328,7 +4353,7 @@ document.querySelectorAll('#hubTabs button').forEach(b=>b.addEventListener('clic
 const SB_URL='https://kweiabsweqxwoiiqbkpa.supabase.co',SB_KEY='sb_publishable_DwCiEaptGubyznBFj55Mww_ntr9AArh';
 const IS_APP=location.protocol==='app:',APP_LOOPBACK='http://127.0.0.1:53682/';
 const ACC={sb:null,user:null,role:'joueur',ready:false,state:'',pushT:0};
-const STAFF=(()=>{try{return Object.assign({coins:false,god:false,ammo:false,mats:false},JSON.parse(localStorage.getItem('ilotzero-staff')||'{}'));}catch(err){return {coins:false,god:false,ammo:false,mats:false};}})();
+const STAFF=(()=>{try{return Object.assign({coins:false,god:false,ammo:false,mats:false,speed:false,radar:false},JSON.parse(localStorage.getItem('ilotzero-staff')||'{}'));}catch(err){return {coins:false,god:false,ammo:false,mats:false,speed:false,radar:false};}})();
 function staffOn(k){try{return ACC.role==='staff'&&!!STAFF[k];}catch(err){return false;}}
 function accInit(){
   if(!window.supabase||!supabase.createClient){ACC.state='Connexion indisponible (bibliothèque non chargée).';return;}
@@ -4410,6 +4435,27 @@ for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stM
   $(id).addEventListener('change',e=>{STAFF[k]=e.target.checked;try{localStorage.setItem('ilotzero-staff',JSON.stringify(STAFF));}catch(err){}renderProfile();});
 $('stXp').addEventListener('click',()=>{if(ACC.role!=='staff')return;prof.xp=Math.max(prof.xp,(PASS_TIERS-1)*XP_LVL);claimRewards();saveProf();renderProfile();ACC.state='Passe de combat débloqué : niveau '+levelOf(prof.xp)+'.';renderAccount();});
 accInit();
+// menu staff en partie (touche O) : la souris est libérée le temps du menu, comme pour la grande carte
+let staffMenuOn=false;
+function toggleStaffMenu(on){
+  staffMenuOn=on&&ACC.role==='staff'&&state.running;$('staffMenu').hidden=!staffMenuOn;
+  if(staffMenuOn){renderStaffMenu();setText($('smNote'),NET.role==='client'?'En partie chez un ami, seuls la vitesse, le radar et la téléportation marchent.':'');if(document.pointerLockElement)document.exitPointerLock();}
+  else if(state.lockOK&&state.running&&!state.over)lockPointer();
+}
+function renderStaffMenu(){document.querySelectorAll('#staffMenu [data-st]').forEach(b=>b.classList.toggle('on',!!STAFF[b.dataset.st]));}
+function staffAction(a){
+  const p=player;if(!p||!p.alive||ACC.role!=='staff')return;const host=NET.role!=='client';let msg='';
+  if(a==='tp'){const m=marks.find(k=>k.id===p.id);if(!m){msg='Pose d\'abord un marqueur sur la carte (M, puis clic).';}
+    else{if(p.car)exitCar(p);p.pos.set(m.x,Math.max(groundAt(m.x,m.z,m.y+50),heightAt(m.x,m.z))+.2,m.z);p.vel.set(0,0,0);msg='Téléporté au marqueur.';}}
+  else if(a==='sky'){if(p.car)exitCar(p);p.pos.y+=90;p.vel.set(0,0,0);p.gliding=true;p.onGround=false;msg='Planeur déployé.';}
+  else if(!host)msg='Action réservée à l\'hôte de la partie.';
+  else if(a==='heal'){if(p.downed){p.downed=false;}p.hp=100;p.shield=100;msg='Vie et bouclier au maximum.';}
+  else if(a==='gun'){const t=GUN_TYPES[Math.floor(Math.random()*GUN_TYPES.length)],w=newWeapon(t,3);let i=[1,2,3].find(k=>!p.slots[k]);if(!i)i=p.cur>0?p.cur:1;p.slots[i]=w;selectSlot(p,i);refreshView();msg=WEAPONS[t].name+' légendaire équipé.';}
+  else if(a==='kit'){p.bandages=15;p.potions=6;p.tramps=3;p.camps=3;msg='Kit complet ajouté.';}
+  setText($('smNote'),msg);
+}
+document.querySelectorAll('#staffMenu [data-st]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.st;STAFF[k]=!STAFF[k];try{localStorage.setItem('ilotzero-staff',JSON.stringify(STAFF));}catch(err){}renderStaffMenu();renderAccount();}));
+document.querySelectorAll('#staffMenu [data-sa]').forEach(b=>b.addEventListener('click',()=>staffAction(b.dataset.sa)));
 claimRewards();saveProf();renderProfile();
 
 // ================== HÔTE EN ARRIÈRE-PLAN ==================
