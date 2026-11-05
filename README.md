@@ -42,6 +42,8 @@ L'onglet **Compte** permet de se connecter avec Google. La progression (niveau, 
 - **Munitions** : chaque arme a sa réserve. Si tu échanges une arme contre une autre du même calibre (par exemple deux fusils d'assaut), la réserve suit. Les caisses de munitions remplissent trois chargeurs par arme.
 - **Bots** : ils ont un champ de vision, mettent un instant à te repérer (plus longtemps de loin ou accroupi), entendent les tirs sans connaître ta position exacte, visent moins bien en début d'échange et reculent pour se soigner.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
+- **Ramassage automatique** : marcher sur des munitions, des matériaux ou des soins les ramasse. Les armes se prennent avec `E`.
+- **Indicateur des sons** : des arcs autour du réticule montrent d'où viennent les tirs (jaune) et les pas ennemis proches (blanc). Désactivable dans les paramètres.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
 
 ## Commandes

@@ -105,6 +105,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 #scope::before,#scope::after{content:"";position:absolute;background:#000}
 #scope::before{left:50%;top:0;bottom:0;width:1px}
 #scope::after{top:50%;left:0;right:0;height:1px}
+#sndRing{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
+#sndRing i{position:absolute;left:-34px;top:-118px;width:68px;height:18px;transform-origin:34px 118px;border-radius:50% 50% 0 0;border-top:4px solid #fff;opacity:0;filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
+#sndRing i.shot{border-top-color:#ffc04a;border-top-width:6px}
 #dmgdir{position:absolute;left:50%;top:50%;width:220px;height:220px;margin:-110px 0 0 -110px;opacity:0;transition:opacity .5s}
 #dmgdir::before{content:"";position:absolute;left:50%;top:0;width:60px;height:14px;margin-left:-30px;border-radius:50% 50% 0 0;background:var(--danger);filter:blur(1px)}
 .dnum{position:absolute;font-family:var(--display);font-weight:700;font-size:20px;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none;transform:translate(-50%,-50%)}
@@ -307,6 +310,7 @@ button:disabled{opacity:.5;cursor:default}
   <div id="cross"><i class="h" id="chL"></i><i class="h" id="chR"></i><i class="v" id="chT"></i><i class="v" id="chB"></i><i class="dot"></i></div>
   <div id="hitm"></div>
   <div id="dmgdir"></div>
+  <div id="sndRing"></div>
   <div id="reload" hidden><span id="reloadBar"></span></div><div id="reloadLbl" hidden>Rechargement</div>
   <div id="banner"></div>
   <div id="prompt" class="panel" hidden></div>
@@ -445,6 +449,7 @@ button:disabled{opacity:.5;cursor:default}
             <label class="srow"><span>Inverser l'axe vertical</span><input type="checkbox" id="sInvY"></label>
             <label class="srow"><span>Champ de vision</span><input type="range" id="sFov" min="65" max="105" step="1"><output id="oFov"></output></label>
             <label class="srow"><span>Balancement de l'arme</span><input type="checkbox" id="sBob"></label>
+            <label class="srow"><span>Indicateur visuel des sons (tirs, pas)</span><input type="checkbox" id="sSndViz"></label>
           </section>
           <section>
             <h3>Graphismes</h3>
@@ -2500,6 +2505,7 @@ function tryFire(e,dir){
   }
   for(const [t,a] of agg)damage(t,a.dmg,e,a.head,w.type,a.pt);
   sfx(def.snd,e.pos,def.quiet?.3:1);
+  if(!def.quiet)soundCue(e,'shot',80);
   // les bots entendent les tirs non silencieux : direction approximative seulement
   if(!def.quiet&&NET.role!=='client')for(const o of entities){if(o.human||!o.alive||o.team===e.team||o.canSee)continue;const d=Math.hypot(o.pos.x-e.pos.x,o.pos.z-e.pos.z);
     if(d<75&&(!o.heard||T-o.heard.t>2.5))o.heard={x:e.pos.x+rand(-1,1)*d*.15,z:e.pos.z+rand(-1,1)*d*.15,t:T};}
@@ -2972,12 +2978,19 @@ function updateDrops(dt){
   }
 }
 // ================== SONS DE PAS, ÉCLAIR, DOUILLES ==================
+// indicateur visuel des sons ennemis (tirs, pas) autour du réticule
+const sndCues=[];
+function soundCue(e,kind,maxD){
+  if(!player||!player.alive||e===player||e.team===player.team)return;
+  const dx=e.pos.x-player.pos.x,dz=e.pos.z-player.pos.z,d=Math.hypot(dx,dz);if(d>maxD||d<1.5)return;
+  const ex=sndCues.find(c=>c.e===e&&c.kind===kind);const c=ex||{e,kind};c.ang=Math.atan2(-dx,-dz);c.t=T;c.k=1-d/maxD;if(!ex)sndCues.push(c);
+}
 function footsteps(dt){
   for(const e of entities){
     if(!e.alive||e.car||!e.onGround||e.gliding||e.downed){e.stepD=0;continue;}
     const sp=Math.hypot(e.vel.x,e.vel.z);if(sp<1.2){e.stepD=0;continue;}
     e.stepD=(e.stepD||0)+sp*dt;
-    if(e.stepD>(sp>7.5?2.7:2.1)){e.stepD=0;const d=e.pos.distanceTo(camera.position);if(d<40)sfx('step',e.pos,e===player?.5:1.2);}
+    if(e.stepD>(sp>7.5?2.7:2.1)){e.stepD=0;const d=e.pos.distanceTo(camera.position);if(d<40)sfx('step',e.pos,e===player?.5:1.2);if(!e.crouch)soundCue(e,'step',22);}
   }
 }
 const mLight=new THREE.PointLight(lin(0xffc27a),0,10,2);scene.add(mLight);
@@ -3371,6 +3384,13 @@ function updatePlayer(dt){
     pr.style.borderBottom=it.kind==='weapon'?`3px solid ${RARITY[it.weapon.rarity].css}`:'none';}
   else{const nd=!p.downed&&!nearCar(p)&&nearDoor(p);if(nd){pr.hidden=false;const txt=`<kbd>E</kbd>${nd.open?'Fermer':'Ouvrir'} la porte`;if(pr._v!==txt){pr._v=txt;pr.innerHTML=txt;}pr.style.borderBottom='none';}else{const nc=!p.downed&&nearCar(p);if(nc){pr.hidden=false;const txt='<kbd>E</kbd>Conduire la voiture';if(pr._v!==txt){pr._v=txt;pr.innerHTML=txt;}pr.style.borderBottom='3px solid #ffb347';}else pr.hidden=true;}}
   p.nearItem=it;
+  // ramassage automatique en marchant dessus : munitions, matériaux et soins (les armes restent sur E)
+  if(!p.downed&&!p.reviving&&T>=(p._autoPk||0)){
+    const ap=nearestLoot(p,1.5,x=>(x.kind==='ammo'||!!BMATS[x.kind]||x.kind==='bandage'||x.kind==='potion')&&canUse(p,x));
+    if(ap){p._autoPk=T+.3;
+      if(NET.role==='client'){if(ap._askT===undefined||T-ap._askT>1.5){ap._askT=T;sendHost({t:'pk',i:ap.id});}}
+      else pickup(p,ap);}
+  }
 }
 function commonUpdate(e,dt){
   if(NET.role!=='client'){
@@ -3491,6 +3511,11 @@ function updateHUD(){
   $('cross').classList.toggle('ironads',!!ironAds);$('cross').style.opacity=scoped||buildType?.35:(p.ads&&fovK>.5&&viewGun&&viewGun.userData.sightY!=null&&!ironAds?0:1);
   view.visible=!scoped&&!buildType&&p.alive&&!p.gliding&&!p.downed&&!p.reviving&&!p.car&&!tpActive();
   $('vign').style.opacity=Math.min(1,vignT*2+(p.hp<30?.35:0));
+  {const ring=$('sndRing');for(let i=sndCues.length-1;i>=0;i--)if(T-sndCues[i].t>1.6||!sndCues[i].e.alive)sndCues.splice(i,1);
+    while(ring.children.length<6)ring.appendChild(document.createElement('i'));
+    for(let i=0;i<6;i++){const el=ring.children[i],c=sndCues[i];
+      if(!c||!p.alive||!SET.sndViz){if(el.style.opacity!=='0')el.style.opacity='0';continue;}
+      el.className=c.kind;el.style.opacity=((1-(T-c.t)/1.6)*(.35+.65*c.k)).toFixed(2);el.style.transform=`rotate(${-(c.ang-p.yaw)}rad)`;}}
   const dd=$('dmgdir');dd.style.opacity=dmgDirT>0?Math.min(1,dmgDirT):0;dd.style.transform=`rotate(${-(dmgDirAng-p.yaw)}rad)`;
 }
 function progressOf(e){
@@ -3906,6 +3931,7 @@ function onShot(m){
   if(m.w==='pickaxe'){e.swingT=T;sfx('pickaxe',v3(m.o));return;}
   const o=v3(m.o);for(const a of m.e||[])tracer(o,v3(a),false);
   if(WEAPONS[m.w])sfx(WEAPONS[m.w].snd,e.pos,m.q?.3:1);
+  if(!m.q)soundCue(e,'shot',80);
   if(!m.q&&Math.hypot(e.pos.x-player.pos.x,e.pos.z-player.pos.z)<110&&e.team!==player.team)pings.push({x:e.pos.x,z:e.pos.z,t:T});
 }
 function applySnap(m){
@@ -4057,7 +4083,7 @@ addEventListener('beforeunload',()=>leaveNet());
 if(matchMedia('(pointer:coarse)').matches)$('touchNote').hidden=false;
 
 // ================== PARAMÈTRES ==================
-const SET_DEF={sens:1,adsSens:.8,sensX1:1,sensX2:1,sensX4:1,sensX8:1,invY:false,fov:80,bob:true,quality:'haut',shadow:2048,view:460,grass:1,water:true,scale:1,fps:false,vol:70};
+const SET_DEF={sndViz:true,sens:1,adsSens:.8,sensX1:1,sensX2:1,sensX4:1,sensX8:1,invY:false,fov:80,bob:true,quality:'haut',shadow:2048,view:460,grass:1,water:true,scale:1,fps:false,vol:70};
 const PRESETS={bas:{shadow:0,view:260,grass:0,water:false,scale:.75},moyen:{shadow:1024,view:360,grass:.5,water:false,scale:1},haut:{shadow:2048,view:460,grass:1,water:true,scale:1},ultra:{shadow:4096,view:620,grass:1.6,water:true,scale:1.25}};
 let SET=(function(){try{return Object.assign({},SET_DEF,JSON.parse(localStorage.getItem('ilotzero-reglages')||'{}'));}catch(err){return Object.assign({},SET_DEF);}})();
 function saveSet(){try{localStorage.setItem('ilotzero-reglages',JSON.stringify(SET));}catch(err){}}
@@ -4074,7 +4100,7 @@ function applyGraphics(){
   $('fpsBox').hidden=!SET.fps;
 }
 const SET_UI=[
-  ['sSens','sens','range',v=>'×'+(+v).toFixed(2)],['sAdsSens','adsSens','range',v=>'×'+(+v).toFixed(2)],['sSensX1','sensX1','range',v=>'×'+(+v).toFixed(2)],['sSensX2','sensX2','range',v=>'×'+(+v).toFixed(2)],['sSensX4','sensX4','range',v=>'×'+(+v).toFixed(2)],['sSensX8','sensX8','range',v=>'×'+(+v).toFixed(2)],['sInvY','invY','check'],['sFov','fov','range',v=>v+'°'],['sBob','bob','check'],
+  ['sSens','sens','range',v=>'×'+(+v).toFixed(2)],['sAdsSens','adsSens','range',v=>'×'+(+v).toFixed(2)],['sSensX1','sensX1','range',v=>'×'+(+v).toFixed(2)],['sSensX2','sensX2','range',v=>'×'+(+v).toFixed(2)],['sSensX4','sensX4','range',v=>'×'+(+v).toFixed(2)],['sSensX8','sensX8','range',v=>'×'+(+v).toFixed(2)],['sInvY','invY','check'],['sFov','fov','range',v=>v+'°'],['sBob','bob','check'],['sSndViz','sndViz','check'],
   ['sShadow','shadow','select',null,true],['sView','view','range',v=>v+' m',true],['sGrass','grass','select',null,true],['sWater','water','check',null,true],['sScale','scale','range',v=>Math.round(v*100)+' %',true],
   ['sFps','fps','check'],['sVol','vol','range',v=>v+' %']];
 function refreshSettingsUI(){
