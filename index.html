@@ -278,6 +278,11 @@ button:disabled{opacity:.5;cursor:default}
 .acrole{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.08)}
 .acrole.staff{background:var(--accent);color:#1b0f08}
 .acsync{margin:0;font-size:14px;color:var(--muted)}.acsync.err{color:#ff8a8a}
+#saEmail{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
+.salist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.salist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05)}
+.salist li div{flex:1;min-width:0;display:flex;flex-direction:column}.salist li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.salist li small{color:var(--muted)}.salist li button{padding:6px 10px;font-size:13px}
 .srow output{font-family:var(--display);min-width:58px;text-align:right;color:var(--accent)}
 .srow input[type=range]{width:170px;accent-color:var(--accent)}
 .srow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);justify-self:end;grid-column:2/4}
@@ -455,6 +460,13 @@ button:disabled{opacity:.5;cursor:default}
         <label class="srow"><span>Munitions illimitées</span><input type="checkbox" id="stAmmo"></label>
         <label class="srow"><span>Matériaux illimités</span><input type="checkbox" id="stMats"></label>
         <button class="wide" id="stXp">XP illimitée : débloquer tout le passe de combat</button>
+      </div>
+      <div class="pane panel" id="staffAdmin" hidden>
+        <h3>Membres du staff</h3>
+        <p class="tag">Ajoute l'adresse Gmail d'un joueur : il devient staff tout de suite, ou à sa première connexion.</p>
+        <div class="joinrow"><input id="saEmail" type="email" placeholder="adresse@gmail.com" autocomplete="off" aria-label="Adresse e-mail du nouveau membre du staff"><button id="saAdd">Ajouter</button></div>
+        <p class="acsync" id="saMsg"></p>
+        <ul class="salist" id="saList"></ul>
       </div>
     </div></section>
     <section class="hubleft" id="tabParam" hidden><div id="paramHome">
@@ -4373,9 +4385,10 @@ async function accPull(){
   if(error){ACC.state='Erreur de synchronisation : '+error.message;renderAccount();return;}
   const md=u.user_metadata||{},name=String(md.full_name||md.name||u.email||'').slice(0,40);
   if(!data){
-    const {error:e2}=await ACC.sb.from('profiles').insert({id:u.id,name,progress:prof});
+    // le rôle est décidé par le serveur (liste staff) : on relit celui qu'il a attribué
+    const {data:ins,error:e2}=await ACC.sb.from('profiles').insert({id:u.id,name,progress:prof}).select('role').single();
     if(e2){ACC.state='Erreur de création du profil : '+e2.message;renderAccount();return;}
-    ACC.role='joueur';ACC.state='Profil créé : ta progression est sauvegardée en ligne.';
+    ACC.role=ins&&ins.role==='staff'?'staff':'joueur';ACC.state='Profil créé : ta progression est sauvegardée en ligne.';
   }else{
     ACC.role=data.role==='staff'?'staff':'joueur';
     const r=cleanProf(data.progress);
@@ -4430,9 +4443,39 @@ function renderAccount(){
   if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
     setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
-  $('staffPane').hidden=ACC.role!=='staff';
+  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';
+  if(ACC.role==='staff'&&hubTab==='compte'&&!ACC.staffListT){ACC.staffListT=1;staffAdminLoad();}
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
 }
+// gestion du staff (fonctions serveur qui vérifient elles-mêmes le rôle staff)
+const errFr=e=>e&&e.message?e.message:'erreur inconnue';
+async function staffAdminLoad(){
+  if(!ACC.sb||ACC.role!=='staff')return;
+  const {data,error}=await ACC.sb.rpc('staff_list');ACC.staffListT=0;
+  const ul=$('saList');ul.textContent='';
+  if(error){setText($('saMsg'),'Impossible de charger la liste : '+errFr(error));$('saMsg').classList.add('err');return;}
+  const me=(ACC.user&&ACC.user.email||'').toLowerCase();
+  for(const r of data||[]){
+    const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');
+    b.textContent=r.email;sm.textContent=(r.owner?'Propriétaire · ':'')+(r.connected?(r.name||'Compte créé'):'Pas encore connecté');d.append(b,sm);li.append(d);
+    if(!r.owner&&r.email!==me){const bt=document.createElement('button');bt.textContent='Retirer';bt.addEventListener('click',()=>staffAdminRemove(r.email));li.append(bt);}
+    ul.append(li);}
+}
+async function staffAdminAdd(){
+  const v=$('saEmail').value.trim().toLowerCase(),m=$('saMsg');m.classList.remove('err');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){setText(m,'Entre une adresse e-mail valide.');m.classList.add('err');return;}
+  setText(m,'Ajout…');const {error}=await ACC.sb.rpc('staff_add',{target_email:v});
+  if(error){setText(m,'Ajout impossible : '+errFr(error));m.classList.add('err');return;}
+  $('saEmail').value='';setText(m,v+' fait maintenant partie du staff.');staffAdminLoad();
+}
+async function staffAdminRemove(email){
+  const m=$('saMsg');m.classList.remove('err');setText(m,'Retrait…');
+  const {error}=await ACC.sb.rpc('staff_remove',{target_email:email});
+  if(error){setText(m,'Retrait impossible : '+errFr(error));m.classList.add('err');return;}
+  setText(m,email+" n'est plus staff.");staffAdminLoad();
+}
+$('saAdd').addEventListener('click',staffAdminAdd);
+$('saEmail').addEventListener('keydown',e=>{if(e.key==='Enter')staffAdminAdd();});
 $('acLogin').addEventListener('click',accLogin);
 $('acLogout').addEventListener('click',accLogout);
 for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])
