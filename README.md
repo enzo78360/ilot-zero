@@ -26,7 +26,8 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 - **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
-- **Armurerie** : choisis les accessoires de chaque arme (viseur point rouge, holographique, lunettes ×2, ×4 et ×8, silencieux, compensateur, frein de bouche, choke, poignées, chargeurs étendus ou rapides). Ils modifient les statistiques et apparaissent sur l'arme. La visée se fait réellement dans le viseur. Certains se débloquent en montant de niveau.
+- **10 armes en 5 catégories** : fusil d'assaut et carabine, mitraillette et mitraillette compacte, fusil à pompe et fusil tactique, fusil de précision et fusil de tireur d'élite, pistolet et revolver.
+- **Armurerie** : choisis une catégorie, une arme, puis les accessoires de chaque emplacement (viseur point rouge, holographique, lunettes ×2, ×4 et ×8, silencieux, compensateur, frein de bouche, choke, poignées, chargeurs étendus ou rapides). Ils modifient les statistiques et apparaissent sur l'arme. La visée se fait réellement dans le viseur. Certains se débloquent en montant de niveau.
 - **Largages de ravitaillement** : toutes les 80 s environ, une caisse descend en parachute dans la zone, avec une fumée rouge et un losange orange sur la carte. Elle contient une arme légendaire et du matériel rare.
 - **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
 - **Ambiances** : chaque partie se joue de jour, au matin dans la brume ou au coucher du soleil, avec vent, vagues près des côtes et chants d'oiseaux.
