@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidentialité · Îlot Zéro</title>
+<link rel="icon" href="favicon.svg">
+<style>
+:root{--bg:#0b1a20;--fg:#f2efe6;--muted:#a9b7bb;--accent:#ff8a4c;--panel:#12262e}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f5f2ea;--fg:#14232a;--muted:#4b5b60;--accent:#c4521a;--panel:#fffdf8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:40px 16px 64px}h1{font-size:32px;margin:0 0 4px}h2{font-size:20px;margin:32px 0 8px;color:var(--accent)}
+p,li{color:var(--fg)}.muted{color:var(--muted)}a{color:var(--accent)}ul{padding-left:22px}
+.card{background:var(--panel);border-radius:12px;padding:16px 18px;margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+<p><a href="./">← Retour au jeu</a></p>
+<h1>Politique de confidentialité</h1>
+<p class="muted">Îlot Zéro · dernière mise à jour : 5 novembre 2026</p>
+
+<p>Îlot Zéro est un jeu gratuit, sans publicité et sans revente de données. Cette page explique ce qui est enregistré quand tu joues et à quoi ça sert.</p>
+
+<h2>Sans compte</h2>
+<p>Ta progression (niveau, XP, coquillages, tenues, accessoires) et tes réglages sont enregistrés uniquement dans ton navigateur ou dans l'application, sur ton appareil. Rien n'est envoyé à un serveur.</p>
+
+<h2>Avec la connexion Google</h2>
+<p>Si tu te connectes avec Google depuis l'onglet <b>Compte</b>, le jeu reçoit de Google :</p>
+<ul>
+<li>ton nom et ta photo de profil Google (affichés dans l'onglet Compte) ;</li>
+<li>ton adresse e-mail (pour identifier ton compte) ;</li>
+<li>un identifiant de compte.</li>
+</ul>
+<p>Le jeu enregistre alors ta progression en ligne pour que tu la retrouves sur tes autres appareils. Aucune autre donnée Google n'est demandée : ni tes contacts, ni tes e-mails, ni tes fichiers.</p>
+
+<h2>Où sont stockées les données</h2>
+<p>Les comptes et les progressions sont hébergés par <a href="https://supabase.com/privacy">Supabase</a>, sur des serveurs situés à Paris (Union européenne). Chaque joueur ne peut lire et modifier que son propre profil.</p>
+
+<h2>Multijoueur</h2>
+<p>Les parties entre amis se font en connexion directe entre navigateurs, grâce au service de mise en relation <a href="https://peerjs.com/">PeerJS</a>. Comme pour tout jeu en ligne, les joueurs d'un même salon peuvent voir l'adresse IP de l'hôte. Ton pseudo et ta tenue sont visibles des autres joueurs du salon.</p>
+
+<h2>Durée de conservation et suppression</h2>
+<p>Ta progression en ligne est conservée tant que ton compte existe. Tu peux te déconnecter à tout moment depuis l'onglet Compte. Pour faire supprimer ton compte et toutes ses données, ouvre une demande sur <a href="https://github.com/enzo78360/ilot-zero/issues">la page du projet</a> : la suppression est faite sous 30 jours.</p>
+
+<h2>Tes droits</h2>
+<p>Conformément au RGPD, tu peux demander l'accès à tes données, leur correction ou leur suppression via <a href="https://github.com/enzo78360/ilot-zero/issues">la page du projet</a>.</p>
+
+<div class="card"><p class="muted" style="margin:0">Voir aussi les <a href="conditions.html">conditions d'utilisation</a>.</p></div>
+</main>
+</body>
+</html>
