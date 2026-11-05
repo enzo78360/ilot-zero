@@ -26,6 +26,7 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 - **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
+- **Voitures** : 9 voitures sont garées près des lieux-dits. Monte avec `E`, la caméra passe à la troisième personne. Elles écrasent les adversaires, cassent les constructions et explosent sous les tirs.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
 
@@ -37,7 +38,8 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 | Maj / Espace | Sprinter / sauter |
 | Clic gauche / clic droit | Tirer / viser |
 | 1 à 4, molette | Pioche et armes |
-| E | Ramasser, maintenir pour réanimer ou rappeler |
+| E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir |
+| Z/Q/S/D ou W/A/S/D en voiture | Accélérer, tourner, freiner et reculer ; Espace = frein à main |
 | R | Recharger |
 | F / C / V | Construire mur / sol / rampe |
 | G (ou clic droit en construction) | Changer de matériau |
