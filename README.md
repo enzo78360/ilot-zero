@@ -19,6 +19,8 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 ## En partie
 
+- **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
+
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
