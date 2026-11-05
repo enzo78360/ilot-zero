@@ -44,9 +44,11 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 | 1 à 4, molette | Pioche et armes |
 | X | S'accroupir (plus précis, plus discret) ; en plein sprint : glissade |
 | Espace face à un obstacle | Escalader (murets, caisses, conteneurs jusqu'à 2,8 m) |
+| M | Grande carte (clic pour poser un marqueur d'équipe) |
+| N | Emote : salut, danse, danse robot (appuyer à nouveau pour changer) |
 | P | Basculer entre vue à la 1re et à la 3e personne |
 | Clic molette | Placer un marqueur visible par ton équipe (12 s) |
-| E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir |
+| E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir, ouvrir ou fermer une porte |
 | Z/Q/S/D ou W/A/S/D en voiture | Accélérer, tourner, freiner et reculer ; Espace = frein à main |
 | R | Recharger |
 | F / C / V | Construire mur / sol / rampe |
