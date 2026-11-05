@@ -3243,6 +3243,7 @@ function spawnCars(free,okGround){
     const x=(p?p.x:0)+Math.cos(a)*r,z=(p?p.z:0)+Math.sin(a)*r,yaw=rand(0,Math.PI*2),col=CAR_COLS[Math.floor(rand(0,CAR_COLS.length))];
     if(Math.hypot(x,z)>PLAY_R-10||!free(x,z,4)||!okGround(x,z,10)||heightAt(x,z)<WATER_Y+.3)continue;
     if(cars.some(o=>Math.hypot(o.x-x,o.z-z)<12))continue;
+    if(!roomy(x,z,yaw))continue; // ni arbre ni rocher sous la voiture, de la place devant et derrière
     makeCar(x,z,yaw,col);
   }
 }
@@ -3289,7 +3290,7 @@ function updatePlayer(dt){
   // tir / construction
   if(buildType&&!p.downed){
     if(p.mats[buildMatSel]<BUILD_COST){const alt=MAT_KEYS.find(k=>p.mats[k]>=BUILD_COST);
-      if(alt){buildMatSel=alt;}else if(mouseL&&T>(p._noMatT||0)){p._noMatT=T+2.5;showBanner('Plus de matériaux','Récolte avec la pioche : arbres, rochers, épaves',2.2);}}
+      if(alt){buildMatSel=alt;}else if(mouseL&&T>(p._noMatT||0)&&bannerT<=0){p._noMatT=T+2.5;showBanner('Plus de matériaux','Récolte avec la pioche : arbres, rochers, épaves',2.2);}}
     const pl=placement(p.pos,p.yaw,p.pitch,buildType);pl.mat=buildMatSel;
     const g=pieceGeom(pl);ghost.visible=true;ghost.scale.set(...g.size);ghost.position.set(...g.pos);ghost.rotation.set(...g.rot);
     ghost.material=(p.mats[buildMatSel]<BUILD_COST||builds.has(pl.key))?ghostBad:ghostOk;
@@ -4362,8 +4363,8 @@ function frame(){
         else if(u<.45){const k=(u-.22)/.23,e2=k*k*(3-2*k);ax=lerp(.45,-1.25,e2);px=-.13*e2;pz=-.06*e2;py=lerp(.03,-.05,e2);}
         else{const k=(u-.45)/.55,e2=1-(1-k)*(1-k);ax=lerp(-1.25,0,e2);px=lerp(-.13,0,e2);pz=lerp(-.06,0,e2);py=lerp(-.05,0,e2);}}
       const sw=SET.bob&&p.moving?Math.sin(T*(p.vel.lengthSq()>60?13:9)):0,idle=Math.sin(T*1.6)*.006;
-      view.position.set(.27+px+sw*.012,-.3+py-Math.abs(sw)*.012+idle,-.5+pz);
-      view.rotation.set(ax+idle*.5,px*.8,ax*.15+sw*.02);
+      view.position.set(.27+px+sw*.012,-.3+py-Math.abs(sw)*.012+idle-drop*.3,-.5+pz);
+      view.rotation.set(ax+idle*.5-drop*.9,px*.8,ax*.15+sw*.02);
     }
     flashT-=dt;flash.visible=flashT>0;
     if(flashT>0&&viewGun&&viewGun.userData.tip&&view.visible){viewGun.userData.tip.getWorldPosition(mLight.position);mLight.intensity=4;}else mLight.intensity=0;flash.rotation.z=Math.random()*3;
