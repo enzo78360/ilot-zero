@@ -14,18 +14,33 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Passe de combat** et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
 
-## Compte et sauvegarde en ligne
+## Compte, amis et sauvegarde en ligne
 
-L'onglet **Compte** permet de se connecter avec Google. La progression (niveau, XP, coquillages, tenues, revêtements, accessoires) est alors enregistrée en ligne et suit sur tous les appareils, y compris dans la version de bureau. Sans compte, elle reste dans le navigateur. Les données sont stockées dans [Supabase](https://supabase.com/) : chaque joueur ne peut lire et modifier que son propre profil.
+- **Connexion obligatoire** : pour jouer, on se connecte avec son compte Google, puis on choisit un **pseudo unique** (3 à 14 caractères). C'est le nom affiché en jeu et dans les salons.
+- **Sauvegarde en ligne** : la progression (niveau, XP, coquillages, tenues, revêtements, accessoires) est enregistrée sur le compte et suit sur tous les appareils, y compris dans la version de bureau.
+- **Amis** (onglet **Compte**) : ajouter quelqu'un avec son pseudo, accepter ou refuser les demandes (un badge sur l'onglet indique les demandes reçues), voir qui est en ligne et **rejoindre en un clic** le salon d'un ami qui héberge.
+- **Codes cadeaux** (onglet **Compte**) : un code donne des coquillages ou de l'XP. Chaque code ne s'utilise qu'une fois par compte et peut avoir une date d'expiration et un nombre d'utilisations limité.
 
-**Staff** : un compte marqué « staff » voit un **Espace staff** dans l'onglet Compte (coquillages illimités, XP illimitée, vie, munitions et matériaux illimités). En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent). Le staff gère lui-même ses membres dans l'onglet **Compte**, section **Membres du staff** : ajouter une adresse Gmail (le joueur devient staff tout de suite, ou à sa première connexion) ou retirer un membre. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même. Toutes ces vérifications sont faites par le serveur : un joueur ne peut pas se donner le rôle staff.
+Les données sont stockées dans [Supabase](https://supabase.com/) (serveurs à Paris). Chaque joueur ne peut lire et modifier que son propre profil.
+
+### Staff
+
+Un compte staff voit en plus, dans l'onglet **Compte** :
+- l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
+- la **Modération** : bannir un joueur par son pseudo (1 h, 24 h, 7 jours, 30 jours ou définitif) avec un motif, et le débannir. Un joueur banni voit la date de fin et le motif, et ne peut plus jouer ni sauvegarder. Un membre du staff ne peut pas être banni ;
+- les **Codes cadeaux** : créer un code (coquillages ou XP, durée de validité, utilisations maximum), suivre ses utilisations, le supprimer ;
+- les **Membres du staff** : ajouter une adresse Gmail ou retirer un membre. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
+
+En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent).
+
+Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites par le serveur : un joueur ne peut pas se donner le rôle staff, ni utiliser un code deux fois.
 
 ## Progression
 
 - **Niveaux** : chaque partie rapporte de l'XP (éliminations, mises à terre, réanimations, rappels, récolte, temps de survie, classement). 1 000 XP par niveau.
 - **Passe de combat** : 50 paliers. Chaque palier donne 100 coquillages, ou une tenue ou un revêtement exclusif (paliers 5, 10, 20, 25, 30, 40, 45, 50).
 - **Boutique** : les coquillages servent à acheter des tenues de personnage et des revêtements d'armes. Le **casier** sert à équiper ce que tu possèdes. Tes amis voient ta tenue en multijoueur.
-- La progression est enregistrée dans le navigateur (stockage local). Changer de navigateur ou vider ses données repart de zéro.
+- La progression est enregistrée sur ton compte (voir plus haut) et aussi dans le navigateur.
 
 ## En partie
 

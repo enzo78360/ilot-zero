@@ -277,8 +277,18 @@ button:disabled{opacity:.5;cursor:default}
 .acuser div{display:flex;flex-direction:column;min-width:0;flex:1}.acuser small{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .acrole{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.08)}
 .acrole.staff{background:var(--accent);color:#1b0f08}
-.acsync{margin:0;font-size:14px;color:var(--muted)}.acsync.err{color:#ff8a8a}
-#saEmail{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
+.acsync{margin:0;font-size:14px;color:var(--muted)}.acsync.err{color:#ff8a8a}.acsync.ok{color:#7fe3a0}
+.screen.gate{z-index:60;background:radial-gradient(ellipse at center,rgba(5,16,20,.55),rgba(5,16,20,.9))}
+.gatebox{width:min(440px,100%);padding:26px 24px;border-radius:14px;display:flex;flex-direction:column;gap:14px;text-align:center}
+.gatebox .brand{font-size:34px}.gatebox .tag{margin:0}.gatebox .joinrow input{text-transform:none;letter-spacing:normal;font-size:18px}
+.gbanT{color:#ff8a8a;font-family:var(--display);letter-spacing:.06em;text-transform:uppercase}
+.pfield{display:flex;flex-direction:column;gap:6px}.pfield .row{display:flex;gap:6px;flex-wrap:wrap}
+.pfield input,.pfield select{flex:1;min-width:0;font-family:var(--body);font-size:15px;color:var(--fg);background:rgba(255,255,255,.07);border:1px solid var(--panel-edge);border-radius:6px;padding:8px 10px}
+.pfield input.code{text-transform:uppercase;letter-spacing:.12em}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#59656a;margin-right:6px;vertical-align:middle}.dot.on{background:#5fff8a;box-shadow:0 0 6px #5fff8a}
+.salist li .btns{display:flex;gap:6px}
+#hubTabs button .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:5px;border-radius:8px;background:var(--accent);color:#1b0f08;font-size:11px;line-height:16px}
+#saEmail,#frIn,#mdPseudo{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
 .salist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .salist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05)}
 .salist li div{flex:1;min-width:0;display:flex;flex-direction:column}.salist li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
@@ -374,6 +384,28 @@ button:disabled{opacity:.5;cursor:default}
   <div id="dnums"></div>
 </div>
 
+<div class="screen gate" id="gate">
+  <div class="gatebox panel">
+    <div class="brand">ÎLOT <span>ZÉRO</span></div>
+    <div id="gLoad"><p class="tag">Connexion…</p></div>
+    <div id="gLogin" hidden>
+      <p class="tag">Connecte-toi avec ton compte Google pour jouer. Ta progression, tes amis et tes récompenses sont enregistrés sur ton compte.</p>
+      <button class="go" id="gGoogle">Se connecter avec Google</button>
+    </div>
+    <div id="gPseudo" hidden>
+      <p class="tag">Choisis ton pseudo. C'est ton nom en jeu, et tes amis t'ajoutent avec lui. 3 à 14 caractères : lettres, chiffres, - et _.</p>
+      <div class="joinrow"><input id="gPseudoIn" maxlength="14" placeholder="Pseudo" autocomplete="off" aria-label="Pseudo"><button id="gPseudoOk">Valider</button></div>
+    </div>
+    <div id="gBan" hidden>
+      <p class="tag"><b class="gbanT">Compte suspendu</b></p>
+      <p class="tag" id="gBanTxt"></p>
+    </div>
+    <p class="acsync" id="gMsg"></p>
+    <button class="wide" id="gLogout" hidden>Changer de compte</button>
+    <p class="acsync"><a href="https://enzo78360.github.io/ilot-zero/confidentialite.html" target="_blank" rel="noopener" style="color:inherit">Confidentialité</a> · <a href="https://enzo78360.github.io/ilot-zero/conditions.html" target="_blank" rel="noopener" style="color:inherit">Conditions d'utilisation</a></p>
+  </div>
+</div>
+
 <div class="screen hub" id="menu">
   <header class="hubbar">
     <div class="brand">ÎLOT <span>ZÉRO</span></div>
@@ -460,6 +492,40 @@ button:disabled{opacity:.5;cursor:default}
         <label class="srow"><span>Munitions illimitées</span><input type="checkbox" id="stAmmo"></label>
         <label class="srow"><span>Matériaux illimités</span><input type="checkbox" id="stMats"></label>
         <button class="wide" id="stXp">XP illimitée : débloquer tout le passe de combat</button>
+      </div>
+      <div class="pane panel" id="friendsPane">
+        <h3>Amis</h3>
+        <div class="joinrow"><input id="frIn" maxlength="14" placeholder="Pseudo de ton ami" autocomplete="off" aria-label="Pseudo de l'ami à ajouter"><button id="frAdd">Ajouter</button></div>
+        <p class="acsync" id="frMsg"></p>
+        <ul class="salist" id="frList"></ul>
+      </div>
+      <div class="pane panel" id="giftPane">
+        <h3>Code cadeau</h3>
+        <p class="tag">Entre un code pour recevoir sa récompense. Chaque code ne s'utilise qu'une fois par compte.</p>
+        <div class="joinrow"><input id="gcIn" maxlength="24" placeholder="CODE" autocomplete="off" aria-label="Code cadeau"><button id="gcOk">Utiliser</button></div>
+        <p class="acsync" id="gcMsg"></p>
+      </div>
+      <div class="pane panel" id="modPane" hidden>
+        <h3>Modération</h3>
+        <div class="pfield">
+          <div class="row"><input id="mdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à bannir">
+            <select id="mdDur" aria-label="Durée"><option value="1">1 heure</option><option value="24" selected>24 heures</option><option value="168">7 jours</option><option value="720">30 jours</option><option value="">Définitif</option></select></div>
+          <div class="row"><input id="mdWhy" maxlength="200" placeholder="Motif (visible par le joueur)" autocomplete="off" aria-label="Motif"><button id="mdBan">Bannir</button></div>
+        </div>
+        <p class="acsync" id="mdMsg"></p>
+        <ul class="salist" id="mdList"></ul>
+      </div>
+      <div class="pane panel" id="codesPane" hidden>
+        <h3>Codes cadeaux (staff)</h3>
+        <div class="pfield">
+          <div class="row"><input id="ccCode" class="code" maxlength="24" placeholder="CODE" autocomplete="off" aria-label="Code à créer">
+            <select id="ccType" aria-label="Récompense"><option value="coquillages">Coquillages</option><option value="xp">XP</option></select>
+            <input id="ccAmount" type="number" min="1" max="1000000" value="500" aria-label="Quantité" style="max-width:110px"></div>
+          <div class="row"><select id="ccHours" aria-label="Validité"><option value="24">Valable 24 heures</option><option value="168" selected>Valable 7 jours</option><option value="720">Valable 30 jours</option><option value="">Sans limite de temps</option></select>
+            <input id="ccMax" type="number" min="1" placeholder="Utilisations max (vide = illimité)" aria-label="Utilisations maximum"><button id="ccCreate">Créer</button></div>
+        </div>
+        <p class="acsync" id="ccMsg"></p>
+        <ul class="salist" id="ccList"></ul>
       </div>
       <div class="pane panel" id="staffAdmin" hidden>
         <h3>Membres du staff</h3>
@@ -3780,10 +3846,11 @@ function peerErr(err){
 }
 function makeCode(){const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<4;i++)s+=A[Math.floor(Math.random()*A.length)];return s;}
 function leaveNet(){
-  const p=NET.peer;NET.peer=null;NET.role='solo';NET.conns=[];NET.host=null;
+  const wasHost=NET.role==='host';const p=NET.peer;NET.peer=null;NET.role='solo';NET.conns=[];NET.host=null;
   try{if(p)p.destroy();}catch(err){}
+  if(wasHost)try{accHeartbeat();}catch(err){}
 }
-function savePseudo(){NET.name=cleanName($('pseudo').value);try{localStorage.setItem('ilotzero-pseudo',NET.name);}catch(err){}}
+function savePseudo(){if(ACC.pseudo){$('pseudo').value=ACC.pseudo;}NET.name=cleanName($('pseudo').value);try{localStorage.setItem('ilotzero-pseudo',NET.name);}catch(err){}}
 function canNet(){
   if(!window.Peer||!window.RTCPeerConnection){netMsg('Le multijoueur ne fonctionne pas sur cette page. Ouvre le jeu depuis sa page GitHub.');return false;}
   return true;
@@ -3795,7 +3862,7 @@ function hostLobby(){
   let peer;
   try{peer=new Peer(PEER_PREFIX+NET.code,{debug:0});}catch(err){netMsg(peerErr(err));return;}
   NET.peer=peer;
-  peer.on('open',()=>{NET.role='host';NET.conns=[];netMsg('');showLobby(true);lobbyUpdate();});
+  peer.on('open',()=>{NET.role='host';NET.conns=[];netMsg('');showLobby(true);lobbyUpdate();accHeartbeat();});
   peer.on('connection',conn=>{
     conn.on('data',m=>onHostData(conn,m));
     conn.on('close',()=>onHostClose(conn));
@@ -4364,30 +4431,33 @@ document.querySelectorAll('#hubTabs button').forEach(b=>b.addEventListener('clic
 // chacun ne lit et n'écrit que son profil, et le rôle « staff » ne se modifie que depuis le tableau de bord Supabase.
 const SB_URL='https://kweiabsweqxwoiiqbkpa.supabase.co',SB_KEY='sb_publishable_DwCiEaptGubyznBFj55Mww_ntr9AArh';
 const IS_APP=location.protocol==='app:',APP_LOOPBACK='http://127.0.0.1:53682/';
-const ACC={sb:null,user:null,role:'joueur',ready:false,state:'',pushT:0};
+const ACC={sb:null,user:null,role:'joueur',ready:false,state:'',pushT:0,pseudo:null,ban:null,init:false};
 const STAFF=(()=>{try{return Object.assign({coins:false,god:false,ammo:false,mats:false,speed:false,radar:false},JSON.parse(localStorage.getItem('ilotzero-staff')||'{}'));}catch(err){return {coins:false,god:false,ammo:false,mats:false,speed:false,radar:false};}})();
 function staffOn(k){try{return ACC.role==='staff'&&!!STAFF[k];}catch(err){return false;}}
 function accInit(){
-  if(!window.supabase||!supabase.createClient){ACC.state='Connexion indisponible (bibliothèque non chargée).';return;}
+  if(!window.supabase||!supabase.createClient){ACC.state='Connexion indisponible (bibliothèque non chargée).';ACC.init=true;renderGate();return;}
   ACC.sb=supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:'implicit',persistSession:true,autoRefreshToken:true,detectSessionInUrl:!IS_APP}});
   ACC.sb.auth.onAuthStateChange((ev,session)=>{
     const u=session?session.user:null;
     if((u&&u.id)===(ACC.user&&ACC.user.id))return;
     ACC.user=u;ACC.ready=false;
     if(u){setTimeout(accPull,0);if(location.hash.includes('access_token'))history.replaceState(null,'',location.pathname+location.search);}
-    else{ACC.role='joueur';ACC.state='';renderAccount();}
+    else{ACC.role='joueur';ACC.state='';ACC.pseudo=null;ACC.ban=null;renderAccount();}
+    ACC.init=true;renderGate();
   });
 }
 async function accPull(){
   const u=ACC.user;if(!u)return;ACC.state='Synchronisation…';renderAccount();
-  const {data,error}=await ACC.sb.from('profiles').select('progress,role').eq('id',u.id).maybeSingle();
+  const {data,error}=await ACC.sb.from('profiles').select('progress,role,pseudo').eq('id',u.id).maybeSingle();
   if(ACC.user!==u)return;
-  if(error){ACC.state='Erreur de synchronisation : '+error.message;renderAccount();return;}
+  if(error){await accFail('Erreur de synchronisation : '+error.message);return;}
+  ACC.pseudo=data&&data.pseudo||null;
+  {const b=await ACC.sb.rpc('my_ban');ACC.ban=b.data&&b.data.length?b.data[0]:null;}
   const md=u.user_metadata||{},name=String(md.full_name||md.name||u.email||'').slice(0,40);
   if(!data){
     // le rôle est décidé par le serveur (liste staff) : on relit celui qu'il a attribué
     const {data:ins,error:e2}=await ACC.sb.from('profiles').insert({id:u.id,name,progress:prof}).select('role').single();
-    if(e2){ACC.state='Erreur de création du profil : '+e2.message;renderAccount();return;}
+    if(e2){await accFail('Erreur de création du profil : '+e2.message);return;}
     ACC.role=ins&&ins.role==='staff'?'staff':'joueur';ACC.state='Profil créé : ta progression est sauvegardée en ligne.';
   }else{
     ACC.role=data.role==='staff'?'staff':'joueur';
@@ -4397,12 +4467,15 @@ async function accPull(){
       prof=cleanProf(m)||prof;try{localStorage.setItem('ilotzero-profil',JSON.stringify(prof));}catch(err){}}
     ACC.state='Progression synchronisée.';
   }
-  ACC.ready=true;accPush();
-  renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();
+  ACC.ready=true;if(!ACC.ban)accPush();
+  if(ACC.pseudo){$('pseudo').value=ACC.pseudo;$('pseudo').readOnly=true;NET.name=ACC.pseudo;}
+  renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();renderGate();accHeartbeat();friendsLoad();
 }
+// échec à la connexion (compte supprimé, réseau…) : on revient proprement à l'écran de connexion
+async function accFail(msg){try{await ACC.sb.auth.signOut({scope:'local'});}catch(err){}ACC.user=null;ACC.ready=false;ACC.state=msg;renderAccount();renderGate();}
 function accPushSoon(){if(!ACC.user||!ACC.ready)return;clearTimeout(ACC.pushT);ACC.pushT=setTimeout(accPush,1500);}
 async function accPush(){
-  if(!ACC.user||!ACC.ready)return;
+  if(!ACC.user||!ACC.ready||ACC.ban)return;
   const {error}=await ACC.sb.from('profiles').update({progress:prof,updated_at:new Date().toISOString()}).eq('id',ACC.user.id);
   if(error){ACC.state='Sauvegarde en ligne impossible : '+error.message;renderAccount();}
 }
@@ -4443,7 +4516,9 @@ function renderAccount(){
   if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
     setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
-  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';
+  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';
+  $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
+  if(u&&hubTab==='compte'&&!ACC.listsT){ACC.listsT=setTimeout(()=>{ACC.listsT=0;},20000);friendsLoad();if(ACC.role==='staff'){modLoad();codesLoad();}}
   if(ACC.role==='staff'&&hubTab==='compte'&&!ACC.staffListT){ACC.staffListT=1;staffAdminLoad();}
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
 }
@@ -4475,6 +4550,138 @@ async function staffAdminRemove(email){
   setText(m,email+" n'est plus staff.");staffAdminLoad();
 }
 $('saAdd').addEventListener('click',staffAdminAdd);
+
+// ----- écran de connexion obligatoire -----
+function gateShow(k){for(const [id,key] of [['gLoad','load'],['gLogin','login'],['gPseudo','pseudo'],['gBan','ban']])$(id).hidden=k!==key;}
+function renderGate(){
+  const g=$('gate');let k=null;
+  if(!ACC.init)k='load';
+  else if(!ACC.sb)k='login';
+  else if(!ACC.user)k='login';
+  else if(!ACC.ready)k='load';
+  else if(ACC.ban)k='ban';
+  else if(!ACC.pseudo)k='pseudo';
+  g.hidden=!k;$('gLogout').hidden=!(ACC.user&&(k==='ban'||k==='pseudo'));
+  if(!k){setText($('gMsg'),'');return;}
+  gateShow(k);
+  if(k==='login'){const st=ACC.state||'';setText($('gMsg'),/Erreur|impossible|indisponible|Termine|annulée/.test(st)?st:'');$('gMsg').classList.toggle('err',/Erreur|impossible|indisponible/.test(st));}
+  if(k==='ban'){const b=ACC.ban;setText($('gBanTxt'),(b.until?'Jusqu\'au '+new Date(b.until).toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'}):'Suspension définitive')+(b.reason?' · Motif : '+b.reason:''));}
+  if(k==='pseudo'&&!$('gPseudoIn').value){const md=ACC.user.user_metadata||{};$('gPseudoIn').value=String(md.full_name||md.name||'').split(' ')[0].normalize('NFD').replace(/[^A-Za-z0-9_-]/g,'').slice(0,14);}
+  if(state.running&&k!=='load'){backToMenu();}
+}
+async function gateSetPseudo(){
+  const v=$('gPseudoIn').value.trim(),m=$('gMsg');m.classList.add('err');
+  if(!/^[A-Za-z0-9_-]{3,14}$/.test(v)){setText(m,'3 à 14 caractères : lettres sans accent, chiffres, - et _.');return;}
+  setText(m,'Enregistrement…');m.classList.remove('err');
+  const {error}=await ACC.sb.from('profiles').update({pseudo:v}).eq('id',ACC.user.id);
+  if(error){m.classList.add('err');setText(m,/unique|duplicate/i.test(error.message)?'Ce pseudo est déjà pris, choisis-en un autre.':'Impossible : '+error.message);return;}
+  ACC.pseudo=v;$('pseudo').value=v;$('pseudo').readOnly=true;NET.name=v;setText(m,'');renderGate();renderAccount();
+}
+$('gGoogle').addEventListener('click',()=>{accLogin().then(renderGate);});
+$('gPseudoOk').addEventListener('click',gateSetPseudo);
+$('gPseudoIn').addEventListener('keydown',e=>{if(e.key==='Enter')gateSetPseudo();});
+$('gLogout').addEventListener('click',accLogout);
+
+// ----- présence (en ligne, salon ouvert) et contrôle de suspension -----
+let hbT=0;
+async function accHeartbeat(){
+  if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;
+  const lobby=NET.role==='host'&&/^[A-Z0-9]{4}$/.test(NET.code||'')?NET.code:null;
+  await ACC.sb.from('profiles').update({last_seen:new Date().toISOString(),lobby_code:lobby}).eq('id',ACC.user.id);
+}
+setInterval(async()=>{
+  if(!ACC.sb||!ACC.user||!ACC.ready)return;
+  const b=await ACC.sb.rpc('my_ban');const nb=b.data&&b.data.length?b.data[0]:null;
+  if(!!nb!==!!ACC.ban){ACC.ban=nb;renderGate();renderAccount();}
+  accHeartbeat();if(hubTab==='compte')friendsLoad();else friendsBadge();
+},60000);
+
+// ----- amis -----
+let frData=[];
+function friendsBadge(){const n=frData.filter(f=>f.status==='recue').length,b=document.querySelector('#hubTabs button[data-tab="compte"]');if(!b)return;
+  let s=b.querySelector('.badge');if(n&&!s){s=document.createElement('span');s.className='badge';b.append(s);}if(s){if(n)s.textContent=n;else s.remove();}}
+async function friendsLoad(){
+  if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;
+  const {data,error}=await ACC.sb.rpc('friends_list');if(error)return;frData=data||[];friendsBadge();
+  const ul=$('frList');ul.textContent='';
+  const lab={recue:'Demande reçue',envoyee:'Demande envoyée'};
+  if(!frData.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun ami pour l\'instant. Ajoute quelqu\'un avec son pseudo.</small></div>';ul.append(li);}
+  for(const f of frData){
+    const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small'),btns=document.createElement('div');btns.className='btns';
+    const dot=document.createElement('span');dot.className='dot'+(f.online?' on':'');b.append(dot,document.createTextNode(f.pseudo));
+    sm.textContent=f.status==='ami'?(f.lobby_code?'Dans un salon · code '+f.lobby_code:(f.online?'En ligne':'Hors ligne')):lab[f.status];d.append(b,sm);li.append(d,btns);
+    const btn=(t,fn)=>{const x=document.createElement('button');x.textContent=t;x.addEventListener('click',fn);btns.append(x);};
+    if(f.status==='recue'){btn('Accepter',()=>friendAct('friend_respond',{target_pseudo:f.pseudo,accept:true},f.pseudo+' est maintenant ton ami.'));btn('Refuser',()=>friendAct('friend_respond',{target_pseudo:f.pseudo,accept:false},'Demande refusée.'));}
+    else if(f.status==='envoyee')btn('Annuler',()=>friendAct('friend_remove',{target_pseudo:f.pseudo},'Demande annulée.'));
+    else{if(f.lobby_code)btn('Rejoindre',()=>{setHubTab('salon');$('code').value=f.lobby_code;joinLobby();});btn('Retirer',()=>friendAct('friend_remove',{target_pseudo:f.pseudo},f.pseudo+' a été retiré de tes amis.'));}
+    ul.append(li);}
+}
+async function friendAct(fn,args,okMsg){
+  const m=$('frMsg');m.className='acsync';const {error}=await ACC.sb.rpc(fn,args);
+  if(error){m.classList.add('err');setText(m,'Impossible : '+errFr(error));return;}
+  m.classList.add('ok');setText(m,okMsg);friendsLoad();
+}
+async function friendAdd(){
+  const v=$('frIn').value.trim(),m=$('frMsg');m.className='acsync';
+  if(!/^[A-Za-z0-9_-]{3,14}$/.test(v)){m.classList.add('err');setText(m,'Entre le pseudo exact de ton ami.');return;}
+  const {data,error}=await ACC.sb.rpc('friend_request',{target_pseudo:v});
+  if(error){m.classList.add('err');setText(m,'Impossible : '+errFr(error));return;}
+  m.classList.add('ok');setText(m,{envoyee:'Demande envoyée à '+v+'.',accepte:'Vous êtes maintenant amis.',deja_amis:'Vous êtes déjà amis.',deja_envoyee:'Demande déjà envoyée, en attente de réponse.'}[data]||'OK');
+  $('frIn').value='';friendsLoad();
+}
+$('frAdd').addEventListener('click',friendAdd);$('frIn').addEventListener('keydown',e=>{if(e.key==='Enter')friendAdd();});
+
+// ----- codes cadeaux (joueur) -----
+async function giftRedeem(){
+  const v=$('gcIn').value.trim().toUpperCase(),m=$('gcMsg');m.className='acsync';
+  if(!/^[A-Z0-9_-]{3,24}$/.test(v)){m.classList.add('err');setText(m,'Code invalide.');return;}
+  const {data,error}=await ACC.sb.rpc('code_redeem',{p_code:v});
+  if(error){m.classList.add('err');setText(m,'Impossible : '+errFr(error));return;}
+  const r=data&&data[0];if(!r)return;
+  if(r.reward_type==='coquillages')prof.coins+=r.amount;else{prof.xp+=r.amount;claimRewards();}
+  saveProf();renderProfile();$('gcIn').value='';m.classList.add('ok');
+  setText(m,'Code utilisé : +'+fmtN(r.amount)+(r.reward_type==='coquillages'?' coquillages':' XP')+' !');beep(880,.15,.1,'triangle');
+}
+$('gcOk').addEventListener('click',giftRedeem);$('gcIn').addEventListener('keydown',e=>{if(e.key==='Enter')giftRedeem();});
+
+// ----- modération (staff) -----
+const fmtDate=d=>new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+async function modLoad(){
+  if(ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('mod_bans_list');const ul=$('mdList');ul.textContent='';if(error)return;
+  if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun joueur banni.</small></div>';ul.append(li);}
+  for(const b of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
+    t.textContent=b.pseudo;sm.textContent=(b.until?'Jusqu\'au '+fmtDate(b.until):'Définitif')+(b.reason?' · '+b.reason:'')+(b.banned_by?' · par '+b.banned_by:'');d.append(t,sm);
+    const x=document.createElement('button');x.textContent='Débannir';x.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:b.pseudo});modMsg(e?'Impossible : '+errFr(e):b.pseudo+' est débanni.',!e);modLoad();});
+    li.append(d,x);ul.append(li);}
+}
+function modMsg(t,ok){const m=$('mdMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
+$('mdBan').addEventListener('click',async()=>{
+  const p=$('mdPseudo').value.trim();if(!p){modMsg('Entre le pseudo du joueur.',false);return;}
+  const h=$('mdDur').value;const {error}=await ACC.sb.rpc('mod_ban',{target_pseudo:p,hours:h?+h:null,why:$('mdWhy').value.trim()});
+  if(error){modMsg('Impossible : '+errFr(error),false);return;}
+  modMsg(p+' est banni.',true);$('mdPseudo').value='';$('mdWhy').value='';modLoad();
+});
+
+// ----- codes cadeaux (staff) -----
+async function codesLoad(){
+  if(ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('codes_list');const ul=$('ccList');ul.textContent='';if(error)return;
+  if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun code pour l\'instant.</small></div>';ul.append(li);}
+  for(const c of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
+    const exp=c.expires_at&&new Date(c.expires_at)<=new Date();
+    t.textContent=c.code+' · '+fmtN(c.amount)+(c.reward_type==='coquillages'?' coquillages':' XP');
+    sm.textContent=(exp?'Expiré':c.expires_at?'Expire le '+fmtDate(c.expires_at):'Sans limite de temps')+' · '+c.uses+(c.max_uses?' / '+c.max_uses:'')+' utilisation'+(c.uses>1?'s':'');d.append(t,sm);
+    const x=document.createElement('button');x.textContent='Supprimer';x.addEventListener('click',async()=>{await ACC.sb.rpc('code_delete',{p_code:c.code});codesLoad();});
+    li.append(d,x);ul.append(li);}
+}
+function ccMsg(t,ok){const m=$('ccMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
+$('ccCreate').addEventListener('click',async()=>{
+  const code=$('ccCode').value.trim().toUpperCase(),amt=Math.round(+$('ccAmount').value),h=$('ccHours').value,mx=$('ccMax').value;
+  if(!/^[A-Z0-9_-]{3,24}$/.test(code)){ccMsg('Code : 3 à 24 caractères (lettres, chiffres, - et _).',false);return;}
+  if(!(amt>=1&&amt<=1000000)){ccMsg('Quantité entre 1 et 1 000 000.',false);return;}
+  const {error}=await ACC.sb.rpc('code_create',{p_code:code,p_type:$('ccType').value,p_amount:amt,p_hours:h?+h:null,p_max_uses:mx?Math.max(1,Math.round(+mx)):null});
+  if(error){ccMsg('Impossible : '+errFr(error),false);return;}
+  ccMsg('Code '+code+' créé.',true);$('ccCode').value='';$('ccMax').value='';codesLoad();
+});
 $('saEmail').addEventListener('keydown',e=>{if(e.key==='Enter')staffAdminAdd();});
 $('acLogin').addEventListener('click',accLogin);
 $('acLogout').addEventListener('click',accLogout);
