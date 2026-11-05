@@ -874,15 +874,16 @@ function buildTreeProtos(){
   TREE.barkMat=new THREE.MeshStandardMaterial({map:TEX.bark,bumpMap:TEX.bark,bumpScale:.03,roughness:.95,metalness:0});
 }
 // ================== MODÈLES BLENDER ==================
-const ASSETS={char:null,trees:[],rocks:[],guns:{}};
+const ASSETS={char:null,trees:[],rocks:[],guns:{},shop:null};
 const ARMB=/clavicule|bras|avantbras|main/;
 function loadAssets(){
   if(!THREE.GLTFLoader)return Promise.resolve();
   const L=new THREE.GLTFLoader();
   if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/gltf/');L.setDRACOLoader(d);}
   const get=f=>new Promise(res=>{try{L.load('models/'+f,g=>res(g),undefined,()=>res(null));}catch(err){res(null);}});
-  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb'].map(get)).then(r=>{
-    const [c,t1,t2,r1,r2,ar]=r;
+  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb'].map(get)).then(r=>{
+    const [c,t1,t2,r1,r2,ar,bq]=r;
+    if(bq)ASSETS.shop=bq.scene;
     if(ar){ar.scene.updateMatrixWorld(true);ar.scene.traverse(m=>{if(!m.isMesh)return;let o=m,ty=null;while(o&&!ty){const k=/^arme_([a-z]+)/.exec(o.name||'');if(k)ty=k[1];o=o.parent;}if(!ty)return;
       const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);g.userData.shared=true;(ASSETS.guns[ty]=ASSETS.guns[ty]||[]).push({geo:g,k:m.material.name});});}
     if(c){const clips={};for(const cl of c.animations){clips[cl.name]=cl;
@@ -3245,13 +3246,17 @@ function setPreview(skin,wrap){
     const rim=new THREE.DirectionalLight(lin(0x9fd0ff),1.4);rim.position.set(-4,3,-4);pvScene.add(rim);
     pvCam=new THREE.PerspectiveCamera(30,1,.1,50);pvCam.position.set(0,1.5,5.6);pvCam.lookAt(0,1.1,0);
   }
+  if(ASSETS.shop&&!pvScene.userData.shop){pvScene.userData.shop=true;pvR.shadowMap.enabled=true;pvR.shadowMap.type=THREE.PCFSoftShadowMap;
+    const d=pvScene.children.find(o=>o.isDirectionalLight);d.castShadow=true;d.shadow.mapSize.set(1024,1024);const sc=d.shadow.camera;sc.left=sc.bottom=-4;sc.right=sc.top=4;sc.near=1;sc.far=20;d.shadow.bias=-.0005;
+    ASSETS.shop.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=true;}});pvScene.add(ASSETS.shop);
+    const pl=new THREE.PointLight(lin(0xffc27a),6,7,2);pl.position.set(0,2.8,.6);pvScene.add(pl);}
   const key=skin+'|'+wrap;if(key===pvKey)return;pvKey=key;
   const rot=pvGroup?pvGroup.rotation.y:-.5;
   if(pvGroup)pvScene.remove(pvGroup);
   const ch=makeCharacter(HUMAN_COLORS[0],null,skin,true);
   ch.gunHolder.add(gunMesh('ar',3,wrap));ch.handHolder.visible=false;
   if(ch.glb){const a=ch.glb.actions;a.repos.stop();a.repos_j.play();a.vise_b.play();pvMixer=ch.glb.mixer;}else{pvMixer=null;poseAim(ch,0);ch.spine.rotation.y=-.12;}
-  pvGroup=ch.group;pvGroup.rotation.y=rot;pvScene.add(pvGroup);
+  pvGroup=ch.group;pvGroup.rotation.y=rot;pvGroup.position.y=ASSETS.shop?.18:0;pvGroup.traverse(o=>{if(o.isMesh&&o.visible)o.castShadow=true;});pvScene.add(pvGroup);
 }
 function renderPreview(dt){
   if(!pvR||!pvGroup)return;
