@@ -1691,6 +1691,7 @@ function buildWorld(seed){
   colSeq=0;colById=[];lootSeq=0;genPhase=true;props=[];propSeq=0;bornes=[];propTick=0;
   const origRandom=Math.random;Math.random=mulberry32(seed||12345);
   try{genWorld();}finally{Math.random=origRandom;genPhase=false;}
+  setAmbiance(ambForSeed(seed||12345));
 }
 function genWorld(){
   TER={seed:Math.floor(rand(1,2e9)),ox:rand(0,100),oz:rand(0,100),mx:40,mz:-30,ra:rand(0,Math.PI),rph:rand(0,6),flats:[],pois:[]};
@@ -2744,6 +2745,61 @@ function updateMarks(){
     const W=innerWidth,H=innerHeight;m.el.style.transform=`translate(${(_mv.x*.5+.5)*W}px,${(-_mv.y*.5+.5)*H}px)`;
     const dist=Math.round(Math.hypot(m.x-player.pos.x,m.z-player.pos.z)),txt=(m.name?m.name+' · ':'')+dist+' m';const sp=m.el.lastChild;if(sp._t!==txt){sp._t=txt;sp.textContent=txt;}}
 }
+// ================== AMBIANCES (heure du jour) ==================
+const AMB={
+  midi:{name:'Plein jour',elev:34,az:140,top:0x2f6fbf,mid:0x7fb1df,hor:0xc4d3df,gnd:0x8a9a8c,sunC:0xfff1d8,sunL:0xfff0dc,sunI:3.1,hs:0xcfe2ff,hg:0x5a6b3a,hi:.55,fog:0xc4d3df,birds:1},
+  matin:{name:'Matin brumeux',elev:13,az:75,top:0x4677ad,mid:0xa3c2dc,hor:0xf1dcc6,gnd:0x8d8f86,sunC:0xffe2bd,sunL:0xffe3c6,sunI:2.5,hs:0xe2e8f5,hg:0x5e6646,hi:.62,fog:0xe8ddcf,fogK:.72,birds:1.4},
+  soir:{name:'Coucher de soleil',elev:6,az:255,top:0x26386f,mid:0xa9708a,hor:0xffa46a,gnd:0x6a5852,sunC:0xffa860,sunL:0xffa25a,sunI:2.6,hs:0xffc4a4,hg:0x4a3c38,hi:.5,fog:0xe79a76,fogK:.85,birds:.4}
+};
+let ambNow='midi',fogK=1;
+function setAmbiance(k){
+  const a=AMB[k]||AMB.midi;ambNow=k;
+  sunDir.setFromSphericalCoords(1,THREE.MathUtils.degToRad(90-a.elev),THREE.MathUtils.degToRad(a.az));
+  const u=sky.material.uniforms;u.top.value=lin(a.top);u.mid.value=lin(a.mid);u.hor.value=lin(a.hor);u.gnd.value=lin(a.gnd);u.sunD.value.copy(sunDir);u.sunC.value=lin(a.sunC);
+  sun.color=lin(a.sunL);sun.intensity=a.sunI;hemi.color=lin(a.hs);hemi.groundColor=lin(a.hg);hemi.intensity=a.hi;
+  scene.fog.color=lin(a.fog);fogK=a.fogK||1;scene.fog.near=SET.view*.32*fogK;scene.fog.far=SET.view*fogK;
+  try{if(waterReal&&waterReal.material.uniforms){waterReal.material.uniforms.sunDirection.value.copy(sunDir);waterReal.material.uniforms.sunColor.value=lin(a.sunL);}}catch(err){}
+  try{const pm=new THREE.PMREMGenerator(renderer);const es=new THREE.Scene();const s2=makeSkyMesh();s2.material.uniforms=THREE.UniformsUtils.clone(u);s2.scale.setScalar(100);es.add(s2);
+    if(scene.environment)scene.environment.dispose();scene.environment=pm.fromScene(es,0,.1,300).texture;pm.dispose();}catch(err){}
+}
+function ambForSeed(seed){if(seed===20261105)return 'midi';const r=mulberry32(seed^0x5bd1e995)();return r<.45?'midi':r<.7?'matin':'soir';}
+// ================== SONS D'AMBIANCE ==================
+let ambA=null;
+function updateAmbience(dt){
+  if(!AC||!noise)return;
+  if(!ambA){try{
+    const mk=(type,f,q)=>{const s=AC.createBufferSource();s.buffer=noise;s.loop=true;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q||.7;const g=AC.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(master);s.start();return {s,fl,g};};
+    ambA={wind:mk('bandpass',380,.6),wave:mk('lowpass',520),birdT:2};}catch(err){return;}}
+  const on=state.running&&player&&!state.over;
+  const p=player,t=AC.currentTime;
+  const alt=on?p.pos.y:0,shore=on?clamp(1-(heightAt(p.pos.x,p.pos.z)-WATER_Y)/6,0,1)*clamp((Math.hypot(p.pos.x,p.pos.z)-120)/80,0,1):0;
+  const wv=on?(.05+.03*Math.sin(T*.5)+Math.min(.06,alt*.0012)+(p.gliding?.08:0)):0;
+  ambA.wind.g.gain.setTargetAtTime(wv,t,.6);ambA.wind.fl.frequency.setTargetAtTime(300+Math.sin(T*.37)*90+(p&&p.gliding?260:0),t,.8);
+  ambA.wave.g.gain.setTargetAtTime(on?shore*(.07+.06*Math.max(0,Math.sin(T*.9))):0,t,.4);
+  ambA.birdT-=dt;
+  if(on&&ambA.birdT<=0){ambA.birdT=rand(3,9)/((AMB[ambNow]||AMB.midi).birds||1);
+    if(!outside(p)&&!p.gliding){const n=1+((Math.random()*3)|0),base=rand(2600,4200),pan=rand(-.8,.8);
+      for(let i=0;i<n;i++){const o=AC.createOscillator(),g=AC.createGain(),st=t+i*rand(.12,.2);o.type='sine';o.frequency.setValueAtTime(base,st);o.frequency.exponentialRampToValueAtTime(base*rand(1.2,1.6),st+.08);o.frequency.exponentialRampToValueAtTime(base*.9,st+.14);
+        g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.025,st+.02);g.gain.exponentialRampToValueAtTime(.001,st+.15);let out=g;if(AC.createStereoPanner){const pn=AC.createStereoPanner();pn.pan.value=pan;g.connect(pn);out=pn;}
+        o.connect(g);out.connect(master);o.start(st);o.stop(st+.2);}}}
+}
+// ================== VUE À LA 3e PERSONNE ==================
+let tpView=false;try{tpView=localStorage.getItem('ilotzero-tp')==='1';}catch(err){}
+function tpActive(){const p=player;return tpView&&p&&p.alive&&!p.car&&!p.ads&&!state.spectate;}
+function playerAimDir(v){
+  camera.getWorldDirection(v);if(!tpActive())return v;
+  const o=camera.getWorldPosition(new THREE.Vector3()),h=castRay(o,v.clone(),400,player);const tgt=h?h.point:o.clone().addScaledVector(v,300);
+  return v.copy(tgt).sub(eyePos(player,new THREE.Vector3())).normalize();
+}
+const _tpo=new THREE.Vector3(),_tpd=new THREE.Vector3();
+function tpCamera(p,dt){
+  const pv=new THREE.Vector3(p.pos.x,p.pos.y+(p.eyeH||EYE)-.05,p.pos.z);
+  const cp=Math.cos(p.pitch),back=new THREE.Vector3(Math.sin(p.yaw)*cp,-Math.sin(p.pitch),Math.cos(p.yaw)*cp),right=new THREE.Vector3(Math.cos(p.yaw),0,-Math.sin(p.yaw));
+  _tpo.copy(pv).addScaledVector(right,.62).add(new THREE.Vector3(0,.18,0));
+  _tpd.copy(back);let dist=3.1;const h=castRay(_tpo,_tpd.clone(),dist+.3,p);if(h)dist=Math.max(.4,h.distance-.3);
+  const c=_tpo.clone().addScaledVector(back,dist);c.y=Math.max(c.y,heightAt(c.x,c.z)+.3);
+  p._tpd=lerp(p._tpd||dist,dist,Math.min(1,dt*10));camera.position.copy(_tpo).addScaledVector(back,p._tpd);camera.position.y=Math.max(camera.position.y,heightAt(camera.position.x,camera.position.z)+.3);
+}
 // ================== VÉHICULES ==================
 let cars=[];
 const CARK={fwd:28,back:9,acc:10,brake:24,wb:2.56,steer:.5,hl:2.05,hw:.9,top:1.4};
@@ -2937,7 +2993,7 @@ function updatePlayer(dt){
       if(NET.role==='client')clientFire(p);
       else{
         const auto=w&&w.type!=='pickaxe'&&WEAPONS[w.type].auto;
-        if(auto||w.type==='pickaxe'||mouseLEdge){if(tryFire(p,camera.getWorldDirection(tmpD)))mouseLEdge=false;}
+        if(auto||w.type==='pickaxe'||mouseLEdge){if(tryFire(p,playerAimDir(tmpD)))mouseLEdge=false;}
       }
     }
   }
@@ -2982,7 +3038,7 @@ function commonUpdate(e,dt){
   poseChar(e,dt);
 }
 // vue 1re personne : le corps du joueur local passe sur le calque 1 (invisible pour la caméra, mais projette son ombre)
-function selfLayer(e,m){const L=e===player&&e.alive&&!state.spectate?1:0;m._ly=L;m.group.traverse(o=>{if(o.isMesh&&!o.userData.part)o.layers.set(L);});}
+function selfLayer(e,m){const L=e===player&&e.alive&&!state.spectate&&!tpActive()?1:0;m._ly=L;m.group.traverse(o=>{if(o.isMesh&&!o.userData.part)o.layers.set(L);});}
 function poseChar(e,dt){
   const m=e.model,R=(o,x,y,z)=>o.rotation.set(x,y||0,z||0);
   if(e===player||m._ly)selfLayer(e,m);
@@ -3080,7 +3136,7 @@ function updateHUD(){
   $('chL').style.left=(-sp-9)+'px';$('chR').style.left=sp+'px';$('chT').style.top=(-sp-9)+'px';$('chB').style.top=sp+'px';
   const scoped=p.ads&&w&&w.type!=='pickaxe'&&WS(p,w.type).scope&&fovK>.8;
   $('scope').style.opacity=scoped?1:0;$('cross').style.opacity=scoped||buildType?.35:(p.ads&&fovK>.5&&viewGun&&viewGun.userData.sightY!=null?0:1);
-  view.visible=!scoped&&!buildType&&p.alive&&!p.gliding&&!p.downed&&!p.reviving&&!p.car;
+  view.visible=!scoped&&!buildType&&p.alive&&!p.gliding&&!p.downed&&!p.reviving&&!p.car&&!tpActive();
   $('vign').style.opacity=Math.min(1,vignT*2+(p.hp<30?.35:0));
   const dd=$('dmgdir');dd.style.opacity=dmgDirT>0?Math.min(1,dmgDirT):0;dd.style.transform=`rotate(${-(dmgDirAng-p.yaw)}rad)`;
 }
@@ -3541,7 +3597,7 @@ function clientFire(p){
   if(w.type==='pickaxe'){p.nextFire=T+.42;p.swingT=T;recoil=.6;mouseLEdge=false;return;}
   if(p.reloading||w.ammo<=0)return;
   const def=WS(p,w.type);p.nextFire=T+def.rate;mouseLEdge=false;w.ammo--;
-  const o=eyePos(p,tmpO).clone(),d=camera.getWorldDirection(tmpD).clone();
+  const o=eyePos(p,tmpO).clone(),d=playerAimDir(tmpD).clone();
   const h=castRay(o,d,def.range,p);
   tracer(muzzle(p,tmpM).clone(),h?h.point:o.clone().addScaledVector(d,def.range),true);
   sfx(def.snd,p.pos);
@@ -3569,6 +3625,7 @@ addEventListener('keydown',e=>{
   if(p.downed)return;
   switch(e.code){
     case 'Digit1':chooseSlot(0);break;case 'Digit2':chooseSlot(1);break;case 'Digit3':chooseSlot(2);break;case 'Digit4':chooseSlot(3);break;
+    case 'KeyP':tpView=!tpView;try{localStorage.setItem('ilotzero-tp',tpView?'1':'0');}catch(err){}showBanner(tpView?'Vue à la 3e personne':'Vue à la 1re personne','P pour changer',1.4);break;
     case 'KeyX':if(p.car)break;if(!p.crouch&&p.onGround&&Math.hypot(p.vel.x,p.vel.z)>8){const l=Math.hypot(p.vel.x,p.vel.z);p.sliding=true;p.slideEnd=T+.95;p.slideDir={x:p.vel.x/l,z:p.vel.z/l};p.crouch=true;sfx('step',p.pos,1.2);}else{p.crouch=!p.crouch;p.sliding=false;}break;
     case 'KeyR':if(NET.role==='client')sendHost({t:'rl'});else startReload(p);break;
     case 'KeyE':if(p.car){const c=p.car;exitCar(p);if(NET.role==='client')sendHost({t:'cx'});break;}
@@ -3641,7 +3698,7 @@ function applyGraphics(){
   const sh=+SET.shadow,was=renderer.shadowMap.enabled;renderer.shadowMap.enabled=sh>0;sun.castShadow=sh>0;
   if(sh>0&&sun.shadow.mapSize.x!==sh){sun.shadow.mapSize.set(sh,sh);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   if(was!==(sh>0))scene.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);});
-  scene.fog.near=SET.view*.32;scene.fog.far=SET.view;camera.far=SET.view+160;camera.updateProjectionMatrix();
+  scene.fog.near=SET.view*.32*fogK;scene.fog.far=SET.view*fogK;camera.far=SET.view+160;camera.updateProjectionMatrix();
   if(sky)sky.scale.setScalar(camera.far*.95);
   if(waterReal){waterReal.visible=!!SET.water;waterSimple.visible=!SET.water;}
   grassC.x=1e9;updateGrass(true);
@@ -3872,7 +3929,7 @@ function frame(){
       for(let i=loot.length-1;i>=0;i--){const it=loot[i];if(it.kind==='card'){const o=entities[it.owner];if(T>it.expire||!o||o.alive)removeLoot(it);}}
       if(NET.role==='host'){NET.snapT-=dt;if(NET.snapT<=0){NET.snapT=1/15;sendSnapshots();}}
     }
-    updateCars(dt);updateDrops(dt);footsteps(dt);updateMarks();
+    updateCars(dt);updateDrops(dt);footsteps(dt);updateMarks();updateAmbience(dt);
     for(const e of entities)commonUpdate(e,dt);
     animateProps();
     if(player.alive)state.aliveT+=dt;
@@ -3888,6 +3945,7 @@ function frame(){
       else{const k=Math.min(1,(T-p.deathT)*.6);camera.position.set(p.pos.x,p.pos.y+EYE+k*6,p.pos.z+k*6);}
       {const fx=-Math.sin(p.yaw),fz=-Math.cos(p.yaw),vr=p.vel.x*-fz+p.vel.z*fx;p._roll=lerp(p._roll||0,p.alive&&p.onGround&&SET.bob?clamp(-vr*.0022,-.02,.02)+(p.sliding?.05:0):0,Math.min(1,dt*8));}
       camera.rotation.set(p.alive?p.pitch:lerp(p.pitch,-.7,Math.min(1,(T-p.deathT))),p.yaw,p.alive?p._roll:0);
+      if(tpActive())tpCamera(p,dt);
       if(p.alive&&p.car){const c=p.car,pt=clamp(p.pitch,-.7,.35),cp=Math.cos(pt),dist=7.2;
         const tx=c.x,ty=c.y+1.5,tz=c.z;let cx=tx+Math.sin(p.yaw)*cp*dist,cy=ty-Math.sin(pt)*dist+.8,cz=tz+Math.cos(p.yaw)*cp*dist;cy=Math.max(cy,heightAt(cx,cz)+.6);
         camera.position.set(cx,cy,cz);camera.lookAt(tx,ty,tz);}
