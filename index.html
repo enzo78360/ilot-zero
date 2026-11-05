@@ -1022,7 +1022,7 @@ function removeCol(col){
   i=ramps.indexOf(col);if(i>=0)ramps.splice(i,1);
   i=shootables.indexOf(col.mesh);if(i>=0)shootables.splice(i,1);
   if(col.key)builds.delete(col.key);
-  if(col.inst){const z=new THREE.Matrix4().makeScale(0,0,0);for(const it of col.inst){it.im.setMatrixAt(it.idx,z);it.im.instanceMatrix.needsUpdate=true;}}
+  if(col.inst){const z=new THREE.Matrix4().makeScale(0,0,0);for(const it of col.inst){if(it.im.userData.M)it.im.userData.M[it.idx]=null;it.im.setMatrixAt(it.idx,z);it.im.instanceMatrix.needsUpdate=true;}cullT=0;}
   if(!col.mesh.geometry.userData.shared)col.mesh.geometry.dispose();
   if(NET.role==='host')broadcast(col.key?{t:'cd',k:col.key}:{t:'cd',i:col.id});
 }
@@ -1325,7 +1325,29 @@ function makeTreeLayers(){
   world.userData.glbTrees=ASSETS.trees.map(pr=>({pr,ims:pr.parts.map(q=>{const im=new THREE.InstancedMesh(q.geo,q.mat,480);im.count=0;im.frustumCulled=false;im.castShadow=true;im.receiveShadow=true;
     if(q.leaf)im.customDepthMaterial=leafDepthMat(q.mat.map);world.add(im);return im;})}));
 }
-function addInst(im,x,y,z,ry,s,sy){if(!im||im.count>=im.instanceMatrix.count)return null;const m=new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),ry),new THREE.Vector3(s,sy||s,s));const i=im.count++;im.setMatrixAt(i,m);im.instanceMatrix.needsUpdate=true;return {im,idx:i};}
+// ---------- affichage à distance (optimisation) ----------
+// petits objets fixes masqués au-delà d'une distance ; instances (arbres, buissons) limitées aux proches et à celles devant la caméra
+let cullList=[],cullT=0;const _cv=new THREE.Vector3(),_cd=new THREE.Vector3();
+function cullInit(){
+  cullList=[];world.updateMatrixWorld(true);
+  for(const o of world.children){
+    if(!o.visible||o.isInstancedMesh||o.userData.noCull||o===terrainMesh)continue;
+    const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())continue;const sp=b.getBoundingSphere(new THREE.Sphere());
+    if(sp.radius<6)cullList.push({o,c:sp.center.clone(),r:sp.radius});}
+  cullT=0;
+}
+function cullUpdate(dt){
+  cullT-=dt;if(cullT>0)return;cullT=.25;
+  const cp=camera.getWorldPosition(_cv),R=clamp(SET.view*.28,90,170),R2=R*R;
+  for(const k of cullList){if(k.o.parent!==world)continue;const dx=k.c.x-cp.x,dz=k.c.z-cp.z;k.o.visible=dx*dx+dz*dz<(R+k.r*8)*(R+k.r*8);}
+  // instances : proches, ou devant la caméra jusqu'à la limite du brouillard
+  camera.getWorldDirection(_cd);const RI=Math.min(SET.view*.8,330),RI2=RI*RI;
+  world.traverse(o=>{if(!o.isInstancedMesh||!o.userData.M)return;const M=o.userData.M,n=o.userData.n;let j=0;
+    for(let i=0;i<n;i++){const m=M[i];if(!m)continue;const e=m.elements,dx=e[12]-cp.x,dz=e[14]-cp.z,d2=dx*dx+dz*dz;
+      if(d2>RI2)continue;if(d2>900&&(dx*_cd.x+dz*_cd.z)<-.35*Math.sqrt(d2*(_cd.x*_cd.x+_cd.z*_cd.z)))continue;o.setMatrixAt(j++,m);}
+    o.count=j;o.instanceMatrix.needsUpdate=true;});
+}
+function addInst(im,x,y,z,ry,s,sy){if(!im||im.count>=im.instanceMatrix.count)return null;const m=new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),ry),new THREE.Vector3(s,sy||s,s));const i=im.count++;im.setMatrixAt(i,m);im.instanceMatrix.needsUpdate=true;(im.userData.M=im.userData.M||[])[i]=m;im.userData.n=im.count;return {im,idx:i};}
 function rockGeo(r,seed){
   let g=new THREE.IcosahedronGeometry(r,2);
   if(THREE.BufferGeometryUtils){g.deleteAttribute('uv');g.deleteAttribute('normal');g=THREE.BufferGeometryUtils.mergeVertices(g);}
@@ -2108,6 +2130,7 @@ function spawnLoot(kind,x,z,data,netId,y){
   ring.rotation.x=Math.PI/2;ring.position.y=.06;g.add(ring);
   item.pos.y=y!==undefined?y:groundAt(x,z,(spawnLoot.hintY||0)+.5);
   g.position.set(x,item.pos.y,z);
+  g.traverse(o=>{if(o.isMesh)o.castShadow=false;});
   world.add(g);loot.push(item);
   if(NET.role==='host'&&!genPhase)broadcast({t:'la',i:item.id,k:kind,x:r2(x),z:r2(z),y:r2(item.pos.y),d:kind==='weapon'?item.weapon:kind==='card'?item.owner:(item.n!==undefined?item.n:null)});
   return item;
@@ -2130,6 +2153,7 @@ function buildWorld(seed){
   const origRandom=Math.random;Math.random=mulberry32(seed||12345);
   try{genWorld();}finally{Math.random=origRandom;genPhase=false;}
   mergeStatic();
+  cullInit();
   setAmbiance(ambForSeed(seed||12345));
 }
 // regroupe les murs fixes par matériau (moins d'appels de rendu) ; les colliders restent, invisibles
@@ -2214,7 +2238,7 @@ function makeEntity(isPlayer,name,color,skill,skinId,wrapId){
     // IA
     goal:null,target:null,canSee:false,lastSeen:-99,lastSeenPos:new THREE.Vector3(),fireOK:0,think:0,stuckT:0,lastPos:new THREE.Vector3(),strafeDir:1,strafeT:0,buildCD:0,breakPt:null,seed:rand(0,100)};
   e.skin=SKINS[skinId]?skinId:'base';e.wrap=WRAPS[wrapId]?wrapId:'base';
-  e.model=makeCharacter(color,e,e.skin);world.add(e.model.group);
+  e.model=makeCharacter(color,e,e.skin);e.model.group.userData.noCull=true;world.add(e.model.group);
   if(isPlayer)e.model.group.visible=false;
   refreshHeld(e);
   return e;
@@ -4343,11 +4367,11 @@ const PRESETS={bas:{shadow:0,view:260,grass:0,water:false,scale:.75},moyen:{shad
 let SET=(function(){try{return Object.assign({},SET_DEF,JSON.parse(localStorage.getItem('ilotzero-reglages')||'{}'));}catch(err){return Object.assign({},SET_DEF);}})();
 function saveSet(){try{localStorage.setItem('ilotzero-reglages',JSON.stringify(SET));}catch(err){}}
 function applyGraphics(){
-  const dpr=Math.min(window.devicePixelRatio||1,2);renderer.setPixelRatio(clamp(dpr*SET.scale,.5,2.5));renderer.setSize(innerWidth,innerHeight);
+  const cap={ultra:2,haut:1.5,moyen:1.15,bas:1}[SET.quality]||1.5,dpr=Math.min(window.devicePixelRatio||1,cap);renderer.setPixelRatio(clamp(dpr*SET.scale,.5,2.5));renderer.setSize(innerWidth,innerHeight);
   const sh=+SET.shadow,was=renderer.shadowMap.enabled;renderer.shadowMap.enabled=sh>0;sun.castShadow=sh>0;
   if(sh>0&&sun.shadow.mapSize.x!==sh){sun.shadow.mapSize.set(sh,sh);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   if(was!==(sh>0))scene.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);});
-  scene.fog.near=SET.view*.32*fogK;scene.fog.far=SET.view*fogK;camera.far=SET.view+160;camera.updateProjectionMatrix();
+  scene.fog.near=SET.view*.32*fogK;scene.fog.far=SET.view*fogK;camera.far=SET.view+40;camera.updateProjectionMatrix();
   if(sky)sky.scale.setScalar(camera.far*.95);
   if(waterReal){waterReal.visible=!!SET.water;waterSimple.visible=!SET.water;}
   grassC.x=1e9;updateGrass(true);
@@ -5038,7 +5062,8 @@ function frame(){
     if(player.alive)state.aliveT+=dt;
     xpToastT-=dt;if(xpToastT<=0)$('xpToast').style.opacity=0;
     updateEffects(dt);
-    for(const it of loot){it.bob+=dt*2;const c=it.mesh.children[0];if(c&&it.kind!=='weapon')c.rotation.y+=dt;if(it.kind==='weapon'&&c)c.rotation.y+=dt*.8;}
+    cullUpdate(dt);
+    for(const it of loot){{const dx=it.pos.x-camera.position.x,dz=it.pos.z-camera.position.z;it.mesh.visible=dx*dx+dz*dz<14400;}it.bob+=dt*2;const c=it.mesh.children[0];if(c&&it.kind!=='weapon')c.rotation.y+=dt;if(it.kind==='weapon'&&c)c.rotation.y+=dt*.8;}
     // caméra
     const p=player;
     const spec=!p.alive&&state.spectate&&state.spectate.alive&&T-p.deathT>2?state.spectate:null;
