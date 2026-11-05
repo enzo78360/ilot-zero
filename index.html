@@ -874,15 +874,17 @@ function buildTreeProtos(){
   TREE.barkMat=new THREE.MeshStandardMaterial({map:TEX.bark,bumpMap:TEX.bark,bumpScale:.03,roughness:.95,metalness:0});
 }
 // ================== MODÈLES BLENDER ==================
-const ASSETS={char:null,trees:[],rocks:[]};
+const ASSETS={char:null,trees:[],rocks:[],guns:{}};
 const ARMB=/clavicule|bras|avantbras|main/;
 function loadAssets(){
   if(!THREE.GLTFLoader)return Promise.resolve();
   const L=new THREE.GLTFLoader();
   if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/gltf/');L.setDRACOLoader(d);}
   const get=f=>new Promise(res=>{try{L.load('models/'+f,g=>res(g),undefined,()=>res(null));}catch(err){res(null);}});
-  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb'].map(get)).then(r=>{
-    const [c,t1,t2,r1,r2]=r;
+  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb'].map(get)).then(r=>{
+    const [c,t1,t2,r1,r2,ar]=r;
+    if(ar){ar.scene.updateMatrixWorld(true);ar.scene.traverse(m=>{if(!m.isMesh)return;let o=m,ty=null;while(o&&!ty){const k=/^arme_([a-z]+)/.exec(o.name||'');if(k)ty=k[1];o=o.parent;}if(!ty)return;
+      const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);g.userData.shared=true;(ASSETS.guns[ty]=ASSETS.guns[ty]||[]).push({geo:g,k:m.material.name});});}
     if(c){const clips={};for(const cl of c.animations){clips[cl.name]=cl;
         if(['repos','marche','course','saut'].includes(cl.name))clips[cl.name+'_j']=new THREE.AnimationClip(cl.name+'_j',cl.duration,cl.tracks.filter(t=>!ARMB.test(t.name)));
         if(['vise','pioche'].includes(cl.name))clips[cl.name+'_b']=new THREE.AnimationClip(cl.name+'_b',cl.duration,cl.tracks.filter(t=>ARMB.test(t.name)));}
@@ -1283,7 +1285,9 @@ function gunMesh(type,rarity,wrap){
       tip=1.0;ty=.026;grip=[0,-.07,.13];fore=[0,-.02,-.3];break;
   }
   const M=gunMats(wrap,rarity);
-  for(const k in P){const geo=mergeG(P[k]);if(!geo)continue;const m=new THREE.Mesh(geo,M[k]);m.castShadow=true;m.receiveShadow=true;g.add(m);}
+  const GL=ASSETS.guns[type];
+  if(GL)for(const q of GL){const m=new THREE.Mesh(q.geo,M[q.k]||M.poly);m.castShadow=true;m.receiveShadow=true;g.add(m);}
+  else for(const k in P){const geo=mergeG(P[k]);if(!geo)continue;const m=new THREE.Mesh(geo,M[k]);m.castShadow=true;m.receiveShadow=true;g.add(m);}
   const t=new THREE.Object3D();t.position.set(0,ty,-tip);g.add(t);g.userData.tip=t;
   g.userData.grip=grip;g.userData.fore=fore;g.userData.type=type;
   return g;
