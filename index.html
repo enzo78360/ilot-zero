@@ -4395,6 +4395,10 @@ async function accPush(){
 }
 async function accLogin(){
   if(!ACC.sb){renderAccount();return;}
+  // Google activé côté Supabase ? (sinon Supabase renverrait une page d'erreur brute)
+  try{const r=await fetch(SB_URL+'/auth/v1/settings',{headers:{apikey:SB_KEY}});const st=await r.json();
+    if(!st.external||!st.external.google){ACC.state="Erreur : la connexion Google n'est pas encore activée sur le serveur du jeu. Réessaie plus tard.";renderAccount();return;}}
+  catch(err){ACC.state='Erreur : serveur de connexion injoignable. Vérifie ta connexion Internet.';renderAccount();return;}
   if(IS_APP){
     // application de bureau : Google n'autorise pas la connexion dans une fenêtre intégrée → navigateur du système
     const {data,error}=await ACC.sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_LOOPBACK,skipBrowserRedirect:true}});
