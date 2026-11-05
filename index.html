@@ -874,15 +874,30 @@ function buildTreeProtos(){
   TREE.barkMat=new THREE.MeshStandardMaterial({map:TEX.bark,bumpMap:TEX.bark,bumpScale:.03,roughness:.95,metalness:0});
 }
 // ================== MODÈLES BLENDER ==================
-const ASSETS={char:null,trees:[],rocks:[],guns:{},shop:null};
+const ASSETS={char:null,trees:[],rocks:[],guns:{},shop:null,st:{}};
+function packObj(o){const BU=THREE.BufferGeometryUtils;const geos=[],mats=[],names=[];o.updateMatrixWorld(true);
+  o.traverse(m=>{if(!m.isMesh)return;let g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal')g.deleteAttribute(k);if(g.index)g=g.toNonIndexed();geos.push(g);mats.push(m.material);names.push(m.material.name);});
+  if(!geos.length||!BU)return null;const geo=BU.mergeBufferGeometries(geos,true);geo.userData.shared=true;geo.computeBoundingBox();const b=geo.boundingBox;
+  return {geo,mats,names,sx:b.max.x-b.min.x,sy:b.max.y-b.min.y,sz:b.max.z-b.min.z};}
+const paintCache={};
+function paintMat(hex,rust){const k=hex+'|'+!!rust;return paintCache[k]||(paintCache[k]=new THREE.MeshStandardMaterial({color:lin(rust?darker(hex,.55):hex),metalness:rust?.25:.55,roughness:rust?.85:.4,bumpMap:TEX.rockS,bumpScale:rust?.012:.002,side:THREE.DoubleSide}));}
+// habille un volume de collision avec un modèle Blender (le collider reste la boîte invisible)
+function stMesh(name,paint,rust){const A=ASSETS.st[name];if(!A)return null;
+  const mats=A.mats.map((mt,i)=>/peinture|carrosserie/.test(A.names[i])&&paint!=null?paintMat(paint,rust):(rust&&/chrome|jante/.test(A.names[i])?paintMat(0x6b4a35,true):mt));
+  const m=new THREE.Mesh(A.geo,mats);m.castShadow=true;m.receiveShadow=true;return m;}
+function dressBox(col,name,paint,turn,parent){const A=ASSETS.st[name];if(!A)return null;const m=stMesh(name,paint);
+  const dx=col.max.x-col.min.x,dy=col.max.y-col.min.y,dz=col.max.z-col.min.z;
+  if(turn){m.rotation.y=Math.PI/2;m.scale.set(dz/A.sx,dy/A.sy,dx/A.sz);}else m.scale.set(dx/A.sx,dy/A.sy,dz/A.sz);
+  m.position.set((col.min.x+col.max.x)/2,col.min.y,(col.min.z+col.max.z)/2);(parent||world).add(m);col.mesh.visible=false;(col.extra=col.extra||[]).push(m);return m;}
 const ARMB=/clavicule|bras|avantbras|main/;
 function loadAssets(){
   if(!THREE.GLTFLoader)return Promise.resolve();
   const L=new THREE.GLTFLoader();
   if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/gltf/');L.setDRACOLoader(d);}
   const get=f=>new Promise(res=>{try{L.load('models/'+f,g=>res(g),undefined,()=>res(null));}catch(err){res(null);}});
-  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb'].map(get)).then(r=>{
-    const [c,t1,t2,r1,r2,ar,bq]=r;
+  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb','structures.glb','voiture.glb'].map(get)).then(r=>{
+    const [c,t1,t2,r1,r2,ar,bq,stc,vt]=r;
+    for(const sc of [stc,vt])if(sc)for(const o of sc.scene.children){const k=/^(st|voiture)_([a-z_]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.st[k[1]==='st'?k[2]:'voiture_'+k[2]]=pk;}}
     if(bq)ASSETS.shop=bq.scene;
     if(ar){ar.scene.updateMatrixWorld(true);ar.scene.traverse(m=>{if(!m.isMesh)return;let o=m,ty=null;while(o&&!ty){const k=/^arme_([a-z]+)/.exec(o.name||'');if(k)ty=k[1];o=o.parent;}if(!ty)return;
       const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);g.userData.shared=true;(ASSETS.guns[ty]=ASSETS.guns[ty]||[]).push({geo:g,k:m.material.name});});}
@@ -1045,6 +1060,7 @@ function wallRun(axis,fix,a0,a1,y0,h,t,mat,holes,acc){
 function BMATS_BASE(){return texMat('rockS',0xb9b0a2,{bumpScale:.02});}
 function gableRoof(cx,cz,base,w,d,h,mat){
   const alongX=w>=d,len=(alongX?w:d)+1,wid=(alongX?d:w)+1.1,rh=Math.min(2.4,wid*.32);
+  mat.side=THREE.DoubleSide;
   const r=deco(prismGeo(len,wid,rh),mat,cx,base+h,cz,alongX?0:Math.PI/2);
   addBox(cx-w/2-.5,base+h,cz-d/2-.5,cx+w/2+.5,base+h+rh*.45,cz+d/2+.5,mat,'static').mesh.visible=false;
   return r;
@@ -1062,13 +1078,14 @@ function makeHouse(cx,cz,base){
   wallRun('z',x1,z0-t/2,z1+t/2,base,h,t,wm,holesZ(face===2),acc);wallRun('z',x0,z0-t/2,z1+t/2,base,h,t,wm,holesZ(face===3),acc);
   flushParts(acc,texMat('plaster',0xf2efe8,{bumpScale:.004}));
   gableRoof(cx,cz,base,w,d,h,texMat('roof',ROOF_COLS[Math.floor(rand(0,ROOF_COLS.length))],{bumpScale:.02}));
-  deco(new THREE.BoxGeometry(.6,1.6,.6),BMATS_BASE(),cx+w/4,base+h+1.2,cz+(w>=d?0:d/4));
+  {const ch=deco(new THREE.BoxGeometry(.6,1.6,.6),BMATS_BASE(),cx+w/4,base+h+1.2,cz+(w>=d?0:d/4));const sm=stMesh('cheminee');if(sm){sm.position.set(ch.position.x,base+h+.4,ch.position.z);world.add(sm);world.remove(ch);}}
   const flg=new THREE.PlaneGeometry(w-.3,d-.3);{const uv=flg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*(w-.3)/2.4,uv.getY(i)*(d-.3)/2.4);}
   const fl=new THREE.Mesh(flg,buildMat);fl.rotation.x=-Math.PI/2;fl.position.set(cx,base+.03,cz);fl.receiveShadow=true;world.add(fl);
-  addBox(x0+.5,base,z0+.5,x0+2.4,base+.85,z0+1.3,texMat('bark',0xc9a27a,{bumpScale:.004}));          // table
-  addBox(x1-2.3,base,z1-1.5,x1-.4,base+.55,z1-.4,lam(0x4f6d8f));          // lit
-  deco(new THREE.BoxGeometry(1.9,.12,1.1),lam(0xf0ede4),x1-1.35,base+.6,z1-.95);
-  addBox(x1-.9,base,z0+.4,x1-.4,base+1.9,z0+2,texMat('bark',0xb08868,{bumpScale:.004}));             // étagère
+  dressBox(addBox(x0+.5,base,z0+.5,x0+2.4,base+.85,z0+1.3,texMat('bark',0xc9a27a,{bumpScale:.004})),'table');          // table
+  const lit=addBox(x1-2.3,base,z1-1.5,x1-.4,base+.55,z1-.4,lam(0x4f6d8f));          // lit
+  const drap=deco(new THREE.BoxGeometry(1.9,.12,1.1),lam(0xf0ede4),x1-1.35,base+.6,z1-.95);
+  if(ASSETS.st.lit){lit.max.y=base+.62;dressBox(lit,'lit');world.remove(drap);}
+  dressBox(addBox(x1-.9,base,z0+.4,x1-.4,base+1.9,z0+2,texMat('bark',0xb08868,{bumpScale:.004})),'etagere');             // étagère
   houses.push({cx,cz,w,d});
   lootIn(cx,cz,w,d,rand(1,3.2)|0,base);
 }
@@ -1085,7 +1102,7 @@ function makeBarn(cx,cz,base){
   gableRoof(cx,cz,base,w,d,h,texMat('corr',0x4a4e55,{metalness:.5,roughness:.55,bumpScale:.01}));
   const fl=new THREE.Mesh(new THREE.PlaneGeometry(w-.3,d-.3),texMat('sand',0xb59a5a));fl.rotation.x=-Math.PI/2;fl.position.set(cx,base+.03,cz);fl.receiveShadow=true;world.add(fl);
   const hay=new THREE.MeshStandardMaterial({map:TEX.needle,color:lin(0xe8cf7a),roughness:1});
-  for(let i=0;i<5;i++){const bx=cx+rand(-w/2+2,w/2-2),bz=cz+rand(-d/2+2,d/2-2);if(Math.abs(bx-cx)<2.2&&Math.abs(bz-cz)<2.2)continue;addBox(bx-.75,base,bz-.5,bx+.75,base+1,bz+.5,hay);}
+  for(let i=0;i<5;i++){const bx=cx+rand(-w/2+2,w/2-2),bz=cz+rand(-d/2+2,d/2-2);if(Math.abs(bx-cx)<2.2&&Math.abs(bz-cz)<2.2)continue;dressBox(addBox(bx-.75,base,bz-.5,bx+.75,base+1,bz+.5,hay),'foin');}
   houses.push({cx,cz,w,d});
   lootIn(cx,cz,w,d,rand(2,4)|0,base);
 }
@@ -1101,6 +1118,7 @@ function makeTower(cx,cz,base){
   for(const [px,pz] of [[X0,Z0],[X1,Z0],[X0,Z1],[X1,Z1]])addBox(px-.22,base,pz-.22,px+.22,top+3.2,pz+.22,wood);
   addBox(X0,top,Z1-.15,X1,top+1.1,Z1+.05,wood);addBox(X1-.05,top,Z0,X1+.15,top+1.1,Z1,wood);addBox(X0,top,Z0-.05,X1,top+1.1,Z0+.15,wood);
   const roof=deco(new THREE.ConeGeometry(6.2,2.6,4),lam(0x5a3a2a),X0+S,top+4.5,Z0+S,Math.PI/4);
+  {const tr=stMesh('toit_tour');if(tr){tr.position.set(X0+S,top+3.2,Z0+S);world.add(tr);world.remove(roof);}}
   addStair(ix-2,iz,base,0);addStair(ix-1,iz,base+4,0);
   deco(new THREE.BoxGeometry(.3,4,.3),wood,(ix-1)*S,base+2,iz*S+.3);deco(new THREE.BoxGeometry(.3,4,.3),wood,(ix-1)*S,base+2,iz*S+S-.3);
   houses.push({cx:X0+S,cz:Z0+S,w:2*S,d:2*S});
@@ -1110,8 +1128,10 @@ function makeTower(cx,cz,base){
 const CONT_COLS=[0xb23a48,0x2f6690,0xe0a458,0x2a9d8f,0x6c757d];
 function makeContainer(x,z,base,rot,stack){
   const L=6,W=2.5,Hc=2.6,hx=rot?W/2:L/2,hz=rot?L/2:W/2;
-  const cm=texMat('corr',CONT_COLS[Math.floor(rand(0,CONT_COLS.length))],{metalness:.55,roughness:.5,bumpScale:.02});
+  const cc=CONT_COLS[Math.floor(rand(0,CONT_COLS.length))],cm=texMat('corr',cc,{metalness:.55,roughness:.5,bumpScale:.02});
   const col=addBox(x-hx,base,z-hz,x+hx,base+Hc,z+hz,cm,'metal');col.hp=300;
+  if(ASSETS.st.conteneur){const m=stMesh('conteneur',cc);m.position.set(x,base,z);m.rotation.y=rot?Math.PI/2:0;world.add(m);col.mesh.visible=false;col.extra=[m];
+    if(stack&&Math.random()<.5)makeContainer(x,z,base+Hc,rot,false);return;}
   const fr=lam(0x2d3136);const ribs=[];
   for(const sx of [-1,1])for(const sz of [-1,1])ribs.push(deco(new THREE.BoxGeometry(.14,Hc,.14),fr,x+sx*(hx-.05),base+Hc/2,z+sz*(hz-.05)));
   col.extra=ribs;
@@ -1144,8 +1164,12 @@ const CAR_COLS=[0xb23a48,0x2f6690,0xe0a458,0x5c946e,0x7d8491,0xe9e9e9];
 function makeWreck(x,z){
   const y=heightAt(x,z);
   const rot=Math.random()<.5,L=3.8,W=1.9;const hx=rot?W/2:L/2,hz=rot?L/2:W/2;
-  const paint=new THREE.MeshStandardMaterial({color:lin(CAR_COLS[Math.floor(rand(0,CAR_COLS.length))]),metalness:.45,roughness:.42,map:TEX.rockS,bumpMap:TEX.rockS,bumpScale:.004});
+  const pc=CAR_COLS[Math.floor(rand(0,CAR_COLS.length))],paint=new THREE.MeshStandardMaterial({color:lin(pc),metalness:.45,roughness:.42,map:TEX.rockS,bumpMap:TEX.rockS,bumpScale:.004});
   const col=addBox(x-hx,y+.18,z-hz,x+hx,y+1.05,z+hz,paint,'metal');col.hp=200;
+  const miss=Math.floor(rand(0,4)),flip=Math.random()<.5,tz=rand(-.03,.03);
+  if(ASSETS.st.voiture_caisse){const g=new THREE.Group();const b=stMesh('voiture_caisse',pc,true);b.scale.setScalar(.9);g.add(b);
+    const W=[[1.33,.78],[1.33,-.78],[-1.23,.78],[-1.23,-.78]];W.forEach((p,i)=>{if(i===miss)return;const wh=stMesh('voiture_roue',null,true);wh.scale.setScalar(.9);wh.position.set(p[0]*.9,.32,-p[1]*.9);g.add(wh);});
+    const mw=W[miss];g.rotation.set(mw[1]>0?-.06:.06,(rot?Math.PI/2:0)+(flip?Math.PI:0),(mw[0]>0?-.05:.05)+tz,'YXZ');g.position.set(x,y-.04,z);world.add(g);col.mesh.visible=false;col.extra=[g];return;}
   const cab=deco(new THREE.BoxGeometry(rot?1.7:2.1,.66,rot?2.1:1.7),new THREE.MeshStandardMaterial({color:lin(0x1c2830),metalness:.6,roughness:.12}),x,y+1.38,z);
   const ws=[];for(const [dx,dz] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const wh=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.3,16),LMat({color:0x1d1d1d,roughness:.9}));wh.rotation[rot?'x':'z']=Math.PI/2;
     wh.position.set(x+dx*(rot?W/2:L/2-.7),y+.38,z+dz*(rot?L/2-.7:W/2));world.add(wh);ws.push(wh);}
@@ -1160,6 +1184,7 @@ function makeBorne(x,z){
   const lamp=deco(new THREE.SphereGeometry(.2,10,8),BMat({color:0x5fff8a}),x+.55,y+3.7,z);
   const ring=new THREE.Mesh(new THREE.TorusGeometry(2.8,.06,6,40),BMat({color:0x5fd0ff,transparent:true,opacity:.6}));ring.rotation.x=Math.PI/2;ring.position.set(x,y+.08,z);world.add(ring);
   col.extra=[scr,bar,ant,lamp,ring];
+  {const bm=stMesh('borne');if(bm){bm.position.set(x,y,z);world.add(bm);col.mesh.visible=false;for(const o of [scr,bar,ant])world.remove(o);col.extra=[bm,lamp,ring];lamp.position.y=y+3.62;}}
   bornes.push({id:bornes.length,x,y,z,cool:0,lamp});
 }
 function nearBorne(e){for(const b of bornes)if(Math.hypot(b.x-e.pos.x,b.z-e.pos.z)<3.2&&Math.abs(e.pos.y-b.y)<3)return b;return null;}
