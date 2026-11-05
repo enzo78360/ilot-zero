@@ -169,6 +169,16 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 button.wide{width:100%}
 button:disabled{opacity:.5;cursor:default}
 .codebig{font-family:var(--display);font-weight:700;font-size:64px;line-height:1;letter-spacing:.2em;margin:0;color:var(--accent);user-select:text;-webkit-user-select:text}
+.lobbycard{max-width:980px}
+.lbhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}.lbhead h3{margin:0 0 4px}
+.lbgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:14px;margin:6px 0 16px}
+.lbsec{background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.lbsec .lbl{margin:0}.lbsec .plist{margin:0}
+.lbset{display:flex;flex-direction:column;gap:6px}.lbset>span{font-size:14px;color:var(--muted)}.lbset .diff{margin:0}.lbset .diff button{padding:8px 6px;font-size:13px}
+.lbset .diff button:disabled{opacity:.55;cursor:default}
+#invites{position:fixed;top:84px;right:16px;z-index:55;display:flex;flex-direction:column;gap:8px;width:min(330px,calc(100vw - 32px));pointer-events:none}
+#invites .inv{pointer-events:auto;background:rgba(10,30,36,.95);border:1px solid var(--accent);border-radius:12px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:8px}
+#invites .inv b{color:var(--accent)}#invites .inv .row{display:flex;gap:8px}#invites .inv button{flex:1;padding:8px;font-size:13px}#invites .inv button.go{width:auto;font-size:14px;padding:8px}
 .plist{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
 .plist li{padding:8px 12px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:8px;font-size:15px}
 .plist li em{font-style:normal;color:var(--muted);font-size:13px}
@@ -600,17 +610,37 @@ button:disabled{opacity:.5;cursor:default}
 </div>
 
 <div class="screen" id="lobby" hidden>
-  <div class="card panel" style="max-width:520px">
-    <h3>Salon</h3>
-    <p class="codebig" id="lobbyCode">----</p>
-    <p class="tag" id="lobbyInfo" style="margin:8px 0 16px">Donne ce code à tes amis. Ils l'entrent dans « Rejoindre ».</p>
-    <ul class="plist" id="plist"></ul>
-    <p class="note" id="lobbyMode" style="margin:0 0 14px"></p>
+  <div class="card panel lobbycard">
+    <div class="lbhead">
+      <div><h3>Salon</h3><p class="codebig" id="lobbyCode">----</p></div>
+      <button id="lbCopy">Copier le code</button>
+    </div>
+    <p class="tag" id="lobbyInfo"></p>
+    <div class="lbgrid">
+      <section class="lbsec">
+        <h4 class="lbl">Joueurs <span id="lbCount"></span></h4>
+        <ul class="plist" id="plist"></ul>
+      </section>
+      <section class="lbsec">
+        <h4 class="lbl">Réglages de la partie</h4>
+        <div class="lbset"><span>Mode</span><div class="diff" id="lbModes"><button data-m="solo">Solo</button><button data-m="duo">Duo</button><button data-m="escouade">Escouade</button></div></div>
+        <div class="lbset"><span>Bots</span><div class="diff" id="lbBots"><button data-b="1">Avec bots</button><button data-b="0">Sans bots</button></div></div>
+        <div class="lbset" id="lbDiffRow"><span>Difficulté des bots</span><div class="diff" id="lbDiffs"><button data-d="facile">Facile</button><button data-d="normal">Normal</button><button data-d="difficile">Difficile</button></div></div>
+        <p class="note" id="lobbyMode"></p>
+      </section>
+      <section class="lbsec" id="lbInvite">
+        <h4 class="lbl">Inviter des amis</h4>
+        <ul class="salist" id="lbFriends"></ul>
+        <p class="acsync" id="lbInvMsg"></p>
+      </section>
+    </div>
     <button class="go" id="launch">Lancer la partie</button>
     <p class="note" id="lobbyWait" hidden>En attente du lancement par l'hôte…</p>
     <button id="leave" class="wide" style="margin-top:10px">Quitter le salon</button>
   </div>
 </div>
+
+<div id="invites" aria-live="polite"></div>
 
 <div class="screen" id="pause" hidden>
   <div class="card panel" style="max-width:420px;text-align:center">
@@ -922,7 +952,7 @@ let T=0;
 let colSeq=0,colById=[],lootSeq=0,genPhase=false;
 let props=[],propSeq=0,bornes=[],propTick=0,buildMatSel='bois';
 const NET={role:'solo',peer:null,conns:[],host:null,myId:0,code:'',name:'Joueur',sendT:0,snapT:0,lastCurT:-9,fe:0,curKey:''};
-const state={running:false,paused:false,over:false,diff:'normal',mode:'solo',spectate:null,lockOK:true,locked:false,buildsPlaced:0,startT:0};
+const state={bots:true,running:false,paused:false,over:false,diff:'normal',mode:'solo',spectate:null,lockOK:true,locked:false,buildsPlaced:0,startT:0};
 const storm={cx:0,cz:0,r:240*MAPK,phase:0,mode:'wait',t:0,from:null,to:null,tick:0};
 
 function addBox(minx,miny,minz,maxx,maxy,maxz,mat,kind,parent){
@@ -2156,7 +2186,7 @@ function spawnAll(){
     const e=makeEntity(false,humans[i].name,HUMAN_COLORS[i%HUMAN_COLORS.length],.5,humans[i].skin,humans[i].wrap);
     e.human=true;e.remote=true;e.att=cleanLoad(humans[i].ld);e.conn=humans[i].conn;e.mats={bois:120,brique:30,metal:0};humans[i].conn.ent=e;entities.push(e);
   }
-  for(let bi=0;entities.length<20;bi++)entities.push(makeEntity(false,NAMES[bi],COLORS[bi],clamp(sk+rand(-.12,.12),.15,.97),randomSkin(),randomWrap()));
+  for(let bi=0;state.bots&&entities.length<20;bi++)entities.push(makeEntity(false,NAMES[bi],COLORS[bi],clamp(sk+rand(-.12,.12),.15,.97),randomSkin(),randomWrap()));
   entities.forEach((e,i)=>{e.id=i;e.team=Math.floor(i/size);if(!e.att)e.att=randomLoad();});
   const nTeams=Math.ceil(20/size);
   for(let t=0;t<nTeams;t++){
@@ -3897,19 +3927,51 @@ function joinLobby(){
 function showLobby(isHost){
   $('menu').hidden=true;$('lobby').hidden=false;
   setText($('lobbyCode'),NET.code);
-  $('launch').hidden=!isHost;$('lobbyWait').hidden=isHost;
-  setText($('lobbyInfo'),isHost?"Donne ce code à tes amis. Ils l'entrent dans « Rejoindre ».":'Tu es dans le salon '+NET.code+'.');
+  $('launch').hidden=!isHost;$('lobbyWait').hidden=isHost;$('lbInvite').hidden=!isHost;
+  setText($('lobbyInfo'),isHost?"Invite tes amis ci-dessous, ou donne-leur ce code : ils l'entrent dans « Rejoindre ». Tu choisis les réglages, puis tu lances la partie.":"Tu es dans le salon de l'hôte. Il choisit les réglages et lance la partie.");
+  document.querySelectorAll('#lbModes button,#lbDiffs button,#lbBots button').forEach(b=>b.disabled=!isHost);
+  setText($('lbInvMsg'),'');lobbyFriendsRender();
 }
-function modeLabel(m,d){return `Mode : ${MODES[m]?MODES[m].name:m} · Bots : ${({facile:'Facile',normal:'Normal',difficile:'Difficile'})[d]||d} · Les bots complètent jusqu'à 20 joueurs.`;}
-function renderLobby(names,m,d){
+// réglages du salon (hôte) : mode, bots, difficulté — synchronisés avec l'onglet Salon et envoyés aux amis
+function lobbySettingsRender(m,d,b){
+  document.querySelectorAll('#lbModes button').forEach(x=>x.classList.toggle('sel',x.dataset.m===m));
+  document.querySelectorAll('#lbDiffs button').forEach(x=>x.classList.toggle('sel',x.dataset.d===d));
+  document.querySelectorAll('#lbBots button').forEach(x=>x.classList.toggle('sel',(x.dataset.b==='1')===!!b));
+  $('lbDiffRow').hidden=!b;
+}
+function setMode(m){state.mode=m;document.querySelectorAll('#modes button').forEach(x=>x.classList.toggle('sel',x.dataset.m===m));}
+function setDiff(d){state.diff=d;document.querySelectorAll('#diffs button').forEach(x=>x.classList.toggle('sel',x.dataset.d===d));}
+document.querySelectorAll('#lbModes button').forEach(b=>b.addEventListener('click',()=>{if(NET.role!=='host')return;setMode(b.dataset.m);lobbyUpdate();}));
+document.querySelectorAll('#lbDiffs button').forEach(b=>b.addEventListener('click',()=>{if(NET.role!=='host')return;setDiff(b.dataset.d);lobbyUpdate();}));
+document.querySelectorAll('#lbBots button').forEach(b=>b.addEventListener('click',()=>{if(NET.role!=='host')return;state.bots=b.dataset.b==='1';lobbyUpdate();}));
+$('lbCopy').addEventListener('click',()=>{const c=NET.code||'';try{navigator.clipboard.writeText(c).then(()=>{setText($('lbCopy'),'Code copié');setTimeout(()=>setText($('lbCopy'),'Copier le code'),1500);});}catch(err){}});
+// amis à inviter (hôte) ; invitations déjà envoyées pour ce salon
+const invSent=new Set();
+function lobbyFriendsRender(){
+  const ul=$('lbFriends');if(!ul||$('lobby').hidden||NET.role!=='host')return;ul.textContent='';
+  const fr=(typeof frData!=='undefined'?frData:[]).filter(f=>f.status==='ami').sort((a,b)=>(b.online-a.online)||a.pseudo.localeCompare(b.pseudo));
+  const inLobby=new Set(NET.conns.map(c=>(c.pname||'').toLowerCase()));
+  if(!fr.length){const li=document.createElement('li');li.innerHTML="<div><small>Ajoute des amis dans l'onglet Compte pour pouvoir les inviter ici.</small></div>";ul.append(li);return;}
+  for(const f of fr){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
+    const dot=document.createElement('span');dot.className='dot'+(f.online?' on':'');t.append(dot,document.createTextNode(f.pseudo));
+    const here=inLobby.has(f.pseudo.toLowerCase());sm.textContent=here?'Dans ton salon':f.online?'En ligne':'Hors ligne';d.append(t,sm);li.append(d);
+    const ik=(NET.code||'')+':'+f.pseudo.toLowerCase();
+    if(!here){const x=document.createElement('button');x.textContent=invSent.has(ik)?'Invité':'Inviter';x.disabled=invSent.has(ik);
+      x.addEventListener('click',async()=>{x.disabled=true;x.textContent='…';await accHeartbeat();const {error}=await ACC.sb.rpc('invite_friend',{target_pseudo:f.pseudo});
+        const m=$('lbInvMsg');m.className='acsync '+(error?'err':'ok');setText(m,error?'Impossible : '+errFr(error):'Invitation envoyée à '+f.pseudo+'.');if(!error)invSent.add(ik);x.textContent=error?'Inviter':'Invité';x.disabled=!error;});li.append(x);}
+    ul.append(li);}
+}
+function modeLabel(m,d,b){return b===false?`${MODES[m]?MODES[m].name:m} · sans bots : uniquement les joueurs du salon.`:`${MODES[m]?MODES[m].name:m} · bots ${(({facile:'faciles',normal:'normaux',difficile:'difficiles'})[d]||d)} · les bots complètent jusqu'à 20 combattants.`;}
+function renderLobby(names,m,d,b){
+  if(b===undefined)b=true;lobbySettingsRender(m,d,b);setText($('lbCount'),'('+names.length+'/8)');
   const ul=$('plist');ul.innerHTML='';
   names.forEach((n,i)=>{const li=document.createElement('li');li.textContent=n;const em=document.createElement('em');em.textContent=i===0?'Hôte':'Joueur '+(i+1);li.appendChild(em);ul.appendChild(li);});
-  setText($('lobbyMode'),modeLabel(m,d));
+  setText($('lobbyMode'),modeLabel(m,d,b));lobbyFriendsRender();
 }
 function lobbyUpdate(){
   const names=[NET.name].concat(NET.conns.map(c=>c.pname));
-  renderLobby(names,state.mode,state.diff);
-  broadcast({t:'lobby',p:names,m:state.mode,d:state.diff});
+  renderLobby(names,state.mode,state.diff,state.bots);
+  broadcast({t:'lobby',p:names,m:state.mode,d:state.diff,b:state.bots?1:0});
 }
 function onHostData(conn,m){
   conn.lastRx=performance.now();
@@ -4000,7 +4062,7 @@ function sendSnapshots(){
 function onClientData(m){
   NET.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
-  if(m.t==='lobby'){renderLobby((m.p||[]).map(cleanName),m.m,m.d);return;}
+  if(m.t==='lobby'){renderLobby((m.p||[]).map(cleanName),m.m,m.d,m.b!==0);return;}
   if(m.t==='deny'){leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg(m.r);return;}
   if(m.t==='init'){startClientGame(m);return;}
   if(!state.running||!player)return;
@@ -4171,11 +4233,14 @@ document.querySelectorAll('#modes button').forEach(b=>b.addEventListener('click'
 $('hostBtn').addEventListener('click',hostLobby);
 $('joinBtn').addEventListener('click',joinLobby);
 $('code').addEventListener('keydown',e=>{if(e.key==='Enter')joinLobby();});
-$('launch').addEventListener('click',()=>{if(NET.role==='host')startGame();});
+$('launch').addEventListener('click',()=>{if(NET.role!=='host')return;
+  const humans=1+NET.conns.filter(c=>c.ent!==undefined||c.pname).length,size=MODES[state.mode].size;
+  if(!state.bots&&Math.ceil(humans/size)<2){setText($('lobbyMode'),size>1?'Sans bots, il faut au moins 2 équipes : invite plus de joueurs ou passe en Solo.':'Sans bots, il faut au moins 2 joueurs dans le salon.');return;}
+  startGame();});
 $('leave').addEventListener('click',()=>{leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg('');});
 $('toMenu').addEventListener('click',()=>{leaveNet();backToMenu('');});
 try{const pv=localStorage.getItem('ilotzero-pseudo');if(pv)$('pseudo').value=pv;}catch(err){}
-$('play').addEventListener('click',()=>{leaveNet();startGame();});
+$('play').addEventListener('click',()=>{leaveNet();state.bots=true;startGame();});
 $('again').addEventListener('click',startGame);
 $('resume').addEventListener('click',()=>{
   initAudio();if(AC&&AC.state==='suspended')AC.resume();
@@ -4448,11 +4513,14 @@ function accInit(){
 }
 async function accPull(){
   const u=ACC.user;if(!u)return;ACC.state='Synchronisation…';renderAccount();
-  const {data,error}=await ACC.sb.from('profiles').select('progress,role,pseudo').eq('id',u.id).maybeSingle();
+  // affichage immédiat des dernières listes connues pendant que le serveur répond
+  {const c=LC.get();if(c.fr)friendsLoad(c.fr);if(c.role==='staff'){ACC.role='staff';if(c.st)staffAdminLoad(c.st);if(c.bans)modLoad(c.bans);if(c.codes)codesLoad(c.codes);}}
+  const [pr,bn]=await Promise.all([ACC.sb.from('profiles').select('progress,role,pseudo').eq('id',u.id).maybeSingle(),ACC.sb.rpc('my_ban')]);
+  const {data,error}=pr;
   if(ACC.user!==u)return;
   if(error){await accFail('Erreur de synchronisation : '+error.message);return;}
   ACC.pseudo=data&&data.pseudo||null;
-  {const b=await ACC.sb.rpc('my_ban');ACC.ban=b.data&&b.data.length?b.data[0]:null;}
+  ACC.ban=bn.data&&bn.data.length?bn.data[0]:null;
   const md=u.user_metadata||{},name=String(md.full_name||md.name||u.email||'').slice(0,40);
   if(!data){
     // le rôle est décidé par le serveur (liste staff) : on relit celui qu'il a attribué
@@ -4469,9 +4537,21 @@ async function accPull(){
   }
   ACC.ready=true;if(!ACC.ban)accPush();
   if(ACC.pseudo){$('pseudo').value=ACC.pseudo;$('pseudo').readOnly=true;NET.name=ACC.pseudo;}
-  renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();renderGate();accHeartbeat();friendsLoad();
+  LC.set({role:ACC.role});
+  renderProfile();if(hubTab!=='compte'&&hubTab!=='param')setHubTab(hubTab);renderAccount();renderGate();accHeartbeat();accRefresh(true);
 }
 // échec à la connexion (compte supprimé, réseau…) : on revient proprement à l'écran de connexion
+// cache local des listes (par compte) pour un affichage instantané
+const LC={k(){return 'ilotzero-cache-'+(ACC.user&&ACC.user.id||'x');},get(){try{return JSON.parse(localStorage.getItem(this.k())||'{}');}catch(err){return {};}},
+  set(o){try{localStorage.setItem(this.k(),JSON.stringify(Object.assign(this.get(),o)));}catch(err){}}};
+// rafraîchissement groupé : tout part en même temps
+let accRefreshT=0;
+async function accRefresh(all){
+  if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;accRefreshT=Date.now();
+  const jobs=[friendsLoad(),invitesLoad()];
+  if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),codesLoad());
+  await Promise.all(jobs);
+}
 async function accFail(msg){try{await ACC.sb.auth.signOut({scope:'local'});}catch(err){}ACC.user=null;ACC.ready=false;ACC.state=msg;renderAccount();renderGate();}
 function accPushSoon(){if(!ACC.user||!ACC.ready)return;clearTimeout(ACC.pushT);ACC.pushT=setTimeout(accPush,1500);}
 async function accPush(){
@@ -4518,15 +4598,14 @@ function renderAccount(){
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
   $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';
   $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
-  if(u&&hubTab==='compte'&&!ACC.listsT){ACC.listsT=setTimeout(()=>{ACC.listsT=0;},20000);friendsLoad();if(ACC.role==='staff'){modLoad();codesLoad();}}
-  if(ACC.role==='staff'&&hubTab==='compte'&&!ACC.staffListT){ACC.staffListT=1;staffAdminLoad();}
+  if(u&&ACC.ready&&hubTab==='compte'&&Date.now()-accRefreshT>8000)accRefresh(true);
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
 }
 // gestion du staff (fonctions serveur qui vérifient elles-mêmes le rôle staff)
 const errFr=e=>e&&e.message?e.message:'erreur inconnue';
-async function staffAdminLoad(){
+async function staffAdminLoad(cached){
   if(!ACC.sb||ACC.role!=='staff')return;
-  const {data,error}=await ACC.sb.rpc('staff_list');ACC.staffListT=0;
+  const {data,error}=cached?{data:cached}:await ACC.sb.rpc('staff_list');ACC.staffListT=0;if(!error)LC.set({st:data});
   const ul=$('saList');ul.textContent='';
   if(error){setText($('saMsg'),'Impossible de charger la liste : '+errFr(error));$('saMsg').classList.add('err');return;}
   const me=(ACC.user&&ACC.user.email||'').toLowerCase();
@@ -4589,20 +4668,24 @@ async function accHeartbeat(){
   const lobby=NET.role==='host'&&/^[A-Z0-9]{4}$/.test(NET.code||'')?NET.code:null;
   await ACC.sb.from('profiles').update({last_seen:new Date().toISOString(),lobby_code:lobby}).eq('id',ACC.user.id);
 }
+let pollN=0;
 setInterval(async()=>{
-  if(!ACC.sb||!ACC.user||!ACC.ready)return;
-  const b=await ACC.sb.rpc('my_ban');const nb=b.data&&b.data.length?b.data[0]:null;
+  if(!ACC.sb||!ACC.user||!ACC.ready)return;pollN++;
+  const inGame=state.running&&!state.over;
+  if(inGame&&pollN%6)return; // en partie : une fois par minute seulement
+  const [b]=await Promise.all([ACC.sb.rpc('my_ban'),pollN%6===0||NET.role==='host'?accHeartbeat():null]);
+  const nb=b.data&&b.data.length?b.data[0]:null;
   if(!!nb!==!!ACC.ban){ACC.ban=nb;renderGate();renderAccount();}
-  accHeartbeat();if(hubTab==='compte')friendsLoad();else friendsBadge();
-},60000);
+  if(!inGame)accRefresh(false);
+},10000);
 
 // ----- amis -----
 let frData=[];
 function friendsBadge(){const n=frData.filter(f=>f.status==='recue').length,b=document.querySelector('#hubTabs button[data-tab="compte"]');if(!b)return;
   let s=b.querySelector('.badge');if(n&&!s){s=document.createElement('span');s.className='badge';b.append(s);}if(s){if(n)s.textContent=n;else s.remove();}}
-async function friendsLoad(){
-  if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;
-  const {data,error}=await ACC.sb.rpc('friends_list');if(error)return;frData=data||[];friendsBadge();
+async function friendsLoad(cached){
+  if(!ACC.sb||!ACC.user||(!cached&&(!ACC.ready||ACC.ban)))return;
+  const {data,error}=cached?{data:cached}:await ACC.sb.rpc('friends_list');if(error)return;frData=data||[];friendsBadge();if(!cached)LC.set({fr:frData});lobbyFriendsRender();
   const ul=$('frList');ul.textContent='';
   const lab={recue:'Demande reçue',envoyee:'Demande envoyée'};
   if(!frData.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun ami pour l\'instant. Ajoute quelqu\'un avec son pseudo.</small></div>';ul.append(li);}
@@ -4631,6 +4714,28 @@ async function friendAdd(){
 }
 $('frAdd').addEventListener('click',friendAdd);$('frIn').addEventListener('keydown',e=>{if(e.key==='Enter')friendAdd();});
 
+// ----- invitations reçues : carte en haut à droite du menu -----
+let invData=[];const invSeen=new Set();
+async function invitesLoad(){
+  if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;
+  const {data,error}=await ACC.sb.rpc('my_invites');if(error)return;invData=data||[];invitesRender();
+}
+function invitesRender(){
+  const box=$('invites');box.textContent='';
+  if(state.running||!$('lobby').hidden&&NET.role==='client')return;
+  for(const v of invData.slice(0,3)){
+    const key=v.from_pseudo+v.lobby_code+v.created_at;if(!invSeen.has(key)){invSeen.add(key);beep(760,.12,.08,'triangle');}
+    const c=document.createElement('div');c.className='inv';
+    const p=document.createElement('div');p.append(Object.assign(document.createElement('b'),{textContent:v.from_pseudo}),document.createTextNode(" t'invite dans son salon."));
+    const row=document.createElement('div');row.className='row';
+    const go=document.createElement('button');go.className='go';go.textContent='Rejoindre';
+    go.addEventListener('click',async()=>{ACC.sb.rpc('invite_dismiss',{from_pseudo:v.from_pseudo});invData=invData.filter(x=>x!==v);invitesRender();
+      if(NET.role!=='solo'){leaveNet();$('lobby').hidden=true;$('menu').hidden=false;}setHubTab('salon');$('code').value=v.lobby_code;joinLobby();});
+    const no=document.createElement('button');no.textContent='Ignorer';
+    no.addEventListener('click',()=>{ACC.sb.rpc('invite_dismiss',{from_pseudo:v.from_pseudo});invData=invData.filter(x=>x!==v);invitesRender();});
+    row.append(go,no);c.append(p,row);box.append(c);}
+}
+
 // ----- codes cadeaux (joueur) -----
 async function giftRedeem(){
   const v=$('gcIn').value.trim().toUpperCase(),m=$('gcMsg');m.className='acsync';
@@ -4646,8 +4751,8 @@ $('gcOk').addEventListener('click',giftRedeem);$('gcIn').addEventListener('keydo
 
 // ----- modération (staff) -----
 const fmtDate=d=>new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-async function modLoad(){
-  if(ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('mod_bans_list');const ul=$('mdList');ul.textContent='';if(error)return;
+async function modLoad(cached){
+  if(ACC.role!=='staff')return;const {data,error}=cached?{data:cached}:await ACC.sb.rpc('mod_bans_list');if(!error&&!cached)LC.set({bans:data});const ul=$('mdList');ul.textContent='';if(error)return;
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun joueur banni.</small></div>';ul.append(li);}
   for(const b of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
     t.textContent=b.pseudo;sm.textContent=(b.until?'Jusqu\'au '+fmtDate(b.until):'Définitif')+(b.reason?' · '+b.reason:'')+(b.banned_by?' · par '+b.banned_by:'');d.append(t,sm);
@@ -4663,8 +4768,8 @@ $('mdBan').addEventListener('click',async()=>{
 });
 
 // ----- codes cadeaux (staff) -----
-async function codesLoad(){
-  if(ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('codes_list');const ul=$('ccList');ul.textContent='';if(error)return;
+async function codesLoad(cached){
+  if(ACC.role!=='staff')return;const {data,error}=cached?{data:cached}:await ACC.sb.rpc('codes_list');if(!error&&!cached)LC.set({codes:data});const ul=$('ccList');ul.textContent='';if(error)return;
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun code pour l\'instant.</small></div>';ul.append(li);}
   for(const c of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
     const exp=c.expires_at&&new Date(c.expires_at)<=new Date();

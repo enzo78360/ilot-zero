@@ -42,6 +42,10 @@ Mise à jour du 5 novembre 2026.
 - **Connexion Google obligatoire** pour jouer, avec un **pseudo unique** choisi à la première connexion.
 - **Sauvegarde en ligne** de la progression, retrouvée sur tous les appareils.
 - **Amis** : ajout par pseudo, demandes, présence en ligne, bouton **Rejoindre** pour entrer dans le salon d'un ami.
+- **Salon refait** : un écran en trois blocs (joueurs, réglages de la partie, inviter des amis). L'hôte choisit le mode (Solo, Duo, Escouade), avec ou sans bots, et la difficulté ; les amis voient les réglages sans pouvoir les changer. Bouton « Copier le code ».
+- **Invitations** : depuis le salon, l'hôte invite un ami en un clic ; l'ami reçoit une carte « X t'invite dans son salon » avec **Rejoindre** ou **Ignorer** (valable 5 minutes, tant que le salon est ouvert).
+- **Partie sans bots** : uniquement les joueurs du salon (il faut au moins 2 équipes).
+- **Listes plus rapides** : amis, staff, bannissements et codes chargés en parallèle dès la connexion, gardés en mémoire pour un affichage instantané, et rafraîchis toutes les 10 secondes dans le menu (60 secondes en partie).
 - **Codes cadeaux** : coquillages ou XP, une fois par compte.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
@@ -86,6 +90,12 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 - **Google Cloud** : client OAuth « Application Web ». Origine `https://enzo78360.github.io`, redirection `https://kweiabsweqxwoiiqbkpa.supabase.co/auth/v1/callback`. Application publiée.
 - **Supabase**, Authentication, puis Providers : Google activé avec l'ID client et le code secret.
 - **Supabase**, Authentication, puis URL Configuration : Site URL `https://enzo78360.github.io/ilot-zero/`, Redirect URLs `https://enzo78360.github.io/ilot-zero/**` et `http://127.0.0.1:53682/**` (pour les applications de bureau).
+
+## État au moment de cette mise à jour
+
+- **Site** : à jour avec tout ce qui précède.
+- **Applications Windows et Mac** : la Release 1.2.0 contient la connexion obligatoire, les amis, les codes et la modération, mais pas encore le nouveau salon, les invitations ni les listes plus rapides. Il faudra une version 1.3.0 (voir « Publier une nouvelle version »).
+- **Bug corrigé** : l'écran restait bloqué sur « Connexion… » en navigation privée ou au premier lancement.
 
 ## Limites connues
 
