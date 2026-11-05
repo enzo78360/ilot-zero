@@ -4439,7 +4439,7 @@ function accInit(){
   ACC.sb=supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:'implicit',persistSession:true,autoRefreshToken:true,detectSessionInUrl:!IS_APP}});
   ACC.sb.auth.onAuthStateChange((ev,session)=>{
     const u=session?session.user:null;
-    if((u&&u.id)===(ACC.user&&ACC.user.id))return;
+    if((u&&u.id)===(ACC.user&&ACC.user.id)){if(!ACC.init){ACC.init=true;renderGate();}return;}
     ACC.user=u;ACC.ready=false;
     if(u){setTimeout(accPull,0);if(location.hash.includes('access_token'))history.replaceState(null,'',location.pathname+location.search);}
     else{ACC.role='joueur';ACC.state='';ACC.pseudo=null;ACC.ban=null;renderAccount();}
@@ -4689,6 +4689,7 @@ for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stM
   $(id).addEventListener('change',e=>{STAFF[k]=e.target.checked;try{localStorage.setItem('ilotzero-staff',JSON.stringify(STAFF));}catch(err){}renderProfile();});
 $('stXp').addEventListener('click',()=>{if(ACC.role!=='staff')return;prof.xp=Math.max(prof.xp,(PASS_TIERS-1)*XP_LVL);claimRewards();saveProf();renderProfile();ACC.state='Passe de combat débloqué : niveau '+levelOf(prof.xp)+'.';renderAccount();});
 accInit();
+setTimeout(()=>{if(!ACC.init){ACC.init=true;if(!ACC.state)ACC.state='';renderGate();}},8000);
 // menu staff en partie (touche O) : la souris est libérée le temps du menu, comme pour la grande carte
 let staffMenuOn=false;
 function toggleStaffMenu(on){
