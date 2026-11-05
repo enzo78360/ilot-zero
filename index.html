@@ -181,6 +181,11 @@ button:disabled{opacity:.5;cursor:default}
 .item.sel{outline:2px solid var(--fg)}
 .item .sw{height:54px;border-radius:6px;display:flex;align-items:flex-end;justify-content:center;gap:4px;padding:6px;background:rgba(0,0,0,.25)}
 .item .sw i{width:16px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.item .sw.th{position:relative;height:118px;padding:0;overflow:hidden;background:radial-gradient(120% 95% at 50% 105%,var(--rc,#a4adb5) 0%,rgba(10,22,28,.55) 72%);align-items:stretch}
+.item .sw.th img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .25s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.item .sw.th img.ok{opacity:1}.item .sw.th img.ok+.fb{display:none}
+.item .sw.th .fb{display:flex;align-items:flex-end;justify-content:center;gap:4px;padding:8px;width:100%}
+.item .sw.th::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 6px,transparent 6px 14px);pointer-events:none}
 .item .nm{font-size:15px;font-weight:600}
 .item .meta{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--muted)}
 .item .meta b{font-family:var(--display);color:var(--fg);display:flex;align-items:center;gap:4px;white-space:nowrap}
@@ -3787,6 +3792,45 @@ function setHubTab(t){
   else if(t==='salon'){updatePreviewPane();renderDaily();}else if(t==='armurerie')renderArmory();else renderStore();
   renderProfile();
 }
+// vignettes 3D des objets (tenues et revêtements), rendues une fois puis mises en cache
+const THUMB={r:null,scene:null,cam:null,cache:{},queue:[],busy:false};
+function thumbInit(){
+  if(THUMB.r)return true;
+  try{const c=document.createElement('canvas');c.width=c.height=256;const r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true,preserveDrawingBuffer:true});
+    r.setPixelRatio(1);r.setSize(256,256,false);r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.85;r.setClearColor(0x000000,0);
+    const sc=new THREE.Scene();sc.environment=scene.environment;sc.add(new THREE.HemisphereLight(lin(0xe6eeff),lin(0x3a4450),.75));
+    const k=new THREE.DirectionalLight(lin(0xfff1e0),2.8);k.position.set(-2,3,-3);sc.add(k);const rim=new THREE.DirectionalLight(lin(0xa8d8ff),1.8);rim.position.set(3,2,3);sc.add(rim);
+    THUMB.r=r;THUMB.scene=sc;THUMB.cam=new THREE.PerspectiveCamera(28,1,.05,30);return true;}catch(err){return false;}
+}
+function thumbFor(it){
+  const k=it.kind+':'+it.id;if(THUMB.cache[k])return THUMB.cache[k];
+  if(!ASSETS.done)return null;
+  if(!THUMB.queue.includes(k)){THUMB.queue.push(k);if(!THUMB.busy){THUMB.busy=true;requestAnimationFrame(stepThumbs);}}
+  return null;
+}
+function stepThumbs(){
+  const t0=performance.now();
+  while(THUMB.queue.length&&performance.now()-t0<14)renderThumb(THUMB.queue.shift());
+  if(THUMB.queue.length)requestAnimationFrame(stepThumbs);else THUMB.busy=false;
+}
+function renderThumb(k){
+  if(!thumbInit())return;
+  const [kind,id]=k.split(':'),sc=THUMB.scene,cam=THUMB.cam;let obj=null;
+  if(kind==='skin'){
+    const ch=makeCharacter(HUMAN_COLORS[0],null,id,true);obj=ch.group;
+    if(ch.glb){const a=ch.glb.actions;a.repos.play();ch.glb.mixer.update(.7);}
+    obj.rotation.y=-.5;sc.add(obj);obj.updateMatrixWorld(true);
+    const hat=(SKINS[id]||{}).hat,tall=hat==='crown'||hat==='horns'||hat==='bubble'||hat==='antenna'||hat==='knight';
+    cam.position.set(.35,1.62,-1.9);cam.lookAt(0,tall?1.5:1.45,0);
+  }else{
+    obj=new THREE.Group();const g=gunMesh('ar',3,id);g.rotation.set(0,-Math.PI/2,.32);obj.add(g);sc.add(obj);obj.updateMatrixWorld(true);
+    const bb=new THREE.Box3().setFromObject(g),c=bb.getCenter(new THREE.Vector3());g.position.sub(c);obj.updateMatrixWorld(true);
+    cam.position.set(.2,.3,2.45);cam.lookAt(0,0,0);
+  }
+  THUMB.r.render(sc,cam);
+  const url=THUMB.r.domElement.toDataURL('image/png');THUMB.cache[k]=url;sc.remove(obj);
+  document.querySelectorAll('img[data-thumb="'+k+'"]').forEach(i=>{i.src=url;i.classList.add('ok');});
+}
 function swatchHtml(it){
   const cols=it.kind==='skin'?[it.shirt!=null?it.shirt:0xff8a4c,it.pants,it.hatc!=null?it.hatc:it.skin]:[it.dark,it.mid,it.emis||it.mid];
   return cols.map((c,i)=>`<i style="background:${hexCss(c)};height:${[38,30,22][i]}px"></i>`).join('');
@@ -3796,7 +3840,8 @@ function itemCard(it,meta,cls){
   const key=it.kind+':'+it.id;
   b.className='item'+(cls||'')+(storeSel===key?' sel':'');
   b.style.setProperty('--rc',RARITY[it.rar||0].css);
-  b.innerHTML=`<div class="sw">${swatchHtml(it)}</div><span class="nm"></span><span class="meta"><span></span><b></b></span>`;
+  const tk=it.kind+':'+it.id,tu=thumbFor(it);
+  b.innerHTML=`<div class="sw th"><img data-thumb="${tk}" alt="" ${tu?'class="ok" src="'+tu+'"':''}><div class="fb">${swatchHtml(it)}</div></div><span class="nm"></span><span class="meta"><span></span><b></b></span>`;
   b.querySelector('.nm').textContent=it.name;
   b.querySelector('.meta span').textContent=(it.kind==='skin'?'Tenue':'Revêtement')+' · '+RARITY[it.rar||0].name;
   b.querySelector('.meta b').innerHTML=meta;
@@ -3815,7 +3860,7 @@ function renderStore(){
         grid.appendChild(itemCard(it,`Palier ${t}`+(ok?' ✓':''),(ok?' own':' lock')+(t===lv+1?' next':'')));
       }else{
         const b=document.createElement('div');b.className='item'+(ok?' own':' lock')+(t===lv+1?' next':'');
-        b.innerHTML=`<div class="sw"><i class="coin" style="width:30px;height:30px;align-self:center"></i></div><span class="nm">${r.coins} coquillages</span><span class="meta"><span>Récompense</span><b>Palier ${t}${ok?' ✓':''}</b></span>`;
+        b.innerHTML=`<div class="sw th" style="align-items:center;justify-content:center;display:flex;--rc:#e8a07c"><svg viewBox="0 0 100 100" width="78" height="78" style="position:relative;z-index:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))"><defs><radialGradient id="shG" cx="50%" cy="30%" r="75%"><stop offset="0" stop-color="#fff4e6"/><stop offset=".55" stop-color="#f7bf98"/><stop offset="1" stop-color="#d9775e"/></radialGradient></defs><path d="M50 88 L38 80 C20 74 8 58 9 40 C10 24 26 12 50 12 C74 12 90 24 91 40 C92 58 80 74 62 80 Z" fill="url(#shG)" stroke="#8a3f2c" stroke-width="2.5"/><path d="M50 84 L50 16 M50 84 L33 18 M50 84 L67 18 M50 84 L19 28 M50 84 L81 28 M50 84 L12 44 M50 84 L88 44" stroke="#b5604a" stroke-width="2.2" stroke-linecap="round" opacity=".75"/><path d="M36 82 L42 92 L58 92 L64 82 Z" fill="#e79a7b" stroke="#8a3f2c" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="38" cy="30" rx="10" ry="5" fill="#fff" opacity=".45" transform="rotate(-20 38 30)"/></svg></div><span class="nm">${r.coins} coquillages</span><span class="meta"><span>Récompense</span><b>Palier ${t}${ok?' ✓':''}</b></span>`;
         grid.appendChild(b);
       }
     }
@@ -3942,7 +3987,7 @@ let fovK=0,zoomNow=1;
 const clock=new THREE.Clock();
 let miniT=0,menuA=0,poiT=0,curPoi='';
 buildTreeProtos();initGrass();
-loadAssets().then(()=>{if(!state.running){buildWorld(20261105);resetStorm();pvKey='';setHubTab(hubTab);}setText($('play'),'Jouer contre les bots');$('play').disabled=false;});
+loadAssets().then(()=>{ASSETS.done=true;if(!state.running){buildWorld(20261105);resetStorm();pvKey='';setHubTab(hubTab);}setText($('play'),'Jouer contre les bots');$('play').disabled=false;});
 if(THREE.GLTFLoader){setText($('play'),'Chargement des modèles 3D…');$('play').disabled=true;}
 buildWorld(20261105);resetStorm();
 applyGraphics();setHubTab('salon');
