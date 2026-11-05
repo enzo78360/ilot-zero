@@ -41,6 +41,8 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 | Maj / Espace | Sprinter / sauter |
 | Clic gauche / clic droit | Tirer / viser |
 | 1 à 4, molette | Pioche et armes |
+| X | S'accroupir (plus précis, plus discret) ; en plein sprint : glissade |
+| Espace face à un obstacle | Escalader (murets, caisses, conteneurs jusqu'à 2,8 m) |
 | Clic molette | Placer un marqueur visible par ton équipe (12 s) |
 | E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir |
 | Z/Q/S/D ou W/A/S/D en voiture | Accélérer, tourner, freiner et reculer ; Espace = frein à main |
