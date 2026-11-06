@@ -76,6 +76,10 @@ Mise à jour du 6 novembre 2026.
 - **Objets au sol** : ils tournent d'un seul bloc ; les fusils de précision au sol montrent leur lunette.
 - **Inventaire avec filtres** par rareté (Commun, Rare, Épique, Légendaire, Secret) et par type (Personnage, Voiture, Camo d'arme, Skin d'arme). « Skin d'arme » regroupe les revêtements brillants ou lumineux, « Camo d'arme » les motifs.
 - **Skins de voiture et rareté Secret** : premier skin **Rebeca** (sportive bleu clair, code cadeau `REBECA`). Elle n'apparaît que pour son propriétaire, sur la voiture qu'il conduit ; les autres joueurs voient une voiture normale. Les objets Secret ne sont jamais en boutique.
+- **Graphismes réalistes** (modèles Sketchfab sous licence CC Attribution, auteurs cités dans Paramètres → Crédits et dans `models/CREDITS.json`) :
+  - **Personnage réaliste** pour tous les joueurs et les bots : scan photo de Renderpeople, recalé sur le squelette du jeu, donc toutes les animations sont gardées. Les tenues teintent les vêtements, les chapeaux et accessoires sont réajustés à la tête.
+  - **Rebeca réaliste** : vraie GT3 RS (992) de Car2022, bleu clair, logos et inscriptions de marque retirés. L'add-on de stickers marche toujours et exporte maintenant en Draco.
+  - **4 voitures réalistes sur la carte** : citadine, berline, pickup, fourgon, repeints aux couleurs aléatoires du jeu.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
 ## Guide du staff

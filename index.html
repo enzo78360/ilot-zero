@@ -1518,6 +1518,11 @@ function makeCharGLB(color,owner,skinId,noShoot){
     if(nm==='cheveux'&&M.hideHair){m.visible=false;return;}
     if(col===undefined)return;
     const key=nm+'|'+col+'|'+M.metal.has(nm);
+    // modèle réaliste texturé : on garde la texture et on la teinte (vêtements en niveaux de gris, peau légèrement teintée)
+    if(m.material.map){if(!glbMatCache['t|'+key]){const t=m.material.clone();t.skinning=true;
+        const c=lin(col);if(nm==='peau'||nm==='mains'){const w=lin(0xf0c49a);t.color.setRGB(Math.min(1.25,c.r/w.r),Math.min(1.25,c.g/w.g),Math.min(1.25,c.b/w.b));}else t.color.copy(c);
+        if(M.metal.has(nm)){t.metalness=.7;t.roughness=.35;}glbMatCache['t|'+key]=t;}
+      m.material=glbMatCache['t|'+key];return;}
     m.material=glbMatCache[key]||(glbMatCache[key]=new THREE.MeshStandardMaterial({skinning:true,color:lin(col),roughness:M.metal.has(nm)?.35:(nm==='peau'||nm==='mains'?.55:.82),metalness:M.metal.has(nm)?.75:0,bumpMap:TEX.fabric,bumpScale:nm==='peau'?0:.0012}));});
   const B=n=>root.getObjectByName(n);
   g.updateMatrixWorld(true);
@@ -1540,7 +1545,13 @@ function makeCharGLB(color,owner,skinId,noShoot){
   // accessoires modélisés dans Blender (positionnés en pose de repos, attachés aux os)
   {const o=OUTFIT[skinId]||OUTFIT.base,sk=SKINS[skinId]||SKINS.base,shirt=o.shirt!=null?o.shirt:color;
     const acc=o.accent!=null?o.accent:(sk.acc!=null?sk.acc:0xc9a227),hatc=sk.hatc!=null?sk.hatc:(sk.hat==='band'?0xb5302a:acc);
-    const put=(bone,name,cols)=>{const m=accMesh(name,cols);if(m)attach(B(bone),m,new THREE.Vector3(),new THREE.Quaternion());};
+    // tête du personnage réaliste un peu plus petite : chapeaux et barbe réduits autour de l'os de la tête
+    const HK=A.headK||(A.headK=(()=>{let real=false;A.scene.traverse(m=>{if(m.isMesh&&m.material&&m.material.map)real=true;});return real?new THREE.Vector3(.74,.9,.74):null;})());
+    const put=(bone,name,cols)=>{const m=accMesh(name,cols);if(!m)return;attach(B(bone),m,new THREE.Vector3(),new THREE.Quaternion());
+      if(bone==='tete'&&HK){const hp=new THREE.Vector3();B('tete').getWorldPosition(hp);const k=HK,o=new THREE.Group();B('tete').add(o);o.position.copy(m.position);o.quaternion.copy(m.quaternion);
+        m.position.set(0,0,0);m.quaternion.identity();o.add(m);
+        // échelle autour de l'os (l'accessoire était posé en coordonnées monde, origine = os)
+        {const q=new THREE.Quaternion();B('tete').getWorldQuaternion(q);o.position.applyQuaternion(q).multiply(k).applyQuaternion(q.clone().invert());}o.scale.copy(k);}};
     const hat=sk.hat;if(hat&&ASSETS.acc[hat])put('tete',hat,{couleur:hat==='knight'||hat==='antenna'?(hat==='antenna'?hatc:acc):hatc,accent:acc,metal_acc:hat==='knight'?(sk.hatc||0x9aa0a8):hat==='antenna'?shirt:null});
     if(o.beard!=null)put('tete','beard',{barbe:o.beard});
     if(o.pack==='bag')put('poitrine','bag',{couleur:o.packc||0x6b5b3e});
