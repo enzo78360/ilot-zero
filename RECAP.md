@@ -66,6 +66,16 @@ Mise à jour du 6 novembre 2026.
 - **Onglet Compte réorganisé** : un menu à gauche (Mon compte, Amis, et pour le staff : Joueurs, Modération, Codes cadeaux, Équipe staff, Pouvoirs), une section affichée à la fois.
 - **Compte du propriétaire protégé** : seul le propriétaire peut modifier son propre niveau et ses coquillages (vérifié par le serveur).
 - **Corrigé** : les lunettes ×4 et ×8 n'apparaissaient pas sur les armes ; la mire de l'arbalète était cachée par le bloc arrière.
+- **Voitures** : elles montent les rampes construites et roulent sur les sols construits ; les petits rebords et dénivelés ne les bloquent plus et ne les abîment plus.
+- **Bots** : ils contournent les murs au lieu de foncer dedans, abandonnent un objectif où ils restent coincés, et voient et entendent moins loin (60 m, 95 m avec un fusil de précision, 55 m pour les tirs entendus).
+- **Son** : réglages séparés « Effets » et « Ambiance » ; armes et voiture plus fortes que l'ambiance ; nouveau moteur (montée des rapports) et nouveau bruit de choc (coup sourd, tôle, verre).
+- **Touches** : toutes modifiables (Paramètres → Touches), y compris les armes 1 à 4 et les boutons de souris (molette, boutons latéraux).
+- **Indicateur de bruit avec icônes** : pas, tir, explosion, voiture, construction.
+- **Reflet de lunette** : un adversaire qui te vise avec une lunette ×4 ou ×8 fait briller un reflet, plus petit de loin et jamais énorme de près, caché par les murs.
+- **Paramètres « Jeu »** : portes qui s'ouvrent en marchant dedans, ramassage automatique choisi type par type (munitions, matériaux, bandages, potions, trampolines, feux de camp, armes).
+- **Objets au sol** : ils tournent d'un seul bloc ; les fusils de précision au sol montrent leur lunette.
+- **Inventaire avec filtres** par rareté (Commun, Rare, Épique, Légendaire, Secret) et par type (Personnage, Voiture, Camo d'arme, Skin d'arme). « Skin d'arme » regroupe les revêtements brillants ou lumineux, « Camo d'arme » les motifs.
+- **Skins de voiture et rareté Secret** : premier skin **Rebeca** (sportive bleu clair, code cadeau `REBECA`). Elle n'apparaît que pour son propriétaire, sur la voiture qu'il conduit ; les autres joueurs voient une voiture normale. Les objets Secret ne sont jamais en boutique.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
 ## Guide du staff
@@ -88,6 +98,14 @@ Section **Joueurs**, bloc **Gérer un joueur** (ou bouton **Gérer** dans la lis
 
 ### Créer un code cadeau
 Section **Codes cadeaux (staff)** : choisis un code (par exemple `NOEL2026`), la récompense (coquillages ou XP), la quantité, la durée de validité et, si tu veux, un nombre maximum d'utilisations, puis clique sur **Créer**. Les joueurs l'entrent dans la section **Code cadeau** de leur onglet Compte. La liste montre les utilisations, et le bouton **Supprimer** désactive un code.
+
+Le menu Récompense propose aussi **Skin secret : Rebeca (voiture)**.
+
+### Stickers de Rebeca (Blender)
+1. Ouvre `models/rebeca.blend` dans Blender, puis appuie sur **N** et va dans l'onglet **Rebeca**.
+2. Place le curseur 3D sur la carrosserie (**Maj + clic droit**) et clique sur **Ajouter un sticker** pour choisir une image (png, jpg ou webp). Le sticker épouse la carrosserie ; déplace-le avec G, tourne-le avec R, agrandis-le avec S.
+3. Clique sur **Exporter et publier dans le jeu**. Blender exporte `models/rebeca.glb`, puis l'envoie sur GitHub (commit et push). Tous les possesseurs de Rebeca voient les stickers d'ici 1 à 5 minutes, sur le site comme dans l'application, sans nouvelle version de l'application.
+4. **Exporter seulement** crée le fichier sans le publier.
 
 ### Menu staff en partie
 Touche `O` : vie, munitions et matériaux illimités, super vitesse, radar des ennemis, soin complet, arme légendaire, kit, téléportation au marqueur de la carte, redéploiement en planeur. Ces pouvoirs marchent en solo et quand tu héberges le salon.
@@ -122,7 +140,8 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 
 - **Site** : à jour avec tout ce qui précède.
 - **Applications Windows et Mac** : Release **1.3.0** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.0), compilée avec tout ce qui précède : armes, viseurs, passe saison 2, cartes, nouvelle interface et onglet Compte.
-- **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`).
+- **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`). Les codes cadeaux peuvent donner un objet (le code `REBECA` existe, sans limite d'utilisation ni de durée).
+- **Applications** : la 1.3.0 ne contient pas encore la dernière série (voitures, bots, son, touches, filtres, Rebeca) ; une 1.3.1 sera nécessaire pour les applications. Le site a déjà tout.
 - La 1.2.0 était restée en brouillon et n'a jamais été publiée : la 1.3.0 la remplace.
 
 ## Limites connues
