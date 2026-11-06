@@ -14,16 +14,16 @@ Mise à jour du 6 novembre 2026.
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
-## En cours : style cartoon et coffres (demandé le 6 novembre 2026)
+## Style cartoon et coffres (6 novembre 2026)
 
 Objectif : un rendu « cartoon » coloré, dans l'esprit des battle royale stylisés (textures peintes à la main originales, aucune ressource copiée), et des coffres à ouvrir sur la carte. Le rendu réaliste reste disponible dans Paramètres.
 
 | Étape | Contenu | État |
 | --- | --- | --- |
-| 1. Textures peintes | Herbe, terre, roche, sable, neige, asphalte, trottoir, pavés, béton, briques, crépi, bois, tôle, tuiles, ardoise dessinées en couleurs vives et formes simples | À faire |
-| 2. Rendu cartoon | Sol plus saturé, ciel et lumière plus francs, contours doux, réglage Cartoon / Réaliste | À faire |
-| 3. Coffres | Coffres dorés lumineux dans les bâtiments et dehors, qui scintillent et font un son ; on les ouvre avec E pour faire sortir arme, munitions, soins et matériaux ; synchronisés en multijoueur | À faire |
-| 4. Vérification et publication | Tests, captures sur les 3 cartes, mise en ligne, RECAP | À faire |
+| 1. Textures peintes | Herbe, terre, roche, sable, neige, asphalte, trottoir, pavés, béton, briques, crépi, bois, tôle, tuiles, ardoise dessinées en couleurs vives et formes simples | Fait : 20 textures peintes générées par le jeu (aucun fichier à télécharger, aucune ressource copiée) |
+| 2. Rendu cartoon | Sol plus saturé, ciel et lumière plus francs, contours doux, réglage Cartoon / Réaliste | Fait : sol plus saturé et sans relief photo ; Paramètres → Graphismes → Style graphique (Cartoon par défaut, Réaliste garde les textures photo) |
+| 3. Coffres | Coffres dorés lumineux dans les bâtiments et dehors, qui scintillent et font un son ; on les ouvre avec E pour faire sortir arme, munitions, soins et matériaux ; synchronisés en multijoueur | Fait : environ 1 bâtiment sur 3 et 12 coffres dehors (23 à 43 par carte) ; arme rare à légendaire, munitions, soin, matériaux ; tintement à moins de 12 m ; les bots les ouvrent ; ouverture synchronisée |
+| 4. Vérification et publication | Tests, captures sur les 3 cartes, mise en ligne, RECAP | Fait : 17 tests sans erreur, site en ligne |
 
 ## Refonte des 3 cartes (6 novembre 2026)
 
@@ -166,8 +166,9 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : Release **1.3.2** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.2), compilée avec tout ce qui précède : correction des salons, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
+- **Applications Windows et Mac** : Release **1.3.2** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.2), compilée avec : correction des salons, roues et ponts, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
 - **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`). Les codes cadeaux peuvent donner un objet (le code `REBECA` existe, sans limite d'utilisation ni de durée).
+- **Pas encore dans les applications** : le style cartoon et les coffres (site uniquement, il faudra une 1.3.3).
 - **Voitures (1.3.2)** : les roues se posent sur la route (le ruban de route est 13 cm au-dessus du terrain) et ne s'enfoncent plus dans les pentes ; les voitures ne sont plus repoussées au milieu des ponts au-dessus de l'eau profonde (131 passages sur 132 réussis sur les 3 cartes, le dernier bloqué par une voiture garée).
 - **Salons** : la 1.3.0 avait un bug qui éjectait les amis au lancement de la partie. Il est corrigé depuis la 1.3.1 et sur le site : tout le monde doit utiliser le site ou la dernière version.
 - La 1.2.0 était restée en brouillon et n'a jamais été publiée.
