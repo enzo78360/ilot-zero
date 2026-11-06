@@ -1847,6 +1847,24 @@ function makeTower(cx,cz,base){
   spawnLoot.hintY=top;spawnLoot('weapon',X0+S+rand(-2,2),Z0+S+rand(-2,2),newWeapon(pickW(['ar','sniper','shotgun'],[3,3,2]),pickW([1,2,3],[45,35,20])));
   if(Math.random()<.7)spawnLoot('ammo',X0+S+rand(-2,2),Z0+S+rand(-2,2));spawnLoot.hintY=0;
 }
+// ---------- commerces : enseigne lumineuse et store au-dessus de la porte d'entrée ----------
+const SHOPS=[['BOULANGERIE','#f4d9a6','#7a3b1f',0xb5651d],['PHARMACIE','#2ecc71','#0b3d1f',0x2f8f4f],['CAFÉ DU PORT','#ffe2b8','#3b2416',0x8a3b2f],['ÉPICERIE','#fff1c9','#1f4f3a',0x2f6f4f],
+  ['TABAC PRESSE','#ffffff','#a01818',0xa01818],['LIBRAIRIE','#f6efe0','#2b3a67',0x2b3a67],['PIZZERIA','#fff4e0','#b02a1a',0x2f7f3f],['FLEURISTE','#fdf1f5','#8f2f5f',0xd06f9a],['GARAGE','#ffffff','#1d3c78',0x3a3f46],['BAR LE ZÉRO','#ffd27a','#1a1a1a',0x1f1f1f]];
+const shopTexC={};
+function shopTex(i){if(shopTexC[i])return shopTexC[i];const [txt,fg,bg]=SHOPS[i];const c=document.createElement('canvas');c.width=512;c.height=96;const x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,512,96);x.strokeStyle='rgba(255,255,255,.35)';x.lineWidth=4;x.strokeRect(6,6,500,84);
+  x.fillStyle=fg;x.font='700 50px "Inter","Chakra Petch",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(txt,256,52);
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return shopTexC[i]=t;}
+function shopFront(cx,z,sg,base){
+  const i=Math.floor(rand(0,SHOPS.length)),bd=new THREE.Mesh(new THREE.BoxGeometry(3.4,.62,.12),[lam(0x2a2a2a),lam(0x2a2a2a),lam(0x2a2a2a),lam(0x2a2a2a),
+    new THREE.MeshStandardMaterial({map:shopTex(i),emissive:lin(0xffffff),emissiveMap:shopTex(i),emissiveIntensity:.35}),lam(0x2a2a2a)]);
+  bd.position.set(cx,base+3.35,z+sg*.3);if(sg<0)bd.rotation.y=Math.PI;bd.castShadow=true;world.add(bd);
+  // store en toile incliné (rayé couleur / blanc)
+  const c=document.createElement('canvas');c.width=128;c.height=8;const x=c.getContext('2d');for(let k=0;k<8;k++){x.fillStyle=k%2?'#f4f1ea':'#'+SHOPS[i][3].toString(16).padStart(6,'0');x.fillRect(k*16,0,16,8);}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;
+  const aw=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.3),new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide,roughness:.9}));
+  aw.position.set(cx,base+2.75,z+sg*.75);aw.rotation.x=sg>0?-Math.PI/2+.55:Math.PI/2-.55;aw.castShadow=true;world.add(aw);
+}
 // ---------- immeuble à étages (escaliers intérieurs alternés, toit-terrasse) ; floors>2 : tour de ville ----------
 const TOWER_COLS=[0x9fb3c8,0x8d99a6,0xc2b8a3,0x7f8c99,0xb0a8b9,0xd0c5b0,0xa3b5a6];
 function makeImmeuble(cx,cz,base,floors){
@@ -1873,6 +1891,7 @@ function makeImmeuble(cx,cz,base,floors){
     flushTrim(T);
     const BU=THREE.BufferGeometryUtils;if(BU&&floors>1){const gl=[];for(let lv=1;lv<floors;lv++)for(const cxb of [X0+S*1.5,X0+S*2.5]){const g=new THREE.BoxGeometry(2.3,.9,.03);g.translate(cxb,base+lv*H+.5,bz+sg*1.09);gl.push(g);}
       world.add(new THREE.Mesh(BU.mergeBufferGeometries(gl),glassMat));}}
+  shopFront(X0+S*1.5,face===0?Z1:Z0,face===0?1:-1,base);
   const fl=texMat('planks',0xc9b49a),rf=texMat('concrete',0x9c9a94);
   // dalle d'étage : trou au-dessus de l'escalier de l'étage du dessous (case 0,0 ou case 2,1)
   const slab=(y,hole,mat)=>{if(hole===0){addBox(X0+S,y-.3,Z0,X1,y,Z1,mat);addBox(X0,y-.3,Z0+S,X0+S,y,Z1,mat);}
