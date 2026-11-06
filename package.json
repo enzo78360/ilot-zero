@@ -18,12 +18,69 @@
   "build": {
     "appId": "io.github.ilotzero",
     "productName": "Ilot Zero",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["index.html", "confidentialite.html", "conditions.html", "favicon.svg", "models/**", "textures/**", "vendor/**", "electron/**", "package.json"],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "index.html",
+      "confidentialite.html",
+      "conditions.html",
+      "favicon.svg",
+      "models/**",
+      "textures/**",
+      "vendor/**",
+      "electron/**",
+      "package.json",
+      "!models/*.blend",
+      "!models/*.blend1",
+      "!models/*.py"
+    ],
     "asar": true,
-    "mac": { "category": "public.app-category.games", "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }, { "target": "zip", "arch": ["arm64", "x64"] }], "identity": null },
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "signAndEditExecutable": false },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "shortcutName": "Îlot Zéro" },
-    "portable": { "artifactName": "IlotZero-${version}-portable.exe" }
+    "mac": {
+      "category": "public.app-category.games",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "identity": null
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Îlot Zéro"
+    },
+    "portable": {
+      "artifactName": "IlotZero-${version}-portable.exe"
+    }
   }
 }
