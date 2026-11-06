@@ -155,10 +155,10 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : Release **1.3.0** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.0), compilée avec tout ce qui précède : armes, viseurs, passe saison 2, cartes, nouvelle interface et onglet Compte.
+- **Applications Windows et Mac** : Release **1.3.1** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.1), compilée avec tout ce qui précède : correction des salons, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
 - **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`). Les codes cadeaux peuvent donner un objet (le code `REBECA` existe, sans limite d'utilisation ni de durée).
-- **Applications** : la 1.3.0 ne contient pas encore la dernière série (voitures, bots, son, touches, filtres, Rebeca) ; une 1.3.1 sera nécessaire pour les applications. Le site a déjà tout.
-- La 1.2.0 était restée en brouillon et n'a jamais été publiée : la 1.3.0 la remplace.
+- **Salons** : la 1.3.0 avait un bug qui éjectait les amis au lancement de la partie. Il est corrigé dans la 1.3.1 et sur le site : tout le monde doit utiliser le site ou la 1.3.1.
+- La 1.2.0 était restée en brouillon et n'a jamais été publiée.
 
 ## Limites connues
 
