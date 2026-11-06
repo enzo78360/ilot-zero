@@ -61,6 +61,7 @@ Mise à jour du 6 novembre 2026.
 - **Routes et ponts** sur toutes les cartes : un réseau goudronné relie les villes, avec des ponts au-dessus de la rivière, praticables à pied et en voiture. Des voitures sont garées le long des routes.
 - **Collisions plus rapides** : chaque test ne regarde plus que les objets proches, ce qui permet des villes plus grandes sans ralentir le jeu.
 - **Interface refaite** : thème sombre moderne (police Inter, panneaux nets, onglets en pilule, sélecteurs segmentés pour le mode, la carte et la difficulté). En partie : armes au centre en bas, barres de vie et de bouclier graduées, ressources en pastilles, mini-carte agrandie.
+- **Textures photo réalistes** (Poly Haven, licence CC0, libres d'utilisation sans attribution) : herbe du sol (grass_ground), roche (aerial_rocks_02), sable (coast_sand_01), neige (snow_02), crépi des murs (white_stucco), tôle des entrepôts (corrugated_iron) et tuiles des toits (clay_roof_tiles), dans le dossier `textures/`. Brins d'herbe redessinés, plus fins et plus nombreux.
 - **Interface plus légère** : plus de flou d'arrière-plan en jeu, et le HUD ne réécrit ses styles que lorsqu'une valeur change.
 - **Onglet Compte réorganisé** : un menu à gauche (Mon compte, Amis, et pour le staff : Joueurs, Modération, Codes cadeaux, Équipe staff, Pouvoirs), une section affichée à la fois.
 - **Compte du propriétaire protégé** : seul le propriétaire peut modifier son propre niveau et ses coquillages (vérifié par le serveur).

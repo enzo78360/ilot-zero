@@ -1164,10 +1164,16 @@ TEX.leaf=(function(){const c=document.createElement('canvas');c.width=c.height=2
 TEX.needle=(function(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const r=mulberry32(97);
   for(let i=0;i<900;i++){const px=r()*256,py=40+r()*216,l=10+r()*18,a=Math.PI/2+(r()-.5)*1.2;x.strokeStyle=`rgb(${30+r()*25|0},${70+r()*45|0},${35+r()*20|0})`;x.lineWidth=1.6;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*l,py+Math.sin(a)*l);x.stroke();}
   const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.RepeatWrapping;t.anisotropy=4;return t;})();
-TEX.blade=(function(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');const r=mulberry32(101);
-  for(let i=0;i<34;i++){const bx=6+r()*116,h=60+r()*66,lean=(r()-.5)*26,w=2+r()*3;const g=x.createLinearGradient(0,128,0,128-h);g.addColorStop(0,'#3d5e22');g.addColorStop(1,r()<.5?'#9cc256':'#86b04a');
-    x.fillStyle=g;x.beginPath();x.moveTo(bx-w,128);x.quadraticCurveTo(bx+lean*.3,128-h*.6,bx+lean,128-h);x.quadraticCurveTo(bx+lean*.3+w*.3,128-h*.55,bx+w,128);x.fill();}
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;})();
+TEX.blade=(function(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const r=mulberry32(101);
+  const tips=['#8fb54f','#a6c860','#7aa443','#b5cf72','#6c9a3d'];
+  for(let i=0;i<70;i++){const bx=8+r()*240,h=110+r()*140,lean=(r()-.5)*60,w=2.2+r()*3.6;const g=x.createLinearGradient(0,256,0,256-h);
+    g.addColorStop(0,'#24391a');g.addColorStop(.35,'#3f6326');g.addColorStop(1,tips[Math.floor(r()*tips.length)]);
+    x.fillStyle=g;x.beginPath();x.moveTo(bx-w,256);x.quadraticCurveTo(bx+lean*.35,256-h*.6,bx+lean,256-h);x.quadraticCurveTo(bx+lean*.35+w*.25,256-h*.55,bx+w,256);x.fill();}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;})();
+// textures photo CC0 (Poly Haven) : elles remplacent les textures dessinées dès qu'elles sont chargées
+const PHOTO_TEX={grass:'grass_ground',rock:'aerial_rocks_02',sand:'coast_sand_01',snow:'snow_02',plaster:'white_stucco',corr:'corrugated_iron',roof:'clay_roof_tiles'};
+(function loadPhotoTex(){const L=new THREE.ImageLoader();
+  for(const k in PHOTO_TEX)L.load('textures/'+PHOTO_TEX[k]+'.jpg',img=>{const t=TEX[k];if(!t)return;t.image=img;t.anisotropy=8;t.needsUpdate=true;},undefined,()=>{});})();
 TEX.waterN=(function(){const S=256,H=new Float32Array(S*S);for(let j=0;j<S;j++)for(let i=0;i<S;i++)H[j*S+i]=fbmT(i/S,j/S,8,8,4,113);
   const c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d'),img=x.createImageData(S,S);
   for(let j=0;j<S;j++)for(let i=0;i<S;i++){const hx=H[j*S+(i+1)%S]-H[j*S+(i+S-1)%S],hy=H[((j+1)%S)*S+i]-H[((j+S-1)%S)*S+i];const nx=-hx*6,ny=-hy*6,nz=1,l=Math.hypot(nx,ny,nz);const o=(j*S+i)*4;
@@ -1314,6 +1320,7 @@ function getTerrainMat(){
       .replace('#include <map_fragment>',`
         vec2 q=vWP.xz*0.17;vec2 q2=vWP.xz*0.021;
         vec3 cg=texture2D(tG,q).rgb*(0.74+0.5*texture2D(tG,q2+0.37).g)*(0.9+0.2*texture2D(tG,q*0.27).r);
+        {float L=dot(cg,vec3(0.299,0.587,0.114));cg=mix(cg,L*vec3(0.6,1.0,0.34)*1.5,0.72);}
         vec3 cr=mix(texture2D(tR,vec2(vWP.x,vWP.y)*0.12).rgb,texture2D(tR,vec2(vWP.z,vWP.y)*0.12).rgb,0.5)*0.6+texture2D(tR,q*0.8).rgb*0.4;
         vec3 cs=texture2D(tS,q*1.3).rgb;vec3 cn=texture2D(tN,q).rgb;
         vec4 w=vSplat/max(0.0001,vSplat.x+vSplat.y+vSplat.z+vSplat.w);
