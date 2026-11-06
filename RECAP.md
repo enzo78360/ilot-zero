@@ -7,12 +7,17 @@ Mise à jour du 6 novembre 2026.
 | Quoi | Où |
 | --- | --- |
 | Jouer (site) | https://enzo78360.github.io/ilot-zero/ |
+| Site de téléchargement | https://enzo78360.github.io/ilot-zero/telecharger/ |
 | Code source | https://github.com/enzo78360/ilot-zero |
 | Applications Windows et Mac | https://github.com/enzo78360/ilot-zero/releases/latest |
 | Base de données et comptes (Supabase) | https://supabase.com/dashboard/project/kweiabsweqxwoiiqbkpa |
 | Identifiant Google (connexion) | https://console.cloud.google.com/auth/clients |
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
+
+## Site de téléchargement (6 novembre 2026)
+
+Page `telecharger/index.html` : présentation du jeu avec captures, nouveautés, téléchargements (le fichier qui correspond à l'ordinateur est mis en avant et pointe toujours vers la dernière Release publiée, lue sur GitHub), guide d'installation pas à pas pour Windows (alerte SmartScreen) et Mac (application non signée), touches, configuration conseillée et questions fréquentes. Lien depuis l'écran de connexion et l'onglet Compte du jeu (« Télécharger l'application ») et depuis Paramètres. Les captures sont dans `telecharger/img/`.
 
 ## Style cartoon et coffres (6 novembre 2026)
 

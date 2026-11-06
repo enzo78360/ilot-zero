@@ -580,7 +580,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
     </div>
     <p class="acsync" id="gMsg"></p>
     <button class="wide" id="gLogout" hidden>Changer de compte</button>
-    <p class="acsync"><a href="https://enzo78360.github.io/ilot-zero/confidentialite.html" target="_blank" rel="noopener" style="color:inherit">Confidentialité</a> · <a href="https://enzo78360.github.io/ilot-zero/conditions.html" target="_blank" rel="noopener" style="color:inherit">Conditions d'utilisation</a></p>
+    <p class="acsync"><a href="https://enzo78360.github.io/ilot-zero/confidentialite.html" target="_blank" rel="noopener" style="color:inherit">Confidentialité</a> · <a href="https://enzo78360.github.io/ilot-zero/conditions.html" target="_blank" rel="noopener" style="color:inherit">Conditions d'utilisation</a> · <a href="https://enzo78360.github.io/ilot-zero/telecharger/" target="_blank" rel="noopener" style="color:inherit">Télécharger l'application</a></p>
   </div>
 </div>
 
@@ -661,7 +661,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
         <div class="acuser" id="acUser" hidden><img id="acPic" alt="" referrerpolicy="no-referrer"><div><b id="acName"></b><small id="acMail"></small></div><span class="acrole" id="acRole"></span></div>
         <p class="acsync" id="acSync"></p>
-        <p class="acsync"><a href="https://enzo78360.github.io/ilot-zero/confidentialite.html" target="_blank" rel="noopener" style="color:inherit">Confidentialité</a> · <a href="https://enzo78360.github.io/ilot-zero/conditions.html" target="_blank" rel="noopener" style="color:inherit">Conditions d'utilisation</a></p>
+        <p class="acsync"><a href="https://enzo78360.github.io/ilot-zero/confidentialite.html" target="_blank" rel="noopener" style="color:inherit">Confidentialité</a> · <a href="https://enzo78360.github.io/ilot-zero/conditions.html" target="_blank" rel="noopener" style="color:inherit">Conditions d'utilisation</a> · <a href="https://enzo78360.github.io/ilot-zero/telecharger/" target="_blank" rel="noopener" style="color:inherit">Télécharger l'application</a></p>
         <button class="go" id="acLogin">Se connecter avec Google</button>
         <button class="wide" id="acLogout" hidden>Se déconnecter</button>
       </div>
@@ -791,6 +791,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
           </section>
         </div>
         <button id="sReset" class="wide" style="max-width:320px">Réinitialiser les paramètres</button>
+        <p class="note" style="margin-top:14px"><a href="https://enzo78360.github.io/ilot-zero/telecharger/" target="_blank" rel="noopener" style="color:var(--accent,#ff8b4a)">Télécharger l'application Windows ou Mac</a> (plus fluide que le navigateur).</p>
         <section class="credits" id="credits"><h3>Crédits</h3><p class="note">Modèles 3D sous licence Creative Commons Attribution, merci à leurs auteurs. Textures du sol et des murs : Poly Haven (CC0).</p><ul id="creditList"></ul></section>
       </div>
     </div></section>
@@ -1228,7 +1229,7 @@ function paintTex(k){if(PAINT[k])return PAINT[k];const N=512,c=document.createEl
       x.strokeStyle='rgba(255,246,220,.25)';x.lineWidth=3;for(let i=0;i<14;i++){const y0=rr(0,N);x.beginPath();for(let t=0;t<=N;t+=16)x.lineTo(t,y0+Math.sin(t/38+i)*7);x.stroke();}
       x.strokeStyle='rgba(190,140,80,.16)';x.lineWidth=2;for(let i=0;i<14;i++){const y0=rr(0,N);x.beginPath();for(let t=0;t<=N;t+=16)x.lineTo(t,y0+4+Math.sin(t/38+i)*7);x.stroke();}break;
     case 'snow':fill('#eef5ff');blobs(26,50,120,['rgb(214,230,252)','rgb(255,255,255)'],.6);break;
-    case 'asphalt':fill('#4b505c');blobs(24,40,110,['rgb(66,70,82)','rgb(86,90,104)'],.5);for(let i=0;i<1400;i++){x.fillStyle=R()<.5?'rgba(120,124,140,.5)':'rgba(40,42,50,.5)';x.fillRect(rr(0,N),rr(0,N),2.5,2.5);}break;
+    case 'asphalt':fill('#6e655c');blobs(24,40,110,['rgb(96,88,80)','rgb(124,116,106)'],.5);for(let i=0;i<1400;i++){x.fillStyle=R()<.5?'rgba(120,124,140,.5)':'rgba(40,42,50,.5)';x.fillRect(rr(0,N),rr(0,N),2.5,2.5);}break;
     case 'walk':fill('#9aa0aa');for(let i=0;i<4;i++)for(let j=0;j<4;j++){const sh=rr(-10,10);rect(i*128+4,j*128+4,120,120,`rgb(${196+sh},${200+sh},${208+sh})`,10);rect(i*128+4,j*128+4,120,10,'rgba(255,255,255,.35)',6);}break;
     case 'paving':fill('#8a6e5a');for(let j=0;j<8;j++)for(let i=-1;i<5;i++){const off=j%2?64:0,sh=rr(-14,14);rect(i*128+off+4,j*64+4,120,56,`rgb(${200+sh},${150+sh},${112+sh})`,10);rect(i*128+off+4,j*64+4,120,9,'rgba(255,240,220,.35)',5);}break;
     case 'concrete':fill('#c9ccd2');blobs(30,40,100,['rgb(186,190,198)','rgb(214,218,224)'],.6);x.strokeStyle='rgba(120,126,138,.5)';x.lineWidth=3;x.strokeRect(2,2,N-4,N-4);break;
@@ -1251,7 +1252,7 @@ function applyStyle(st){
     const L=new THREE.ImageLoader(),f=PHOTO_TEX[k];
     if(PHOTO_IMG[k]){t.image=PHOTO_IMG[k];t.needsUpdate=true;}else L.load('textures/'+f+'.jpg',img=>{PHOTO_IMG[k]=img;if(STYLE.cur==='real'){t.image=img;t.anisotropy=8;t.needsUpdate=true;}},undefined,()=>{});
     if(PHOTO_IMG[k+'_n']){n.image=PHOTO_IMG[k+'_n'];n.needsUpdate=true;}else L.load('textures/'+f+'_nor.jpg',img=>{PHOTO_IMG[k+'_n']=img;if(STYLE.cur==='real'){n.image=img;n.anisotropy=4;n.needsUpdate=true;}},undefined,()=>{});}
-  STYLE.cur=st;try{if(terrainMat&&terrainMat.userData.sh)terrainMat.userData.sh.uniforms.uToon.value=st==='cartoon'?1:0;}catch(err){}
+  STYLE.cur=st;try{if(roadMatC)roadMatC.color=lin(st==='cartoon'?0xe2e4e8:0x9a9a9e);}catch(err){}try{if(terrainMat&&terrainMat.userData.sh)terrainMat.userData.sh.uniforms.uToon.value=st==='cartoon'?1:0;}catch(err){}
 }
 const STYLE={cur:STYLE0};applyStyle(STYLE0);
 TEX.waterN=(function(){const S=256,H=new Float32Array(S*S);for(let j=0;j<S;j++)for(let i=0;i<S;i++)H[j*S+i]=fbmT(i/S,j/S,8,8,4,113);
@@ -2710,7 +2711,7 @@ function paveTex(){if(paveTexC)return paveTexC;const c=document.createElement('c
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return paveTexC=t;}
 let roadMatC=null,markMatC=null,shoulderMatC=null,crossMatC=null;
 // asphalte photo (Poly Haven) avec relief ; marquages sur un ruban transparent au-dessus
-function roadMat(){return roadMatC||(roadMatC=new THREE.MeshStandardMaterial({map:TEX.asphalt,normalMap:TEXN.asphalt,normalScale:new THREE.Vector2(.8,.8),color:lin(0x9a9a9e),roughness:.93,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));}
+function roadMat(){return roadMatC||(roadMatC=new THREE.MeshStandardMaterial({map:TEX.asphalt,normalMap:TEXN.asphalt,normalScale:new THREE.Vector2(.8,.8),color:lin(STYLE.cur==='cartoon'?0xe2e4e8:0x9a9a9e),roughness:.93,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));}
 function markTex(){const c=document.createElement('canvas');c.width=128;c.height=512;const x=c.getContext('2d');x.clearRect(0,0,128,512);
   const paint=(px,w,y0,y1)=>{x.fillStyle='rgba(240,238,230,.92)';x.fillRect(px,y0,w,y1-y0);for(let i=0;i<60;i++){x.clearRect(px+Math.random()*w,y0+Math.random()*(y1-y0),1.5,1.5);}};
   paint(6,5,0,512);paint(117,5,0,512);paint(61,6,0,300);

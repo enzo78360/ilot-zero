@@ -95,6 +95,9 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 
 ## Version de bureau (Windows et macOS)
 
+Page de téléchargement : https://enzo78360.github.io/ilot-zero/telecharger/ (le bon fichier est proposé selon l'ordinateur, guide d'installation pas à pas).
+
+
 Le jeu peut être empaqueté en application avec [Electron](https://www.electronjs.org/). Les bibliothèques (three.js, PeerJS, décodeur Draco) sont dans `vendor/`, donc le jeu solo marche hors ligne. Le multijoueur a toujours besoin d'Internet.
 
 ```bash

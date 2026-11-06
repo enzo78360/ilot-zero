@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Îlot Zéro · Télécharger</title>
+<meta name="description" content="Îlot Zéro, battle royale en 3D gratuit : joue dans ton navigateur ou installe l'application pour Windows et Mac.">
+<meta property="og:title" content="Îlot Zéro">
+<meta property="og:description" content="Battle royale en 3D gratuit. 20 combattants, une île, un seul survivant.">
+<meta property="og:image" content="https://enzo78360.github.io/ilot-zero/telecharger/img/village.jpg">
+<link rel="icon" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#141b25;--card:#18212d;--line:rgba(255,255,255,.09);--txt:#e9eef5;--mut:#9aa7b8;--acc:#ff7a3d;--acc2:#ff5a36;--ok:#5fd08a;--grad:linear-gradient(135deg,#ff8b4a,#ff5a36)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:"Chakra Petch",sans-serif;letter-spacing:.02em;line-height:1.15;margin:0}
+h2{font-size:clamp(26px,4vw,38px);margin-bottom:10px}
+.lead{color:var(--mut);max-width:640px;margin:0 0 30px}
+section{padding:80px 0}
+/* barre du haut */
+nav{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:24px;height:62px}
+.logo{font:700 22px "Chakra Petch",sans-serif;text-decoration:none;white-space:nowrap}
+.logo b{color:var(--acc)}
+nav .links{display:flex;gap:22px;margin-left:auto;font-size:14px;color:var(--mut)}
+nav .links a{text-decoration:none}nav .links a:hover{color:var(--txt)}
+@media(max-width:760px){nav .links{display:none}}
+/* boutons */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);cursor:pointer;font-size:16px;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.btn.main{background:var(--grad);border:0;color:#fff;box-shadow:0 10px 30px rgba(255,90,54,.35)}
+.btn small{display:block;font-weight:500;opacity:.8;font-size:12px}
+.btn svg{width:22px;height:22px;flex:none}
+.btn.sm{padding:9px 14px;font-size:14px;border-radius:10px}
+/* entête */
+.hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;padding:60px 0}
+.hero::before{content:"";position:absolute;inset:0;background:url(img/village.jpg) center/cover;transform:scale(1.04)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,17,23,.96) 0%,rgba(13,17,23,.78) 45%,rgba(13,17,23,.25) 100%),linear-gradient(0deg,var(--bg) 0%,transparent 30%)}
+.hero .wrap{position:relative;z-index:1}
+.hero h1{font-size:clamp(46px,8vw,92px)}
+.hero h1 b{color:var(--acc)}
+.hero p.tag{font-size:clamp(18px,2.3vw,22px);color:#d3dbe6;max-width:560px;margin:14px 0 30px}
+.ctas{display:flex;flex-wrap:wrap;gap:14px}
+.meta{margin-top:18px;font-size:13px;color:var(--mut)}
+.meta a{color:var(--acc)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.pill{font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+/* galerie */
+.gal{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:14px}
+.gal figure,.gal2 figure{margin:0;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card);cursor:zoom-in}
+.gal figure img,.gal2 figure img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/9;transition:transform .4s}
+.gal figure:hover img,.gal2 figure:hover img{transform:scale(1.03)}
+.gal figcaption,.gal2 figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;font-size:14px;font-weight:600;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
+.gal .big{grid-row:span 2}
+.gal .big img{aspect-ratio:auto}
+.gal2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:760px){.gal{grid-template-columns:1fr}.gal .big{grid-row:auto}.gal2{grid-template-columns:1fr}}
+/* nouveautés */
+.feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.feat .ic{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:rgba(255,122,61,.14);color:var(--acc);margin-bottom:12px;font-size:22px}
+.feat h3{font-size:19px;margin-bottom:6px}
+.feat p{margin:0;color:var(--mut);font-size:15px}
+/* téléchargements */
+.dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.card.mine{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 14px 40px rgba(255,90,54,.18)}
+.card h3{font-size:20px;display:flex;align-items:center;gap:10px}
+.card p{margin:0;color:var(--mut);font-size:14px;flex:1}
+.card .tagme{font:600 11px Inter;text-transform:uppercase;letter-spacing:.08em;color:var(--acc)}
+.card .btn{justify-content:center}
+.ver{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:18px 0 0;color:var(--mut);font-size:14px}
+.ver b{color:var(--txt)}
+/* installation */
+.tabs{display:inline-flex;gap:6px;padding:5px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;margin-bottom:18px}
+.tabs button{border:0;background:transparent;color:var(--mut);font:600 15px Inter;padding:9px 16px;border-radius:8px;cursor:pointer}
+.tabs button.sel{background:rgba(255,255,255,.1);color:var(--txt)}
+.steps[hidden]{display:none}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:12px;max-width:760px}
+.steps li{counter-increment:s;position:relative;padding:16px 18px 16px 62px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font:700 15px "Chakra Petch"}
+.steps li b{color:#fff}
+kbd{font:600 12px Inter;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.12);border:1px solid var(--line)}
+.note{margin-top:14px;font-size:14px;color:var(--mut);max-width:760px}
+/* touches et config */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td{padding:9px 6px;border-bottom:1px solid var(--line)}
+td:first-child{white-space:nowrap;width:1%;padding-right:16px}
+/* FAQ */
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 18px;margin-bottom:10px}
+summary{cursor:pointer;padding:16px 0;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";color:var(--acc);font-size:22px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{margin:0 0 16px;color:var(--mut)}
+/* pied de page */
+footer{border-top:1px solid var(--line);padding:34px 0;color:var(--mut);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center}
+footer .sp{margin-left:auto}
+/* visionneuse */
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;place-items:center;z-index:50;padding:20px;cursor:zoom-out}
+#lb.on{display:grid}
+#lb img{max-height:90vh;border-radius:12px}
+.cta-end{text-align:center;background:linear-gradient(180deg,var(--bg),#1a1310);}
+.cta-end .ctas{justify-content:center}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#">ÎLOT <b>ZÉRO</b></a>
+  <div class="links"><a href="#captures">Captures</a><a href="#nouveautes">Nouveautés</a><a href="#telecharger">Télécharger</a><a href="#installer">Installer</a><a href="#faq">Questions</a></div>
+  <a class="btn sm main" href="../" style="margin-left:0">Jouer</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <h1>ÎLOT <b>ZÉRO</b></h1>
+  <p class="tag">20 combattants sautent sur l'île. La zone se referme. Un seul repart. Un battle royale en 3D gratuit, en solo ou entre amis.</p>
+  <div class="ctas">
+    <a class="btn main" id="heroDl" href="#telecharger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
+      <span><span id="heroDlTxt">Télécharger</span><small id="heroDlSub">Windows et Mac, gratuit</small></span></a>
+    <a class="btn" href="../">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <span>Jouer dans le navigateur<small>sans rien installer</small></span></a>
+  </div>
+  <p class="meta" id="heroMeta">Dernière version : chargement…</p>
+  <div class="pills"><span class="pill">3 cartes</span><span class="pill">16 armes</span><span class="pill">Solo, duo, escouade</span><span class="pill">Constructions</span><span class="pill">Voitures</span><span class="pill">Coffres</span><span class="pill">Passe de combat</span></div>
+</div></header>
+
+<section id="captures"><div class="wrap">
+  <h2>Les captures</h2>
+  <p class="lead">Un style cartoon coloré (ou réaliste, au choix dans les paramètres), des villages, une grande ville et un désert.</p>
+  <div class="gal">
+    <figure class="big"><img src="img/village.jpg" alt="Vue d'un village de l'île avec routes, maisons et montagne" loading="lazy"><figcaption>L'Îlot : villages, rivière, montagne</figcaption></figure>
+    <figure><img src="img/ville.jpg" alt="Rue de la Métropole avec passages piétons et commerces" loading="lazy"><figcaption>La Métropole</figcaption></figure>
+    <figure><img src="img/dunes.jpg" alt="Village du désert au coucher du soleil" loading="lazy"><figcaption>Les Dunes au coucher du soleil</figcaption></figure>
+  </div>
+  <div class="gal2">
+    <figure><img src="img/coffre.jpg" alt="Coffre doré dans l'herbe" loading="lazy"><figcaption>Les coffres à ouvrir</figcaption></figure>
+    <figure><img src="img/inventaire.jpg" alt="Inventaire des tenues" loading="lazy"><figcaption>Tenues, skins d'armes et de voitures</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="nouveautes" style="background:var(--bg2)"><div class="wrap">
+  <h2>Ce qui t'attend</h2>
+  <p class="lead">Tout est gratuit. Ta progression est sauvegardée sur ton compte Google et suit sur le site comme dans l'application.</p>
+  <div class="feats">
+    <div class="feat"><div class="ic">🏝️</div><h3>3 cartes</h3><p>L'Îlot et ses villages, la Métropole et ses tours, les Dunes du désert. Routes, ponts, voitures et 20 combattants.</p></div>
+    <div class="feat"><div class="ic">🎁</div><h3>Coffres</h3><p>Des coffres dorés qui scintillent et tintent. Ouvre-les avec <kbd>E</kbd> pour une arme rare, des munitions et des soins.</p></div>
+    <div class="feat"><div class="ic">🔫</div><h3>16 armes</h3><p>Pistolets, fusils, snipers, lance-roquettes, arbalète… avec viseurs, silencieux et chargeurs à choisir dans l'armurerie.</p></div>
+    <div class="feat"><div class="ic">🧱</div><h3>Constructions</h3><p>Murs, sols et rampes en bois, brique ou métal pour te protéger ou prendre de la hauteur. Même les voitures montent dessus.</p></div>
+    <div class="feat"><div class="ic">👥</div><h3>Entre amis</h3><p>Crée un salon, donne le code à 4 lettres à tes amis : solo, duo ou escouade, avec ou sans bots.</p></div>
+    <div class="feat"><div class="ic">🎖️</div><h3>Passe de combat</h3><p>Saison 2 « Abysses » : une récompense à chaque palier, des tenues et des skins exclusifs.</p></div>
+    <div class="feat"><div class="ic">🚗</div><h3>Voitures</h3><p>Conduis sur les routes, saute des bosses, écrase les constructions… et débloque des skins de voiture secrets.</p></div>
+    <div class="feat"><div class="ic">⚙️</div><h3>À ton goût</h3><p>Touches modifiables, sensibilité par viseur, style cartoon ou réaliste, ramassage et portes automatiques.</p></div>
+  </div>
+</div></section>
+
+<section id="telecharger"><div class="wrap">
+  <h2>Télécharger</h2>
+  <p class="lead">L'application de bureau donne les meilleures performances. Le bon fichier pour ton ordinateur est mis en avant.</p>
+  <div class="dl">
+    <div class="card" data-os="win"><span class="tagme" hidden>Recommandé pour toi</span><h3>Windows</h3><p>Installation classique : un raccourci est créé sur le bureau. Windows 10 ou 11, 64 bits.</p><a class="btn main" data-asset="Windows-installateur.exe" href="https://github.com/enzo78360/ilot-zero/releases/latest">Installateur .exe</a></div>
+    <div class="card" data-os="win2"><span class="tagme" hidden>Recommandé pour toi</span><h3>Windows portable</h3><p>Rien à installer : lance directement le fichier. Pratique sur une clé USB.</p><a class="btn" data-asset="Windows-portable.exe" href="https://github.com/enzo78360/ilot-zero/releases/latest">Version portable .exe</a></div>
+    <div class="card" data-os="mac-arm"><span class="tagme" hidden>Recommandé pour toi</span><h3>Mac Apple Silicon</h3><p>Pour les Mac avec puce M1, M2, M3 ou M4 (la plupart des Mac depuis fin 2020).</p><a class="btn main" data-asset="mac-AppleSilicon.dmg" href="https://github.com/enzo78360/ilot-zero/releases/latest">Mac M1 à M4 (.dmg)</a></div>
+    <div class="card" data-os="mac-intel"><span class="tagme" hidden>Recommandé pour toi</span><h3>Mac Intel</h3><p>Pour les Mac plus anciens avec processeur Intel. Menu  → À propos de ce Mac pour vérifier.</p><a class="btn" data-asset="mac-Intel.dmg" href="https://github.com/enzo78360/ilot-zero/releases/latest">Mac Intel (.dmg)</a></div>
+  </div>
+  <div class="ver" id="ver"><span>Version <b id="vNum">…</b></span><span id="vDate"></span><a href="https://github.com/enzo78360/ilot-zero/releases" target="_blank" rel="noopener">Toutes les versions et notes de mise à jour</a></div>
+</div></section>
+
+<section id="installer" style="background:var(--bg2)"><div class="wrap">
+  <h2>Installer pas à pas</h2>
+  <p class="lead">L'application n'est pas signée par Apple ni Microsoft (c'est payant) : ton ordinateur affiche donc un avertissement la première fois. C'est normal, voici comment passer.</p>
+  <div class="tabs" role="tablist"><button data-t="win" class="sel">Windows</button><button data-t="mac">Mac</button></div>
+  <ol class="steps" data-p="win">
+    <li>Télécharge <b>l'installateur .exe</b> ci-dessus, puis ouvre-le depuis tes téléchargements.</li>
+    <li>Si Windows affiche <b>« Windows a protégé votre ordinateur »</b>, clique sur <b>Informations complémentaires</b>, puis sur <b>Exécuter quand même</b>.</li>
+    <li>Choisis le dossier d'installation (ou garde celui proposé), puis clique sur <b>Installer</b>.</li>
+    <li>Lance <b>Îlot Zéro</b> depuis le raccourci du bureau ou le menu Démarrer, puis connecte-toi avec Google.</li>
+  </ol>
+  <ol class="steps" data-p="mac" hidden>
+    <li>Télécharge le fichier <b>.dmg</b> qui correspond à ton Mac (Apple Silicon ou Intel), puis ouvre-le.</li>
+    <li>Glisse l'icône <b>Ilot Zero</b> dans le dossier <b>Applications</b>.</li>
+    <li>Dans Applications, fais un <b>clic droit</b> (ou <kbd>ctrl</kbd> + clic) sur Ilot Zero, puis <b>Ouvrir</b>, et confirme avec <b>Ouvrir</b>. Un double-clic simple serait bloqué la première fois.</li>
+    <li>Si macOS refuse encore : <b>Réglages Système → Confidentialité et sécurité</b>, en bas, clique sur <b>Ouvrir quand même</b>.</li>
+    <li>Ensuite, l'app s'ouvre normalement. Connecte-toi avec Google pour retrouver ta progression.</li>
+  </ol>
+  <p class="note">Pour mettre à jour, télécharge simplement la nouvelle version ici et installe-la par-dessus : ta progression est sur ton compte, rien n'est perdu.</p>
+</div></section>
+
+<section><div class="wrap two">
+  <div>
+    <h2>Les touches</h2>
+    <p class="lead" style="margin-bottom:14px">Toutes modifiables dans Paramètres → Touches.</p>
+    <table>
+      <tr><td><kbd>Z</kbd> <kbd>Q</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Se déplacer</td></tr>
+      <tr><td><kbd>Maj</kbd> <kbd>Espace</kbd></td><td>Sprinter, sauter</td></tr>
+      <tr><td>Clic gauche / droit</td><td>Tirer, viser</td></tr>
+      <tr><td><kbd>1</kbd> à <kbd>4</kbd></td><td>Pioche et armes</td></tr>
+      <tr><td><kbd>E</kbd></td><td>Ramasser, ouvrir un coffre, une porte, conduire</td></tr>
+      <tr><td><kbd>F</kbd> <kbd>C</kbd> <kbd>V</kbd></td><td>Construire un mur, un sol, une rampe</td></tr>
+      <tr><td><kbd>H</kbd></td><td>Se soigner</td></tr>
+      <tr><td><kbd>M</kbd></td><td>Grande carte</td></tr>
+    </table>
+  </div>
+  <div>
+    <h2>Configuration</h2>
+    <p class="lead" style="margin-bottom:14px">Le jeu s'adapte : baisse le préréglage graphique si ça rame.</p>
+    <table>
+      <tr><td>Système</td><td>Windows 10/11 64 bits, macOS 11 ou plus récent</td></tr>
+      <tr><td>Processeur</td><td>4 cœurs conseillés</td></tr>
+      <tr><td>Mémoire</td><td>4 Go minimum, 8 Go conseillés</td></tr>
+      <tr><td>Carte graphique</td><td>Compatible WebGL 2 (presque toutes depuis 2015)</td></tr>
+      <tr><td>Espace disque</td><td>Environ 400 Mo</td></tr>
+      <tr><td>Internet</td><td>Pour le compte et le multijoueur</td></tr>
+    </table>
+  </div>
+</div></section>
+
+<section id="faq" style="background:var(--bg2)"><div class="wrap">
+  <h2>Questions fréquentes</h2>
+  <p class="lead">Une autre question ? Ouvre une discussion sur la page GitHub du jeu.</p>
+  <details><summary>Le jeu est-il gratuit ?</summary><p>Oui, entièrement. Les coquillages (la monnaie du jeu) se gagnent en jouant, il n'y a rien à acheter avec de l'argent réel.</p></details>
+  <details><summary>Faut-il un compte ?</summary><p>Oui, une connexion avec Google. Elle sert à sauvegarder ton niveau, tes coquillages, tes tenues et tes amis, sur le site comme dans l'application.</p></details>
+  <details><summary>Comment jouer avec mes amis ?</summary><p>Dans le Salon, clique sur « Créer un salon » et donne le code à 4 lettres à tes amis, qui l'entrent dans « Rejoindre ». Tout le monde doit avoir la dernière version (ou jouer sur le site).</p></details>
+  <details><summary>Site ou application : quelle différence ?</summary><p>C'est le même jeu. L'application est souvent plus fluide et s'ouvre sans navigateur ; le site ne demande aucune installation et est toujours à jour.</p></details>
+  <details><summary>Mon antivirus ou macOS bloque l'application</summary><p>L'application n'est pas signée (la signature coûte cher), d'où l'avertissement. Suis les étapes de la partie « Installer pas à pas ». Le code source est public sur GitHub.</p></details>
+  <details><summary>Le jeu rame, que faire ?</summary><p>Dans Paramètres → Graphismes, choisis le préréglage « Moyen » ou « Bas », baisse la distance d'affichage ou l'échelle de rendu, et ferme les autres applications lourdes.</p></details>
+</div></section>
+
+<section class="cta-end"><div class="wrap">
+  <h2>Prêt à sauter ?</h2>
+  <p class="lead" style="margin:10px auto 26px">Rejoins l'île tout de suite dans ton navigateur, ou installe l'application.</p>
+  <div class="ctas"><a class="btn main" href="../">Jouer maintenant</a><a class="btn" href="#telecharger">Télécharger</a></div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© 2026 Îlot Zéro</span>
+  <a href="../confidentialite.html">Confidentialité</a>
+  <a href="../conditions.html">Conditions d'utilisation</a>
+  <a href="https://github.com/enzo78360/ilot-zero" target="_blank" rel="noopener">Code source</a>
+  <span class="sp">Modèles 3D : crédits dans le jeu (Paramètres → Crédits). Textures : Poly Haven (CC0).</span>
+</div></footer>
+
+<div id="lb"><img alt=""></div>
+
+<script>
+(function(){
+  // détection du système pour mettre en avant le bon fichier
+  const ua=navigator.userAgent||'',plat=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'';
+  let os=null;
+  if(/Win/i.test(plat)||/Windows/i.test(ua))os='win';
+  else if(/Mac/i.test(plat)||/Macintosh/i.test(ua)){
+    os='mac-arm';
+    // les Mac Intel ont un GPU Intel/AMD : on regarde le nom du processeur graphique
+    try{const gl=document.createElement('canvas').getContext('webgl');const ext=gl&&gl.getExtension('WEBGL_debug_renderer_info');
+      const r=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'';if(/Intel|AMD|Radeon|NVIDIA/i.test(r))os='mac-intel';}catch(e){}
+  }
+  if(os){const c=document.querySelector('.card[data-os="'+os+'"]');if(c){c.classList.add('mine');c.querySelector('.tagme').hidden=false;c.parentNode.prepend(c);}}
+  const label={win:'Télécharger pour Windows','mac-arm':'Télécharger pour Mac','mac-intel':'Télécharger pour Mac Intel'};
+  if(os)document.getElementById('heroDlTxt').textContent=label[os];
+
+  // dernière version publiée sur GitHub : liens directs vers les fichiers
+  fetch('https://api.github.com/repos/enzo78360/ilot-zero/releases/latest').then(r=>r.ok?r.json():null).then(rel=>{
+    if(!rel||!rel.assets)throw 0;
+    const v=String(rel.tag_name||'').replace(/^v/,''),d=rel.published_at?new Date(rel.published_at):null;
+    document.getElementById('vNum').textContent=v;
+    if(d)document.getElementById('vDate').textContent='publiée le '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('heroMeta').innerHTML='Dernière version : <b>'+v+'</b>'+(d?' · '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'')+' · <a href="'+rel.html_url+'" target="_blank" rel="noopener">notes de version</a>';
+    const mb=n=>Math.round(n/1048576)+' Mo';
+    document.querySelectorAll('[data-asset]').forEach(a=>{const f=rel.assets.find(x=>x.name.endsWith(a.dataset.asset));if(!f)return;a.href=f.browser_download_url;a.title=f.name+' · '+mb(f.size);
+      if(!a.querySelector('small')){const s=document.createElement('small');s.textContent=mb(f.size);s.style.marginLeft='6px';a.append(s);}});
+    if(os){const pick={win:'Windows-installateur.exe','mac-arm':'mac-AppleSilicon.dmg','mac-intel':'mac-Intel.dmg'}[os];const f=rel.assets.find(x=>x.name.endsWith(pick));
+      if(f){const h=document.getElementById('heroDl');h.href=f.browser_download_url;document.getElementById('heroDlSub').textContent='Version '+v+' · '+mb(f.size);}}
+  }).catch(()=>{document.getElementById('heroMeta').innerHTML='<a href="https://github.com/enzo78360/ilot-zero/releases/latest" target="_blank" rel="noopener">Voir la dernière version sur GitHub</a>';document.getElementById('vNum').textContent='dernière';});
+
+  // onglets d'installation (Mac ouvert d'office sur un Mac)
+  const tabs=document.querySelectorAll('.tabs button'),show=t=>{tabs.forEach(b=>b.classList.toggle('sel',b.dataset.t===t));document.querySelectorAll('.steps').forEach(o=>o.hidden=o.dataset.p!==t);};
+  tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.t)));if(os&&os.startsWith('mac'))show('mac');
+
+  // visionneuse des captures
+  const lb=document.getElementById('lb');document.querySelectorAll('figure img').forEach(i=>i.addEventListener('click',()=>{lb.querySelector('img').src=i.src;lb.querySelector('img').alt=i.alt;lb.classList.add('on');}));
+  lb.addEventListener('click',()=>lb.classList.remove('on'));addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on');});
+})();
+</script>
+</body>
+</html>
