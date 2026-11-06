@@ -2518,7 +2518,7 @@ function rectOnRoad(x,z,hw,hd){if(!TER.roadGrid.size)return false;for(let px=x-h
 function inMetro(x,z,m){const c=TER.metro;return !!c&&Math.abs(x-c.x)<c.half+(m||0)&&Math.abs(z-c.z)<c.half+(m||0);}
 // ponts : tablier droit au-dessus de la rivière
 function deckAt(x,z){for(const b of TER.bridges){const dx=b.bx-b.ax,dz=b.bz-b.az,l=dx*dx+dz*dz,t=((x-b.ax)*dx+(z-b.az)*dz)/l;if(t<0||t>1)continue;
-  const px=b.ax+dx*t-x,pz=b.az+dz*t-z;if(px*px+pz*pz<b.hw*b.hw)return b.y;}return null;}
+  const px=b.ax+dx*t-x,pz=b.az+dz*t-z;if(px*px+pz*pz<b.hw*b.hw)return b.y0+(b.y1-b.y0)*t;}return null;}
 function carGround(x,z){const h=heightAt(x,z);if(!TER.bridges.length)return h;const d=deckAt(x,z);return d!==null&&d>h?d:h;}
 let roadTexC=null,paveTexC=null;
 function roadTex(){if(roadTexC)return roadTexC;const c=document.createElement('canvas');c.width=128;c.height=512;const x=c.getContext('2d');
@@ -2564,13 +2564,15 @@ function genRoads(){
     // ponts : passages sous l'eau (rivière)
     const wet=pts.map(q=>heightAt(q[0],q[1])<.9);
     for(let i=0;i<pts.length;i++){if(!wet[i])continue;let j=i;while(j+1<pts.length&&wet[j+1])j++;
-      const s0=Math.max(0,i-3),s1=Math.min(pts.length-1,j+3),P0=pts[s0],P1=pts[s1],y=Math.max(heightAt(P0[0],P0[1]),heightAt(P1[0],P1[1]),1.3)+.25;
-      TER.bridges.push({ax:P0[0],az:P0[1],bx:P1[0],bz:P1[1],hw:4.2,y});
-      const br=[];for(let k=0;k<=8;k++)br.push([P0[0]+(P1[0]-P0[0])*k/8,P0[1]+(P1[1]-P0[1])*k/8,y]);pts.splice(s0,s1-s0+1,...br);wet.splice(s0,s1-s0+1,...br.map(()=>false));
-      const L=Math.hypot(P1[0]-P0[0],P1[1]-P0[1]),yaw=Math.atan2(P1[0]-P0[0],P1[1]-P0[1]),mx=(P0[0]+P1[0])/2,mz=(P0[1]+P1[1])/2,cm=lam(0x8a8d93);
-      deco(new THREE.BoxGeometry(8.6,.7,L),cm,mx,y-.38,mz,yaw);
-      for(const sd of [-1,1])deco(new THREE.BoxGeometry(.25,.9,L),lam(0xb5b8bd),mx+Math.cos(yaw)*4.2*sd,y+.4,mz-Math.sin(yaw)*4.2*sd,yaw);
-      for(const k of [.33,.66])deco(new THREE.BoxGeometry(1.4,y+4,1.4),cm,P0[0]+(P1[0]-P0[0])*k,(y-4)/2-.4,P0[1]+(P1[1]-P0[1])*k,yaw);
+      // tablier en pente douce d'une rive à l'autre : il rejoint la route exactement aux deux bouts (pas de marche)
+      const s0=Math.max(0,i-3),s1=Math.min(pts.length-1,j+3),P0=pts[s0],P1=pts[s1],y0=Math.max(heightAt(P0[0],P0[1]),1)+.13,y1=Math.max(heightAt(P1[0],P1[1]),1)+.13;
+      TER.bridges.push({ax:P0[0],az:P0[1],bx:P1[0],bz:P1[1],hw:4.2,y0,y1});
+      const br=[];for(let k=0;k<=8;k++)br.push([P0[0]+(P1[0]-P0[0])*k/8,P0[1]+(P1[1]-P0[1])*k/8,y0+(y1-y0)*k/8-.13]);pts.splice(s0,s1-s0+1,...br);wet.splice(s0,s1-s0+1,...br.map(()=>false));
+      const L=Math.hypot(P1[0]-P0[0],P1[1]-P0[1]),yaw=Math.atan2(P1[0]-P0[0],P1[1]-P0[1]),mx=(P0[0]+P1[0])/2,mz=(P0[1]+P1[1])/2,cm=lam(0x8a8d93),ym=(y0+y1)/2,pitch=Math.atan2(y1-y0,L);
+      const tilt=m=>{m.rotation.order='YXZ';m.rotation.x=-pitch;shootables.push(m);return m;};
+      tilt(deco(new THREE.BoxGeometry(8.6,.7,Math.hypot(L,y1-y0)),cm,mx,ym-.42,mz,yaw));
+      for(const sd of [-1,1])tilt(deco(new THREE.BoxGeometry(.25,.9,Math.hypot(L,y1-y0)),lam(0xb5b8bd),mx+Math.cos(yaw)*4.2*sd,ym+.3,mz-Math.sin(yaw)*4.2*sd,yaw));
+      for(const k of [.33,.66]){const yk=y0+(y1-y0)*k;deco(new THREE.BoxGeometry(1.4,yk+4,1.4),cm,P0[0]+(P1[0]-P0[0])*k,(yk-4)/2-.6,P0[1]+(P1[1]-P0[1])*k,yaw);}
       i=s0+8;}
     TER.roads.push({pts:pts.map(q=>[q[0],q[1]]),w:7});
     for(let i=0;i<pts.length-1;i++)roadIndex(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],3.5);
