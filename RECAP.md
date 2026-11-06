@@ -166,9 +166,8 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : Release **1.3.2** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.2), compilée avec : correction des salons, roues et ponts, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
+- **Applications Windows et Mac** : Release **1.3.3** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.3), compilée avec tout : style cartoon et coffres, correction des salons, roues et ponts, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
 - **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`). Les codes cadeaux peuvent donner un objet (le code `REBECA` existe, sans limite d'utilisation ni de durée).
-- **Pas encore dans les applications** : le style cartoon et les coffres (site uniquement, il faudra une 1.3.3).
 - **Voitures (1.3.2)** : les roues se posent sur la route (le ruban de route est 13 cm au-dessus du terrain) et ne s'enfoncent plus dans les pentes ; les voitures ne sont plus repoussées au milieu des ponts au-dessus de l'eau profonde (131 passages sur 132 réussis sur les 3 cartes, le dernier bloqué par une voiture garée).
 - **Salons** : la 1.3.0 avait un bug qui éjectait les amis au lancement de la partie. Il est corrigé depuis la 1.3.1 et sur le site : tout le monde doit utiliser le site ou la dernière version.
 - La 1.2.0 était restée en brouillon et n'a jamais été publiée.
