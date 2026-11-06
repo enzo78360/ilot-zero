@@ -2643,7 +2643,8 @@ function deckAt(x,z){for(const b of TER.bridges){const dx=b.bx-b.ax,dz=b.bz-b.az
   const px=b.ax+dx*t-x,pz=b.az+dz*t-z;if(px*px+pz*pz<b.hw*b.hw)return b.y0+(b.y1-b.y0)*t;}return null;}
 const CAR_STEP=.75;
 // sol sous une roue : terrain, pont, et (si on connaît la hauteur précédente de la roue) sols et rampes construits atteignables
-function carGround(x,z,feet){let g=heightAt(x,z);if(TER.bridges.length){const d=deckAt(x,z);if(d!==null&&d>g)g=d;}
+function carGround(x,z,feet){let g=heightAt(x,z);const d=TER.bridges.length?deckAt(x,z):null;
+  if(d!==null&&d>g)g=d;else if(onRoad(x,z))g+=.13; // le ruban de route est posé 13 cm au-dessus du terrain
   if(feet===undefined)return g;
   for(const b of nearBoxes(x,z,.2)){if(x<b.min.x||x>b.max.x||z<b.min.z||z>b.max.z||b.door)continue;if(b.max.y<=feet+CAR_STEP&&b.max.y>g)g=b.max.y;}
   for(const r of ramps){const h=rampHeight(r,x,z);if(h!==null&&h<=feet+CAR_STEP&&h>g)g=h;}
@@ -4134,6 +4135,10 @@ function placeCar(c,dt){
       if(c.y<=gy){c.y=gy;c.air=false;if(c.vy<-7){c.bump=Math.min(.22,-c.vy*.012+Math.abs(c.pitch-tp)*.15);puff(new THREE.Vector3(c.x,c.y+.2,c.z),0xcfc6b5,8,2.5);if(c.vy<-12)c.pendingDmg=(c.pendingDmg||0)+(-c.vy-12)*3;}c.vy=0;}}
     else{const k=Math.min(1,dt*9);c.pitch+=(tp-c.pitch)*k;c.roll+=(tr-c.roll)*k;}
   }
+  // aucune roue ne doit s'enfoncer dans le sol : la caisse est remontée d'autant (inclinaison en retard, bosse, réception)
+  {let lift=0;const tp2=Math.tan(c.pitch),tr2=Math.tan(c.roll);for(let i=0;i<4;i++){const [a,wy]=WHEELS[i],b=-wy,pen=hw[i]-(c.y+a*tp2+b*tr2);if(pen>lift)lift=pen;}
+    if(lift>.005){c.y+=lift;if(c.air&&(c.vy||0)<0){if(c.vy<-12&&dt)c.pendingDmg=(c.pendingDmg||0)+(-c.vy-12)*3;c.vy=0;c.air=false;}
+      if(dt){const k=Math.min(1,dt*14);c.pitch+=(tp-c.pitch)*k;c.roll+=(tr-c.roll)*k;}}}
   c.bump=Math.max(0,(c.bump||0)-dt*.6);
   c.g.position.set(c.x,c.y-c.bump*Math.sin(Math.min(1,c.bump*8)*Math.PI),c.z);c.g.rotation.set(0,c.yaw,0);c.mdl.rotation.set(-c.roll,Math.PI/2,c.pitch,'YXZ');
   c.spin+=c.sp*(dt||0)/.36;
@@ -4175,7 +4180,7 @@ function driveCar(c,f,s,hb,dt){
   const st=s*CARK.steer*(1-Math.min(.55,Math.abs(c.sp)/50));c.steer+=(st-c.steer)*Math.min(1,dt*6);
   const ny=c.air?c.yaw:c.yaw-c.sp*Math.tan(c.steer)/CARK.wb*dt*(hb?1.35:1);
   const nx=c.x-Math.sin(ny)*c.sp*dt,nz=c.z-Math.cos(ny)*c.sp*dt;
-  const deep=heightAt(nx,nz)<WATER_Y-1.5,d=Math.hypot(nx,nz);
+  const deep=heightAt(nx,nz)<WATER_Y-1.5&&(!TER.bridges.length||deckAt(nx,nz)===null),d=Math.hypot(nx,nz);
   if(deep||d>PLAY_R){c.sp*=-.15;placeCar(c,dt);return;}
   // sous-pas : pas de traversée des murs fins à grande vitesse
   // déjà imbriquée (mur posé sur la voiture) : on ignore cette boîte seulement si on s'en éloigne
