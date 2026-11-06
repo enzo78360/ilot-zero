@@ -65,7 +65,9 @@ Mise à jour du 6 novembre 2026.
 
 ## Guide du staff
 
-Toutes ces actions se font dans le jeu, onglet **Compte**, avec un compte staff.
+Toutes ces actions se font dans le jeu, onglet **Compte**, avec un compte staff : le menu de gauche a une partie **Staff** (Joueurs, Modération, Codes cadeaux, Équipe staff, Pouvoirs).
+
+**Protection du propriétaire** : personne d'autre que le propriétaire ne peut modifier son niveau (XP) ni ses coquillages. Le serveur refuse la demande, même si elle vient d'un membre du staff. Le propriétaire ne peut pas non plus être banni ni retiré du staff.
 
 ### Ajouter ou retirer un membre du staff
 Section **Membres du staff** : entre son adresse Gmail, puis clique sur **Ajouter**. Il devient staff tout de suite s'il s'est déjà connecté, sinon à sa première connexion. Le bouton **Retirer** est à côté de chaque membre. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
@@ -77,7 +79,7 @@ Section **Modération** : entre son pseudo, choisis une durée libre (un nombre 
 Section **Comptes des joueurs** : tous les comptes, en ligne d'abord, avec recherche par pseudo. Pour chacun : en ligne ou dernière connexion, niveau, coquillages, badges Staff et Banni, et le temps de bannissement restant. Boutons **Gérer**, **Bannir** ou **Débannir**.
 
 ### Donner ou retirer de l'XP et des coquillages
-Section **Gérer un joueur** (ou bouton **Gérer** dans la liste) : entre le pseudo et une quantité, puis **Ajouter**, **Retirer** ou **Régler à**. Le joueur reçoit le changement dès qu'il est connecté (moins de 10 secondes dans le menu), avec une notification.
+Section **Joueurs**, bloc **Gérer un joueur** (ou bouton **Gérer** dans la liste) : entre le pseudo et une quantité, puis **Ajouter**, **Retirer** ou **Régler à**. Le joueur reçoit le changement dès qu'il est connecté (moins de 10 secondes dans le menu), avec une notification.
 
 ### Créer un code cadeau
 Section **Codes cadeaux (staff)** : choisis un code (par exemple `NOEL2026`), la récompense (coquillages ou XP), la quantité, la durée de validité et, si tu veux, un nombre maximum d'utilisations, puis clique sur **Créer**. Les joueurs l'entrent dans la section **Code cadeau** de leur onglet Compte. La liste montre les utilisations, et le bouton **Supprimer** désactive un code.

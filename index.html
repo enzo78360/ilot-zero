@@ -326,6 +326,21 @@ button:disabled{opacity:.5;cursor:default}
 .mglab{align-self:center;color:var(--muted);font-size:14px;min-width:84px}
 .rtag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.08);margin-left:6px;vertical-align:middle}.rtag.staff{background:var(--accent);color:#1b0f08}.rtag.ban{background:#b3343f;color:#fff}
 #hubTabs button .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:5px;border-radius:8px;background:var(--accent);color:#1b0f08;font-size:11px;line-height:16px}
+
+.acwrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
+.acnav{display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:18px;position:sticky;top:0}
+.acnav button{text-align:left;background:transparent;border-color:transparent;color:var(--muted);text-transform:none;letter-spacing:.01em;font-family:var(--body);font-weight:600;font-size:15px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.acnav button:hover{background:rgba(255,255,255,.06);color:var(--fg)}
+.acnav button.sel{background:rgba(255,122,61,.14);color:#fff;border-color:rgba(255,122,61,.5)}
+.acnav .badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#1b0f08;font-size:11px;line-height:18px;text-align:center}
+.acnavst{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding-top:12px;border-top:1px solid var(--panel-edge)}
+.acnavst small{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);padding:0 14px 4px}
+.acbody{display:flex;flex-direction:column;gap:16px;min-width:0;max-width:900px}
+.acbody>.acoff{display:none!important}
+.acbody .pane .tag{font-size:15px;line-height:1.45}
+#apList,#mdList,#ccList,#frList{max-height:440px;overflow:auto;padding-right:4px}
+.acbody .pfield .row{align-items:center}
+@media (max-width:820px){.acwrap{grid-template-columns:1fr}.acnav{flex-direction:row;flex-wrap:wrap;position:static}.acnavst{flex-direction:row;flex-wrap:wrap;margin:0;padding:0;border:none;align-items:center}.acnav button{padding:8px 12px;font-size:14px}}
 #saEmail,#frIn,#mdPseudo,#mgPseudo,#apSearch{text-transform:none;letter-spacing:normal;font-family:var(--body);font-size:16px;text-align:left}
 .salist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .salist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05)}
@@ -629,9 +644,9 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
       </div>
     </div></section>
-    <section class="hubleft" id="tabCompte" hidden><div class="acctgrid">
-      <div class="pane panel">
-        <h3>Compte</h3>
+    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="codes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
+      <div class="pane panel" data-sec="moi">
+        <h3>Mon compte</h3>
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
         <div class="acuser" id="acUser" hidden><img id="acPic" alt="" referrerpolicy="no-referrer"><div><b id="acName"></b><small id="acMail"></small></div><span class="acrole" id="acRole"></span></div>
         <p class="acsync" id="acSync"></p>
@@ -639,7 +654,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <button class="go" id="acLogin">Se connecter avec Google</button>
         <button class="wide" id="acLogout" hidden>Se déconnecter</button>
       </div>
-      <div class="pane panel" id="staffPane" hidden>
+      <div class="pane panel" id="staffPane" data-sec="pouvoirs" hidden>
         <h3>Espace staff</h3>
         <p class="tag">Pouvoirs réservés aux comptes staff. En partie, appuie sur <kbd>O</kbd> pour ouvrir le menu staff (vitesse, radar, arme légendaire, téléportation…). Ils marchent en solo et quand tu héberges le salon.</p>
         <label class="srow"><span>Coquillages illimités</span><input type="checkbox" id="stCoins"></label>
@@ -648,19 +663,19 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <label class="srow"><span>Matériaux illimités</span><input type="checkbox" id="stMats"></label>
         <button class="wide" id="stXp">XP illimitée : débloquer tout le passe de combat</button>
       </div>
-      <div class="pane panel" id="friendsPane">
+      <div class="pane panel" id="friendsPane" data-sec="amis">
         <h3>Amis</h3>
         <div class="joinrow"><input id="frIn" maxlength="14" placeholder="Pseudo de ton ami" autocomplete="off" aria-label="Pseudo de l'ami à ajouter"><button id="frAdd">Ajouter</button></div>
         <p class="acsync" id="frMsg"></p>
         <ul class="salist" id="frList"></ul>
       </div>
-      <div class="pane panel" id="giftPane">
+      <div class="pane panel" id="giftPane" data-sec="moi">
         <h3>Code cadeau</h3>
         <p class="tag">Entre un code pour recevoir sa récompense. Chaque code ne s'utilise qu'une fois par compte.</p>
         <div class="joinrow"><input id="gcIn" maxlength="24" placeholder="CODE" autocomplete="off" aria-label="Code cadeau"><button id="gcOk">Utiliser</button></div>
         <p class="acsync" id="gcMsg"></p>
       </div>
-      <div class="pane panel" id="modPane" hidden>
+      <div class="pane panel" id="modPane" data-sec="moderation" hidden>
         <h3>Modération</h3>
         <div class="pfield">
           <div class="row"><input id="mdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à bannir">
@@ -672,15 +687,15 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <p class="acsync" id="mdMsg"></p>
         <ul class="salist" id="mdList"></ul>
       </div>
-      <div class="pane panel" id="accountsPane" hidden>
+      <div class="pane panel" id="accountsPane" data-sec="joueurs" hidden>
         <h3>Comptes des joueurs</h3>
         <div class="pfield"><div class="row"><input id="apSearch" maxlength="14" placeholder="Chercher un pseudo" autocomplete="off" aria-label="Chercher un pseudo"></div></div>
         <p class="acsync" id="apSum"></p>
         <ul class="salist" id="apList"></ul>
       </div>
-      <div class="pane panel" id="managePane" hidden>
+      <div class="pane panel" id="managePane" data-sec="joueurs" hidden>
         <h3>Gérer un joueur</h3>
-        <p class="tag">Le joueur reçoit le changement dès qu'il est connecté (en moins de 10 secondes dans le menu).</p>
+        <p class="tag">Le joueur reçoit le changement dès qu'il est connecté (en moins de 10 secondes dans le menu). Le niveau et les coquillages du propriétaire du jeu ne peuvent être modifiés que par lui-même.</p>
         <div class="pfield">
           <div class="row"><input id="mgPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à gérer"></div>
           <div class="row"><input id="mgCoins" type="number" min="0" value="1000" aria-label="Coquillages" style="max-width:120px"><span class="mglab">coquillages</span>
@@ -690,7 +705,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         </div>
         <p class="acsync" id="mgMsg"></p>
       </div>
-      <div class="pane panel" id="codesPane" hidden>
+      <div class="pane panel" id="codesPane" data-sec="codes" hidden>
         <h3>Codes cadeaux (staff)</h3>
         <div class="pfield">
           <div class="row"><input id="ccCode" class="code" maxlength="24" placeholder="CODE" autocomplete="off" aria-label="Code à créer">
@@ -702,14 +717,14 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <p class="acsync" id="ccMsg"></p>
         <ul class="salist" id="ccList"></ul>
       </div>
-      <div class="pane panel" id="staffAdmin" hidden>
+      <div class="pane panel" id="staffAdmin" data-sec="equipe" hidden>
         <h3>Membres du staff</h3>
         <p class="tag">Ajoute l'adresse Gmail d'un joueur : il devient staff tout de suite, ou à sa première connexion.</p>
         <div class="joinrow"><input id="saEmail" type="email" placeholder="adresse@gmail.com" autocomplete="off" aria-label="Adresse e-mail du nouveau membre du staff"><button id="saAdd">Ajouter</button></div>
         <p class="acsync" id="saMsg"></p>
         <ul class="salist" id="saList"></ul>
       </div>
-    </div></section>
+    </div></div></section>
     <section class="hubleft" id="tabParam" hidden><div id="paramHome">
       <div class="pane panel" id="paramPanel">
         <div class="setgrid">
@@ -5198,7 +5213,17 @@ function renderAccount(){
   $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
   if(u&&ACC.ready&&hubTab==='compte'&&Date.now()-accRefreshT>8000)accRefresh(true);
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
+  acNavRender();
 }
+// onglet Compte : une section à la fois (menu à gauche)
+let acSec='moi';
+function acNavRender(){
+  const st=ACC.role==='staff',u=!!ACC.user;$('acNavSt').hidden=!st;$('acNavAmis').hidden=!u;
+  if((!st&&!['moi','amis'].includes(acSec))||(!u&&acSec==='amis'))acSec='moi';
+  document.querySelectorAll('#acNav button').forEach(b=>b.classList.toggle('sel',b.dataset.sec===acSec));
+  document.querySelectorAll('#acBody>[data-sec]').forEach(p=>p.classList.toggle('acoff',p.dataset.sec!==acSec));
+}
+document.querySelectorAll('#acNav button').forEach(b=>b.addEventListener('click',()=>{acSec=b.dataset.sec;acNavRender();$('tabCompte').scrollTop=0;}));
 // gestion du staff (fonctions serveur qui vérifient elles-mêmes le rôle staff)
 const errFr=e=>e&&e.message?e.message:'erreur inconnue';
 async function staffAdminLoad(cached){
@@ -5279,8 +5304,9 @@ setInterval(async()=>{
 
 // ----- amis -----
 let frData=[];
-function friendsBadge(){const n=frData.filter(f=>f.status==='recue').length,b=document.querySelector('#hubTabs button[data-tab="compte"]');if(!b)return;
-  let s=b.querySelector('.badge');if(n&&!s){s=document.createElement('span');s.className='badge';b.append(s);}if(s){if(n)s.textContent=n;else s.remove();}}
+function friendsBadge(){const n=frData.filter(f=>f.status==='recue').length;
+  for(const b of [document.querySelector('#hubTabs button[data-tab="compte"]'),$('acNavAmis')]){if(!b)continue;
+    let s=b.querySelector('.badge');if(n&&!s){s=document.createElement('span');s.className='badge';b.append(s);}if(s){if(n)s.textContent=n;else s.remove();}}}
 async function friendsLoad(cached){
   if(!ACC.sb||!ACC.user||(!cached&&(!ACC.ready||ACC.ban)))return;
   const {data,error,stale}=cached?{data:cached}:await latestRpc('friends_list');if(stale)return;if(error)return;frData=data||[];friendsBadge();if(!cached)LC.set({fr:frData});lobbyFriendsRender();
