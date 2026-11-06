@@ -4583,7 +4583,17 @@ document.addEventListener('pointerlockerror',()=>{state.lockOK=false;state.pause
 
 // ================== RÉSEAU ==================
 function netMsg(t){setText($('netMsg'),t||'');}
-function send(c,m){try{if(c&&c.open)c.send(m);}catch(err){}}
+// PeerJS refuse les messages JSON de plus de ~16 Ko : les gros messages (début de partie…) sont découpés puis recollés
+const NET_MAX=12000;let ckSeq=0;
+function send(c,m){try{if(!c||!c.open)return;const s=JSON.stringify(m);if(s.length<=NET_MAX){c.send(m);return;}
+  const k=++ckSeq,n=Math.ceil(s.length/NET_MAX);for(let i=0;i<n;i++)c.send({t:'ck',k,i,n,d:s.slice(i*NET_MAX,(i+1)*NET_MAX)});}catch(err){}}
+function unchunk(c,m){
+  if(!m||m.t!=='ck')return m;
+  const k=m.k|0,i=m.i|0,n=m.n|0;if(n<2||n>64||i<0||i>=n||typeof m.d!=='string')return null;
+  c._ck=c._ck||{};let b=c._ck[k];if(!b){if(Object.keys(c._ck).length>6)c._ck={};b=c._ck[k]={n,p:[],got:0};}
+  if(b.n!==n||b.p[i]!==undefined)return null;b.p[i]=m.d;b.got++;if(b.got<n)return null;
+  delete c._ck[k];try{return JSON.parse(b.p.join(''));}catch(err){return null;}
+}
 function broadcast(m){for(const c of NET.conns)send(c,m);}
 function sendTo(e,m){if(e&&e.conn)send(e.conn,m);}
 function sendHost(m){send(NET.host,m);}
@@ -4615,7 +4625,7 @@ function hostLobby(){
   NET.peer=peer;
   peer.on('open',()=>{NET.role='host';NET.conns=[];netMsg('');showLobby(true);lobbyUpdate();accHeartbeat();});
   peer.on('connection',conn=>{
-    conn.on('data',m=>onHostData(conn,m));
+    conn.on('data',m=>{conn.lastRx=performance.now();m=unchunk(conn,m);if(m)onHostData(conn,m);});
     conn.on('close',()=>onHostClose(conn));
     conn.on('error',()=>onHostClose(conn));
   });
@@ -4640,7 +4650,7 @@ function joinLobby(){
     NET.host=conn;
     const to=setTimeout(()=>{if(!conn.open&&NET.peer===peer){netMsg('Pas de réponse du salon '+code+'. Vérifie le code, ou le réseau bloque peut-être les connexions directes.');leaveNet();}},12000);
     conn.on('open',()=>{clearTimeout(to);NET.lastRx=performance.now();NET.role='client';NET.code=code;send(conn,{t:'join',n:NET.name,sk:prof.skin,wr:prof.wrap,ld:prof.loadout});netMsg('');showLobby(false);});
-    conn.on('data',m=>onClientData(m));
+    conn.on('data',m=>{NET.lastRx=performance.now();m=unchunk(conn,m);if(m)onClientData(m);});
     conn.on('close',()=>{if(NET.host===conn)onLostHost();});
   });
   peer.on('error',err=>{if(NET.peer!==peer)return;netMsg(peerErr(err));if(NET.role!=='client')leaveNet();});
