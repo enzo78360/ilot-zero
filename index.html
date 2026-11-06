@@ -315,6 +315,7 @@ button:disabled{opacity:.5;cursor:default}
 .invfilt button small{opacity:.55;font-size:11px}.invfilt button.sel{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .invempty{grid-column:1/-1;opacity:.6;font-size:14px;margin:18px 4px}
 .item.secret{background:linear-gradient(160deg,rgba(255,79,200,.16),rgba(80,40,140,.12));box-shadow:0 0 0 1px rgba(255,79,200,.45),0 0 18px rgba(255,79,200,.18)}
+#credits{margin-top:18px}#creditList{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:6px;font-size:13px}#creditList li{opacity:.85}#creditList a{color:var(--accent,#ff8b4a)}
 #bindList{display:flex;flex-direction:column;max-height:340px;overflow:auto;padding-right:4px}
 #bindList .brow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
 #bindList .brow button{min-width:92px;padding:5px 10px;font-size:13px;letter-spacing:.04em}#bindList .brow button.wait{background:var(--accent);color:#1b0f08}
@@ -789,6 +790,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
           </section>
         </div>
         <button id="sReset" class="wide" style="max-width:320px">Réinitialiser les paramètres</button>
+        <section class="credits" id="credits"><h3>Crédits</h3><p class="note">Modèles 3D sous licence Creative Commons Attribution, merci à leurs auteurs. Textures du sol et des murs : Poly Haven (CC0).</p><ul id="creditList"></ul></section>
       </div>
     </div></section>
     <aside class="preview panel" id="pvPane">
@@ -1440,7 +1442,7 @@ function buildTreeProtos(){
   TREE.barkMat=new THREE.MeshStandardMaterial({map:TEX.bark,bumpMap:TEX.bark,bumpScale:.03,roughness:.95,metalness:0});
 }
 // ================== MODÈLES BLENDER ==================
-const ASSETS={char:null,trees:[],rocks:[],guns:{},shop:null,st:{},acc:{},att:{}};
+const ASSETS={char:null,trees:[],rocks:[],guns:{},shop:null,st:{},acc:{},att:{},vr:{}};
 const accMatC={},accGlass=new THREE.MeshStandardMaterial({color:lin(0xcfeeff),roughness:.04,metalness:.1,transparent:true,opacity:.22,depthWrite:false});
 function accMesh(name,cols){const A=ASSETS.acc[name];if(!A)return null;
   const mats=A.mats.map((mt,i)=>{const n=A.names[i];if(n==='verre')return accGlass;const c=cols[n];if(c==null)return mt;const k=n+'|'+c;
@@ -1473,8 +1475,10 @@ function loadAssets(){
   const L=new THREE.GLTFLoader();
   if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('vendor/draco/');L.setDRACOLoader(d);}
   const get=f=>new Promise(res=>{try{L.load('models/'+f,g=>res(g),undefined,()=>res(null));}catch(err){res(null);}});
-  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb','structures.glb','voiture.glb','accessoires.glb','armes_acc.glb','armes_nouvelles.glb'].map(get)).then(r=>{
-    const [c,t1,t2,r1,r2,ar0,bq,stc,vt,acs,aac,anw]=r;
+  return Promise.all(['personnage.glb','arbre_feuillu.glb','arbre_cotier.glb','roche_lichen.glb','roche_brune.glb','armes.glb','boutique.glb','structures.glb','voiture.glb','accessoires.glb','armes_acc.glb','armes_nouvelles.glb','voitures_reelles.glb'].map(get)).then(r=>{
+    const [c,t1,t2,r1,r2,ar0,bq,stc,vt,acs,aac,anw,vre]=r;
+    // voitures réalistes (une racine vr_<nom> par modèle) : gardées telles quelles, textures comprises
+    if(vre)for(const o of vre.scene.children){const k=/^vr_([a-z0-9]+)$/.exec(o.name||'');if(k){o.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});ASSETS.vr[k[1]]=o;}}
     if(aac)for(const o of aac.scene.children){const k=/^att_([a-z0-9]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.att[k[1]]=pk;}}
     if(acs)for(const o of acs.scene.children){const k=/^acc_([a-zA-Z_]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.acc[k[1]]=pk;}}
     for(const sc of [stc,vt])if(sc)for(const o of sc.scene.children){const k=/^(st|voiture)_([a-z_]+)/.exec(o.name||'');if(k){const pk=packObj(o);if(pk)ASSETS.st[k[1]==='st'?k[2]:'voiture_'+k[2]]=pk;}}
@@ -3925,14 +3929,29 @@ const carFwd=(c,v)=>v.set(-Math.sin(c.yaw),0,-Math.cos(c.yaw));
 function makeCar(x,z,yaw,color){
   const c={id:cars.length,x,z,y:heightAt(x,z),yaw,pitch:0,roll:0,sp:0,steer:0,driver:null,hp:600,alive:true,spin:0,hitT:{},tx:x,tz:z,tyaw:yaw,enterT:-9};
   const g=new THREE.Group(),mdl=new THREE.Group();mdl.rotation.y=Math.PI/2;g.add(mdl);c.wheels=[];
-  const body=stMesh('voiture_caisse',color);
-  if(body){mdl.add(body);
+  const vk=Object.keys(ASSETS.vr);
+  const body=vk.length?null:stMesh('voiture_caisse',color);
+  if(vk.length){const k=vk[(c.id*7+Math.floor(Math.abs(x)+Math.abs(z)))%vk.length],inst=vrInstance(k,color);mdl.add(inst.g);c.wheels=inst.wheels;c.model=k;}
+  else if(body){mdl.add(body);
     for(const [wx,wy] of [[1.33,.78],[1.33,-.78],[-1.23,.78],[-1.23,-.78]]){const piv=new THREE.Group();piv.position.set(wx,.36,-wy);const wh=stMesh('voiture_roue');wh.position.set(0,0,0);piv.add(wh);mdl.add(piv);c.wheels.push({piv,wh,front:wx>0});}}
   else{const b=new THREE.Mesh(new THREE.BoxGeometry(4.2,.8,1.8),LMat({color}));b.position.y=.75;b.castShadow=true;mdl.add(b);const t=new THREE.Mesh(new THREE.BoxGeometry(2,.5,1.6),LMat({color:0x1c2830}));t.position.set(-.4,1.4,0);mdl.add(t);}
   const hb=new THREE.Mesh(new THREE.BoxGeometry(4.2,1.15,1.8),BMat({color:0xff0000}));hb.visible=false;hb.position.set(0,.85,0);hb.userData.car=c;mdl.add(hb);shootables.push(hb);
   c.g=g;c.mdl=mdl;c.hb=hb;world.add(g);cars.push(c);placeCar(c,0);return c;
 }
 const WHEELS=[[1.33,.78],[1.33,-.78],[-1.23,.78],[-1.23,-.78]];
+// voiture réaliste : copie du modèle, carrosserie repeinte dans la couleur de la voiture, roues prêtes à tourner et braquer
+const vrPaint={};
+function vrInstance(k,color){
+  const g=ASSETS.vr[k].clone(true);g.position.set(0,0,0);g.updateMatrixWorld(true);
+  g.traverse(o=>{if(!o.isMesh)return;const fix=m=>{if(!/carrosserie/i.test(m.name||''))return m;const key=k+'|'+color;
+      if(!vrPaint[key]){const n=m.clone();n.color=lin(color);n.metalness=Math.max(n.metalness,.55);n.roughness=Math.min(n.roughness,.38);vrPaint[key]=n;}return vrPaint[key];};
+    o.material=Array.isArray(o.material)?o.material.map(fix):fix(o.material);});
+  const wheels=[];
+  for(const nm of ['AVG','AVD','ARG','ARD']){const w=g.getObjectByName('vr_'+k+'_roue_'+nm);if(!w)continue;
+    const piv=new THREE.Group();w.parent.add(piv);piv.position.copy(w.position);piv.position.y=.36;piv.quaternion.copy(w.quaternion);w.position.set(0,w.position.y-.36,0);w.quaternion.identity();piv.add(w);
+    wheels.push({piv,wh:w,front:nm.startsWith('AV')});}
+  return {g,wheels};
+}
 // ---------- skins de voiture (vus seulement par le joueur qui conduit) ----------
 // le modèle est chargé depuis le site : quand le propriétaire publie de nouveaux stickers depuis Blender, tout le monde les reçoit
 const CARSK={};
@@ -5774,6 +5793,10 @@ let fovK=0,zoomNow=1;
 const clock=new THREE.Clock();
 let miniT=0,menuA=0,poiT=0,curPoi='';
 buildTreeProtos();initGrass();
+// crédits des modèles (licence CC Attribution)
+fetch('models/CREDITS.json').then(r=>r.ok?r.json():[]).then(L=>{const ul=$('creditList');if(!ul||!Array.isArray(L))return;
+  for(const c of L){const li=document.createElement('li'),a=document.createElement('a');a.href=String(c.url||'');a.target='_blank';a.rel='noopener';a.textContent=String(c.titre||c.id||'');
+    li.append(a,document.createTextNode(` par ${c.auteur||'?'} · ${c.licence||''}${c.modifs?' · '+c.modifs:''}`));ul.append(li);}}).catch(()=>{});
 loadAssets().then(()=>{ASSETS.done=true;if(!state.running){buildWorld(20261105);resetStorm();pvKey='';setHubTab(hubTab);}setText($('play'),'Jouer contre les bots');$('play').disabled=false;});
 if(THREE.GLTFLoader){setText($('play'),'Chargement des modèles 3D…');$('play').disabled=true;}
 buildWorld(20261105);resetStorm();

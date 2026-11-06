@@ -317,6 +317,8 @@ def exporter_glb(context):
             export_cameras=False,
             export_lights=False,
             export_animations=False,
+            export_draco_mesh_compression_enable=True,  # fichier léger (le jeu a le décodeur Draco)
+            export_draco_mesh_compression_level=6,
         )
     except Exception as e:  # noqa: BLE001 - on veut afficher toute erreur à l'utilisateur
         erreur = f"Échec de l'export : {e}"
