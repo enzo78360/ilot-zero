@@ -54,6 +54,12 @@ Mise à jour du 6 novembre 2026.
 - **Viseurs refaits** : nouveaux modèles 3D (point rouge, holographique, lunettes ×2, ×4, ×8), nouveaux réticules lumineux et lunettes plein écran redessinées.
 - **Boutique agrandie** : 51 objets, dont 20 nouvelles tenues et 20 nouveaux revêtements d'armes à motifs.
 - **Passe de combat, saison 2 « Abysses »** : 50 paliers, une récompense à chaque palier (10 tenues et 15 revêtements exclusifs, des coquillages sur les autres paliers). Écran refait : bandeau de saison, barre de progression, frise des 50 paliers cliquable, aperçu 3D de chaque récompense. La progression du passe repart de zéro au début de la saison ; le niveau du compte et les objets déjà gagnés sont conservés.
+- **3 cartes au choix** (onglet Salon, ou réglages du salon pour l'hôte) :
+  - **Îlot Zéro** : la carte d'origine, avec ses villages, maintenant reliés par des routes ;
+  - **Métropole** : une grande ville en damier au centre de l'île, avec un « Quartier des Tours » (immeubles de 4 à 7 étages avec escaliers et toits accessibles), des avenues, des lampadaires et une place centrale avec fontaine ;
+  - **Dunes** : un désert de sable, avec des cactus (récoltables comme du bois), des roches, une oasis et la ville de Mirage.
+- **Routes et ponts** sur toutes les cartes : un réseau goudronné relie les villes, avec des ponts au-dessus de la rivière, praticables à pied et en voiture. Des voitures sont garées le long des routes.
+- **Collisions plus rapides** : chaque test ne regarde plus que les objets proches, ce qui permet des villes plus grandes sans ralentir le jeu.
 - **Corrigé** : les lunettes ×4 et ×8 n'apparaissaient pas sur les armes ; la mire de l'arbalète était cachée par le bloc arrière.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
