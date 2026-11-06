@@ -14,6 +14,17 @@ Mise à jour du 6 novembre 2026.
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## En cours : style cartoon et coffres (demandé le 6 novembre 2026)
+
+Objectif : un rendu « cartoon » coloré, dans l'esprit des battle royale stylisés (textures peintes à la main originales, aucune ressource copiée), et des coffres à ouvrir sur la carte. Le rendu réaliste reste disponible dans Paramètres.
+
+| Étape | Contenu | État |
+| --- | --- | --- |
+| 1. Textures peintes | Herbe, terre, roche, sable, neige, asphalte, trottoir, pavés, béton, briques, crépi, bois, tôle, tuiles, ardoise dessinées en couleurs vives et formes simples | À faire |
+| 2. Rendu cartoon | Sol plus saturé, ciel et lumière plus francs, contours doux, réglage Cartoon / Réaliste | À faire |
+| 3. Coffres | Coffres dorés lumineux dans les bâtiments et dehors, qui scintillent et font un son ; on les ouvre avec E pour faire sortir arme, munitions, soins et matériaux ; synchronisés en multijoueur | À faire |
+| 4. Vérification et publication | Tests, captures sur les 3 cartes, mise en ligne, RECAP | À faire |
+
 ## Refonte des 3 cartes (6 novembre 2026)
 
 Objectif : refaire l'Îlot, la Métropole et les Dunes avec un rendu réaliste (textures, relief, routes, bâtiments), assorti aux nouveaux personnages et voitures réalistes. La jouabilité ne change pas : mêmes emplacements de butin, mêmes collisions, mêmes portes et escaliers.
