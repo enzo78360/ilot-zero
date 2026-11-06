@@ -60,6 +60,10 @@ Mise à jour du 6 novembre 2026.
   - **Dunes** : un désert de sable, avec des cactus (récoltables comme du bois), des roches, une oasis et la ville de Mirage.
 - **Routes et ponts** sur toutes les cartes : un réseau goudronné relie les villes, avec des ponts au-dessus de la rivière, praticables à pied et en voiture. Des voitures sont garées le long des routes.
 - **Collisions plus rapides** : chaque test ne regarde plus que les objets proches, ce qui permet des villes plus grandes sans ralentir le jeu.
+- **Interface refaite** : thème sombre moderne (police Inter, panneaux nets, onglets en pilule, sélecteurs segmentés pour le mode, la carte et la difficulté). En partie : armes au centre en bas, barres de vie et de bouclier graduées, ressources en pastilles, mini-carte agrandie.
+- **Interface plus légère** : plus de flou d'arrière-plan en jeu, et le HUD ne réécrit ses styles que lorsqu'une valeur change.
+- **Onglet Compte réorganisé** : un menu à gauche (Mon compte, Amis, et pour le staff : Joueurs, Modération, Codes cadeaux, Équipe staff, Pouvoirs), une section affichée à la fois.
+- **Compte du propriétaire protégé** : seul le propriétaire peut modifier son propre niveau et ses coquillages (vérifié par le serveur).
 - **Corrigé** : les lunettes ×4 et ×8 n'apparaissaient pas sur les armes ; la mire de l'arbalète était cachée par le bloc arrière.
 - **Staff** : pouvoirs illimités, menu staff en partie (touche `O`), modération, codes cadeaux, gestion des membres du staff.
 
@@ -105,7 +109,7 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
   npm install
   npm run dist        # crée les applications Mac et Windows dans dist/
   ```
-  Ensuite, crée une Release sur GitHub et dépose les fichiers `.dmg` et `.exe`.
+  Ensuite, crée une Release sur GitHub et dépose les 4 fichiers renommés : `IlotZero-<version>-mac-AppleSilicon.dmg`, `-mac-Intel.dmg`, `-Windows-installateur.exe` et `-Windows-portable.exe`.
 
 ## Configuration de la connexion (déjà faite)
 
@@ -116,8 +120,9 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : la Release 1.2.0 contient tout ce qui précède.
-- **Bug corrigé** : l'écran restait bloqué sur « Connexion… » en navigation privée ou au premier lancement.
+- **Applications Windows et Mac** : Release **1.3.0** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.3.0), compilée avec tout ce qui précède : armes, viseurs, passe saison 2, cartes, nouvelle interface et onglet Compte.
+- **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`).
+- La 1.2.0 était restée en brouillon et n'a jamais été publiée : la 1.3.0 la remplace.
 
 ## Limites connues
 
