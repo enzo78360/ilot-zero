@@ -14,6 +14,18 @@ Mise à jour du 6 novembre 2026.
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## En cours : refonte des 3 cartes (demandée le 6 novembre 2026)
+
+Objectif : refaire l'Îlot, la Métropole et les Dunes avec un rendu réaliste (textures, relief, routes, bâtiments), assorti aux nouveaux personnages et voitures réalistes. La jouabilité ne change pas : mêmes emplacements de butin, mêmes collisions, mêmes portes et escaliers.
+
+| Étape | Contenu | État |
+| --- | --- | --- |
+| 1. Textures réalistes | Textures photo Poly Haven (CC0) avec relief (normal map) et rugosité : herbe, terre, sol de forêt, roche, sable, neige, asphalte, trottoir, pavés, béton, briques, crépi, bardage bois, tôle, tuiles | À faire |
+| 2. Routes | Asphalte réaliste avec lignes et bords, trottoirs et bordures en ville, passages piétons, lampadaires, panneaux, glissières sur les ponts | À faire |
+| 3. Bâtiments | Façades détaillées (soubassement, corniche, encadrements, appuis de fenêtre, volets, gouttières, débord de toit, balcons, enseignes), plusieurs styles (briques, crépi, bois, béton) | À faire |
+| 4. Relief et décor | Relief plus naturel, mélange des sols selon la pente et l'altitude, chemins de terre, buissons, rochers | À faire |
+| 5. Vérification et publication | Tests, captures sur les 3 cartes, mise en ligne, RECAP | À faire |
+
 ## Ce qui a été fait
 
 ### Corrections de la liste de tests
