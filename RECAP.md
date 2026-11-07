@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 6 novembre 2026.
+Mise à jour du 7 novembre 2026.
 
 ## Liens utiles
 
@@ -14,6 +14,40 @@ Mise à jour du 6 novembre 2026.
 | Identifiant Google (connexion) | https://console.cloud.google.com/auth/clients |
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
+
+## Corrections de la liste du 7 novembre 2026
+
+| Problème signalé | Ce qui a changé |
+| --- | --- |
+| Roues qui braquent à l'envers | Les roues avant tournent du côté où l'on tourne (aussi sur Rebeca) |
+| Skin de voiture visible seulement dedans | Le skin reste sur toutes les voitures que le joueur a utilisées, vu par lui seul ; les autres voitures et les autres joueurs voient des voitures normales |
+| Pas de voiture de base, Rebeca coupée, filtre « Skin » | « Voiture standard » dans l'inventaire (équipée par défaut) ; vignettes cadrées sur toute la voiture ; tous les revêtements sont des **camos** (couleurs) ; « Skin d'arme » est réservé aux futurs modèles 3D d'armes (vide pour l'instant, avec un message) |
+| Camo absent sur pompe, double canon, revolver | Le camo couvre aussi l'acier et le bois des armes qui n'avaient presque pas de pièces peintes |
+| Noms des armes | CZ Bren 2, HK416, UZI, MP7, INP 9, Winchester SXP, R9-0, S868, JAK-12, DLQ 33, SVD, Arbalète, PKM, Javelin, Glock 19, Revolver |
+| Coffres au milieu des pièces, couvercle transparent | Coffres posés contre un mur, tournés vers la pièce, butin qui sort devant ; couvercle visible des deux côtés |
+| Zone sans texture, invisible de loin | Rideau violet animé (nuages, reflets), jamais coupé par la distance d'affichage ni confondu avec le ciel ; écran qui se teinte à l'approche du bord |
+| Dégâts de zone trop faibles | 2, 3, 5, 7, 10, 13 puis 18 PV/s selon la phase, et jusqu'au double si on reste dehors (30 s) |
+| Cailloux qui flottent sur la montagne | Rochers posés sur le point le plus bas du terrain et inclinés comme la pente |
+| Jeter son arme | Touche `A` (Q en QWERTY, modifiable) : l'arme est lancée devant, retombe, rebondit sur le sol et les murs puis se pose ; synchronisé en multijoueur |
+| Trampoline qui retire l'arme | Grand saut sans planeur : on garde son arme et on peut tirer |
+| Vue à la 3e personne | Retirée (touche P supprimée) |
+| Échap | Ferme la grande carte, les paramètres ouverts depuis la pause, puis la pause |
+| Constructions trop proches, double ligne de rampes | On vise la case devant soi ; en courant sur une rampe, la suivante prolonge la même ligne (une seule ligne, pas de matériaux gaspillés) |
+| Pose impossible dans les bosses, rampes traversées | Les pièces s'enfoncent un peu dans le sol ; les rampes bloquent par-dessous et par les côtés ; une pièce posée sur soi se traverse jusqu'à en sortir (seulement celle-là) |
+| Sons affreux | Sons d'armes refaits (claquement, corps, grave court, réverbération), pas plus doux, moteur plus doux, choc de voiture sourd sans tintements ; plus aucun son de coffre (colonne de lumière dorée à la place) |
+| Roues dans la route, sol qui disparaît | Routes posées au-dessus du terrain affiché (il ne perce plus l'asphalte) ; chaque roue est posée sur le sol réellement affiché (0 roue enfoncée sur les 3 cartes) |
+| Escaliers d'immeuble, dalle grise, armes dans les murs | Escaliers à marches en pente douce (30°), bas dégagé du mur, rambarde ; plus de dalle grise sur tout l'étage ; le butin évite murs, escaliers et rochers ; les bots prennent l'escalier pour changer d'étage |
+| Collisions de voiture | Boîte à la taille réelle de chaque modèle ; on peut se dégager d'un coin coincé entre plusieurs obstacles |
+| Arbres difficiles à couper | Zone de frappe autour du tronc visible, plus large et plus haute |
+| Voiture qui ne tourne plus | Elle braque et accélère tant que les roues frôlent le sol (pentes, bosses) |
+| Voitures des stations | Garées au hasard autour, dos à la station ou de travers, avec la place de repartir (comme toutes les voitures garées) |
+| Vitres | Vitres teintées noires sur toutes les voitures et tous les skins de voiture, présents et futurs |
+| Toits en pente | La hauteur suit vraiment les deux pans (plus de toit traversé au milieu ni de vol au bord) |
+| Toit des miradors | Toit pyramidal solide, on peut marcher dessus et tirer dessus |
+| Skins de pioche | Nouvelle catégorie « Pioche » : Hache de secours, Ancre de marine, Trident des abysses (modèles 3D) ; le camo équipé colore la pioche ; visibles par les autres joueurs |
+| Balcons traversables | Dalle et garde-corps solides : on s'y poste et on tire par-dessus |
+
+Vérification : 17 anciens tests et 40 nouveaux sur les 3 cartes, sans erreur dans la console. Pas encore publié (site et applications).
 
 ## Site de téléchargement (6 novembre 2026)
 

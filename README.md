@@ -54,21 +54,24 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 - **3 cartes** : Îlot Zéro (villages et rivière), Métropole (grande ville avec un quartier de tours), Dunes (désert). Routes, ponts et voitures sur toutes les cartes.
 - **Rendu réaliste** : textures photo avec relief (Poly Haven, CC0), routes avec marquages, trottoirs, passages piétons et lampadaires, façades variées (briques, crépi, bois, béton) avec balcons et commerces, montagne à crêtes. Personnage réaliste pour tous les joueurs et 4 voitures réalistes (modèles Sketchfab sous licence CC Attribution, auteurs cités dans Paramètres → Crédits).
 - **Style cartoon** (par défaut) : textures peintes à la main aux couleurs vives ; le rendu réaliste reste disponible dans Paramètres → Graphismes → Style graphique.
-- **Coffres** : coffres dorés dans les bâtiments et dehors, qui scintillent et tintent ; on les ouvre avec `E` pour obtenir une arme rare à légendaire, des munitions, un soin et des matériaux.
-- **Skins de voiture** : le skin secret **Rebeca** (code cadeau) n'est visible que par son propriétaire, sur la voiture qu'il conduit.
-- **16 armes en 6 catégories** : fusil d'assaut et carabine ; mitraillette, mitraillette compacte et mitraillette lourde ; fusil à pompe, fusil tactique, fusil à double canon et fusil à pompe automatique ; fusil de précision, fusil de tireur d'élite et arbalète silencieuse ; **armes lourdes** (mitrailleuse légère de 80 balles, lance-roquettes à explosion de zone qui détruit les constructions) ; pistolet et revolver.
+- **Coffres** : coffres dorés posés contre les murs des bâtiments et dehors, signalés par une colonne de lumière dorée (sans son) ; on les ouvre avec `E` pour obtenir, devant le coffre, une arme rare à légendaire, des munitions, un soin et des matériaux.
+- **Skins de voiture** : la **Voiture standard** est là par défaut ; le skin secret **Rebeca** (code cadeau) n'est visible que par son propriétaire, sur toutes les voitures qu'il a utilisées pendant la partie ; les autres joueurs et les voitures non utilisées restent normales. Toutes les voitures ont des vitres teintées noires.
+- **Skins de pioche** : ils changent le modèle 3D de la pioche (Hache de secours, Ancre de marine, Trident des abysses) ; le camo d'arme équipé colore la pioche. Les **camos d'arme** changent les couleurs des armes ; les **skins d'arme** (modèle 3D) arriveront plus tard.
+- **16 armes en 6 catégories** : fusils d'assaut CZ Bren 2 et HK416 ; mitraillettes UZI, MP7 et INP 9 ; fusils à pompe Winchester SXP, R9-0, S868 (double canon) et JAK-12 (automatique) ; précision DLQ 33, SVD et Arbalète silencieuse ; **armes lourdes** (mitrailleuse PKM de 80 balles, Javelin à explosion de zone qui détruit les constructions) ; Glock 19 et Revolver.
 - **Armurerie** : choisis une catégorie, une arme, puis les accessoires de chaque emplacement (viseur point rouge, holographique, lunettes ×2, ×4 et ×8, silencieux, compensateur, frein de bouche, choke, poignées, chargeurs étendus ou rapides). Ils modifient les statistiques et apparaissent sur l'arme. La visée se fait réellement dans le viseur. Certains se débloquent en montant de niveau.
 - **Largages de ravitaillement** : toutes les 80 s environ, une caisse descend en parachute dans la zone, avec une fumée rouge et un losange orange sur la carte. Elle contient une arme légendaire et du matériel rare.
 - **Défis du jour** : trois objectifs par jour dans le Salon (éliminations, dégâts, conduite, récolte…), qui rapportent de l'XP.
 - **Ambiances** : chaque partie se joue de jour, au matin dans la brume ou au coucher du soleil, avec vent, vagues près des côtes et chants d'oiseaux.
 - **Île agrandie** (×1,5) : 11 lieux dont la grande **Cité Zéro**, avec des **immeubles à étage** (escalier intérieur et toit-terrasse), des **stations-service** et des **entrepôts**.
-- **Voitures** : des voitures sont garées près des lieux-dits et des stations-service. Monte avec `E`, la caméra passe à la troisième personne. Elles roulent jusqu'à 75 km/h, suivent le relief et piquent du nez en fin de saut. Les chocs et les réceptions abîment la voiture, pas le conducteur. Elles écrasent les adversaires, s'arrêtent contre les murs et les constructions (qu'elles abîment à grande vitesse) et explosent sous les tirs.
+- **Voitures** : des voitures sont garées près des lieux-dits et des stations-service. Monte avec `E`, la caméra passe derrière la voiture. Elles roulent jusqu'à 75 km/h, suivent le relief et piquent du nez en fin de saut. Les chocs et les réceptions abîment la voiture, pas le conducteur. Elles écrasent les adversaires, s'arrêtent contre les murs et les constructions (qu'elles abîment à grande vitesse) et explosent sous les tirs.
 - **Munitions** : chaque arme a sa réserve. Si tu échanges une arme contre une autre du même calibre (par exemple deux fusils d'assaut), la réserve suit. Les caisses de munitions remplissent trois chargeurs par arme.
 - **Bots** : ils ont un champ de vision, mettent un instant à te repérer (plus longtemps de loin ou accroupi), entendent les tirs sans connaître ta position exacte, visent moins bien en début d'échange et reculent pour se soigner.
 - **Bornes de rappel** : un coéquipier éliminé laisse une carte de rappel pendant 90 s. Ramasse-la et maintiens `E` à une borne (carré vert sur la carte) pour le faire revenir.
 - **Ramassage automatique** : marcher sur des munitions, des matériaux ou des soins les ramasse. Les armes se prennent avec `E`.
 - **Indicateur des sons** : des arcs autour du réticule montrent d'où viennent les tirs (jaune) et les pas ennemis proches (blanc). Désactivable dans les paramètres.
-- **Trampolines** et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
+- **Trampolines** (grand saut, on garde son arme en main) et **feux de camp** (3 PV par seconde pendant 30 s) se trouvent par terre et se posent avec `T` et `B`.
+- **Zone** : un rideau violet animé, bien visible de loin comme de près ; l'écran se teinte quand on approche du bord. Les dégâts augmentent à chaque phase et plus on reste dehors (jusqu'au double après 30 s).
+- **Constructions** : on vise la case devant soi (plus besoin d'aller au bout de son sol), les rampes posées en courant forment une seule ligne, les pièces s'enfoncent un peu dans les bosses du terrain, les rampes sont solides vues de dessous, et une pièce posée sur soi se traverse le temps d'en sortir (pratique pour escalader).
 
 ## Commandes
 
@@ -82,11 +85,12 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 | Espace face à un obstacle | Escalader (murets, caisses, conteneurs jusqu'à 2,8 m) |
 | M | Grande carte (clic pour poser un marqueur d'équipe) |
 | N | Emote : salut, danse, danse robot (appuyer à nouveau pour changer) |
-| P | Basculer entre vue à la 1re et à la 3e personne |
 | Clic molette | Placer un marqueur visible par ton équipe (12 s) |
 | E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir, ouvrir ou fermer une porte |
 | Z/Q/S/D ou W/A/S/D en voiture | Accélérer, tourner, freiner et reculer ; Espace = frein à main |
 | R | Recharger |
+| A (Q en QWERTY) | Jeter son arme (elle part devant soi et retombe au sol) |
+| Échap | Pause ; ferme aussi la grande carte, les paramètres ouverts depuis la pause et la pause elle-même |
 | F / C / V | Construire mur / sol / rampe |
 | G (ou clic droit en construction) | Changer de matériau |
 | T / B | Poser un trampoline / un feu de camp |

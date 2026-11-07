@@ -1,7 +1,7 @@
 {
   "name": "ilot-zero",
   "productName": "Îlot Zéro",
-  "version": "1.3.3",
+  "version": "1.4.0",
   "description": "Battle royale en 3D, version de bureau",
   "main": "electron/main.js",
   "private": true,
