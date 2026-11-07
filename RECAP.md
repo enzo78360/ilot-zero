@@ -7,7 +7,6 @@ Mise à jour du 7 novembre 2026.
 | Quoi | Où |
 | --- | --- |
 | Jouer (site) | https://enzo78360.github.io/ilot-zero/ |
-| Site de téléchargement | https://enzo78360.github.io/ilot-zero/telecharger/ |
 | Code source | https://github.com/enzo78360/ilot-zero |
 | Applications Windows et Mac | https://github.com/enzo78360/ilot-zero/releases/latest |
 | Base de données et comptes (Supabase) | https://supabase.com/dashboard/project/kweiabsweqxwoiiqbkpa |
@@ -49,9 +48,9 @@ Mise à jour du 7 novembre 2026.
 
 Vérification : 17 anciens tests et 40 nouveaux sur les 3 cartes, sans erreur dans la console. Publié : site à jour et Release 1.4.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v1.4.0).
 
-## Site de téléchargement (6 novembre 2026)
+## Site de téléchargement (retiré le 7 novembre 2026)
 
-Page `telecharger/index.html` : présentation du jeu avec captures, nouveautés, téléchargements (le fichier qui correspond à l'ordinateur est mis en avant et pointe toujours vers la dernière Release publiée, lue sur GitHub), guide d'installation pas à pas pour Windows (alerte SmartScreen) et Mac (application non signée), touches, configuration conseillée et questions fréquentes. Lien depuis l'écran de connexion et l'onglet Compte du jeu (« Télécharger l'application ») et depuis Paramètres. Les captures sont dans `telecharger/img/`.
+La page de présentation et de téléchargement a été retirée de GitHub. Une copie autonome (images intégrées) est dans `~/Downloads/ilot-zero-telechargement.html`. Les liens « Télécharger l'application » du jeu mènent maintenant à la dernière Release GitHub.
 
 ## Style cartoon et coffres (6 novembre 2026)
 
