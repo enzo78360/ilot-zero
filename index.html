@@ -227,6 +227,29 @@ button:disabled{opacity:.5;cursor:default}
 .item{position:relative}.item .tierTag{position:absolute;top:6px;left:6px;z-index:2;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(6,14,20,.82);border:1px solid rgba(255,255,255,.18);font:600 12px/20px var(--display);text-align:center;color:var(--fg)}
 .item.own .tierTag{background:var(--hp);color:#06231a;border-color:transparent}
 .item.flash{animation:tflash .9s}@keyframes tflash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--accent)}}
+.gachahead{grid-column:1/-1;display:flex;gap:18px;align-items:center;padding:16px 18px;border-radius:10px;cursor:pointer;background:linear-gradient(120deg,#1a0b2e 0%,#2d1250 50%,#4a1d6e 100%);border:1px solid color-mix(in srgb,var(--gc) 45%,transparent);box-shadow:inset 0 0 70px color-mix(in srgb,var(--gc) 18%,transparent)}
+.gachahead .ghArt{width:190px;height:190px;flex:none;border-radius:12px;background:radial-gradient(circle at 50% 60%,color-mix(in srgb,var(--gc) 55%,transparent) 0,transparent 70%);display:flex;align-items:center;justify-content:center}
+.gachahead .ghArt img{width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .25s;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55))}.gachahead .ghArt img.ok{opacity:1}
+.gachahead .ghTxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.gachahead small{color:var(--gc);font:600 13px var(--display);letter-spacing:.12em;text-transform:uppercase}
+.gachahead b{font:700 34px/1 var(--display);color:#fff;text-shadow:0 0 22px color-mix(in srgb,var(--gc) 70%,transparent)}
+.gachahead p{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+.gachahead .ghBar{height:8px;border-radius:4px;background:rgba(0,0,0,.35);overflow:hidden}.gachahead .ghBar i{display:block;height:100%;background:var(--gc)}
+.gachahead .ghInfo{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--fg)}
+@media (max-width:700px){.gachahead{flex-direction:column;text-align:center}.gachahead .ghArt{width:140px;height:140px}}
+.item.gmain{box-shadow:0 0 0 1px var(--rc),0 0 18px color-mix(in srgb,var(--rc) 45%,transparent)}
+#pvAct.gdone,#pvAct.gdone:disabled{background:#5b5f66;color:#c9ccd1;box-shadow:none;opacity:.8;cursor:not-allowed}
+#gachaRev{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(5,4,12,.82);backdrop-filter:blur(4px)}
+#gachaRev[hidden]{display:none}
+#gachaRev .grBox{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 34px;min-width:300px;border-radius:16px;background:rgba(20,14,34,.92);border:1px solid var(--rc);box-shadow:0 0 40px color-mix(in srgb,var(--rc) 35%,transparent)}
+#gachaRev small{color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+#gachaRev .grArt{width:240px;height:240px;border-radius:14px;background:radial-gradient(circle at 50% 60%,color-mix(in srgb,var(--rc) 60%,transparent) 0,transparent 70%)}
+#gachaRev .grArt img{width:100%;height:100%;object-fit:contain}
+#gachaRev .grName{font:700 30px var(--display);color:#fff}
+#gachaRev .grMeta{color:var(--rc);font-weight:600}
+#gachaRev.done .grBox{animation:grPop .45s ease-out}
+#gachaRev.main .grBox{box-shadow:0 0 90px var(--rc),0 0 0 2px var(--rc)}
+@keyframes grPop{0%{transform:scale(.85)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
 .passhead{grid-column:1/-1;padding:16px 18px 12px;border-radius:10px;background:linear-gradient(120deg,#03263b 0%,#05445e 45%,#0b6e78 100%);border:1px solid rgba(144,241,239,.25);box-shadow:inset 0 0 60px rgba(0,245,212,.08);position:relative}
 .passhead::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at 12% 120%,rgba(144,241,239,.22) 0,transparent 40%),radial-gradient(circle at 88% -20%,rgba(0,180,216,.25) 0,transparent 45%);pointer-events:none}
 .phTop{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;position:relative}
@@ -592,6 +615,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
       <button data-tab="inventaire">Inventaire</button>
       <button data-tab="armurerie">Armurerie</button>
       <button data-tab="boutique">Boutique</button>
+      <button data-tab="gacha">Gacha</button>
       <button data-tab="passe">Passe de combat</button>
       <button data-tab="compte">Compte</button>
       <button data-tab="param">Paramètres</button>
@@ -1023,7 +1047,16 @@ const PICKS={
   hache:{name:'Hache de secours',rar:1,price:700,txt:'Lame large de pompier et pointe arrière.'},
   ancre:{name:'Ancre de marine',rar:2,price:1300,txt:'Une ancre lestée au bout du manche.'},
   trident:{name:'Trident des abysses',rar:3,price:2200,txt:'Trois pointes lumineuses venues des profondeurs.'},
+  karambit:{name:'Karambit',rar:3,gacha:'karambit',txt:'Lame recourbée en griffe, anneau de garde et fil violet lumineux. Uniquement dans le Gacha Karambit.'},
 };
+// Gachas : chaque tirage coûte GACHA_COST coquillages et donne un objet pas encore possédé.
+// Les 9 objets de boutique ont la même chance ; le skin principal (exclusif au Gacha) est plus rare.
+const GACHA_COST=1000,GACHA_W=10,GACHA_MAIN_W=3;
+const GACHAS=[
+  {id:'karambit',name:'Gacha Karambit',main:'pick:karambit',col:'#b46cff',
+   pool:['pick:hache','pick:ancre','pick:trident','skin:ombre','skin:agent','skin:samourai','wrap:neon','wrap:cristal','wrap:cyber'],
+   txt:'Le Karambit, skin de pioche exclusif à ce Gacha. Chaque tirage donne un objet que tu ne possèdes pas encore.'},
+];
 const SITE_URL='https://enzo78360.github.io/ilot-zero/';
 const WEAPONS = {
   pickaxe:{name:'Pioche', short:'Pioche'},
@@ -1881,6 +1914,8 @@ function lootIn(cx,cz,w,d,n,y){lootQ.push([cx,cz,w,d,n,y||0]);}
 function spotFree(x,z,y,r){
   for(const b of nearBoxes(x,z,r+.6)){if(b.max.y<=y+.15||b.min.y>=y+1.4)continue;const qx=clamp(x,b.min.x,b.max.x),qz=clamp(z,b.min.z,b.max.z);if((qx-x)**2+(qz-z)**2<r*r)return false;}
   for(const rp of ramps)for(const [ox,oz] of [[0,0],[r,0],[-r,0],[0,r],[0,-r]]){const h=rampHeight(rp,x+ox,z+oz);if(h!==null&&h>y+.1&&h<y+3)return false;}
+  // ni dans, ni sur, ni devant le bas ou le haut d'un escalier (étage du dessous de l'escalier comme palier du dessus)
+  for(const st of stairs){const [a0,b0,a1,b1]=st.col.rect,m=r+1.3;if(x<a0-m||x>a1+m||z<b0-m||z>b1+m)continue;if(y>st.y0-.6&&y<st.y1+.6)return false;}
   return true;}
 function flushLoot(){
   for(const [cx,cz,w,d,n,y] of lootQ){
@@ -2446,13 +2481,24 @@ function pickaxeMesh(wrap,model){
     for(const y of [-.12,0,.12]){const L=y?.17:.23;add(cyl(.012,.012,-.74,-.74-L,8).translate(0,y,0),M.steel);
       const tip=new THREE.ConeGeometry(.024,.07,6);tip.rotateX(-Math.PI/2);tip.translate(0,y,-.74-L-.03);add(tip,M.edge);}
     const glow=new THREE.MeshStandardMaterial({color:lin(0x00f5d4),emissive:lin(0x00c4aa),emissiveIntensity:1.2,roughness:.3});add(new THREE.TorusGeometry(.024,.008,6,14).translate(0,0,-.66),glow);
+  }else if(mdl==='karambit'){
+    // poignée courte, anneau de garde au bout, lame recourbée en griffe avec un fil lumineux
+    add(cyl(.024,.022,.12,-.16,14),M.dark);
+    for(const z of [.07,0,-.07,-.13])add(cyl(.026,.026,z+.018,z-.018,14),M.leather);
+    const ring=new THREE.TorusGeometry(.052,.013,10,28);ring.rotateY(Math.PI/2);ring.translate(0,0,.172);add(ring,M.steel);
+    add(new THREE.BoxGeometry(.034,.085,.022).translate(0,-.005,-.17),M.steel);
+    const bl=new THREE.Shape();bl.moveTo(.025,0);bl.quadraticCurveTo(.07,-.28,-.17,-.42);bl.quadraticCurveTo(-.01,-.25,-.03,0);bl.closePath();
+    add(flat(bl,.01,-.18),M.steel);
+    const fl=new THREE.Shape();fl.moveTo(.012,-.03);fl.quadraticCurveTo(.045,-.26,-.13,-.37);fl.quadraticCurveTo(0,-.24,-.012,-.03);fl.closePath();
+    const glow=new THREE.MeshStandardMaterial({color:lin(0xd9a6ff),emissive:lin(0xb46cff),emissiveIntensity:1.4,roughness:.25,metalness:.4});
+    add(flat(fl,.014,-.18),glow);
   }else{
     add(hd,M.steel);
     add(new THREE.BoxGeometry(.068,.1,.085).translate(0,0,-.665),M.dark);
     add(new THREE.BoxGeometry(.071,.022,.088).translate(0,.012,-.665),M.band);
     add(new THREE.ConeGeometry(.012,.05,8).rotateZ(Math.PI).translate(0,-.33,-.585).rotateX(0),M.edge);
   }
-  const t=new THREE.Object3D();t.position.set(0,-.3,-.62);g.add(t);
+  const t=new THREE.Object3D();if(mdl==='karambit')t.position.set(0,-.17,-.6);else t.position.set(0,-.3,-.62);g.add(t);
   g.userData.tip=t;g.userData.grip=[0,0,0];g.userData.fore=null;g.userData.type='pickaxe';
   return g;
 }
@@ -3258,7 +3304,10 @@ function ceilingAt(x,z,feet){
 }
 function passing(b,e){const t=b.pass&&b.pass.get(e.id);if(t===undefined)return false;if(t<T){b.pass.delete(e.id);return false;}return true;}
 // rampe vue de dessous ou de côté : bloque le corps (on ne la traverse plus), sauf si on peut monter dessus
-function rampBlocks(e,x,z){const f=e.pos.y;for(const r of ramps){const h=rampHeight(r,x,z);if(h===null||passing(r,e))continue;if(h>f+1.05&&h-.4<f+HEIGHT)return true;}return false;}
+// escalier d'immeuble : bloc plein du sol jusqu'aux marches, on ne passe ni dessous ni à travers ses côtés
+function stairBlocks(r,f,x,z){const [a0,b0,a1,b1]=r.rect,m=RADIUS*.85;if(x<a0-m||x>a1+m||z<b0-m||z>b1+m)return false;
+  if(f>=r.level+r.rise-.05||f+HEIGHT<=r.level)return false;return rampHeight(r,clamp(x,a0,a1),clamp(z,b0,b1))>f+1.05;}
+function rampBlocks(e,x,z){const f=e.pos.y;for(const r of ramps){if(passing(r,e))continue;if(r.rect){if(stairBlocks(r,f,x,z))return true;continue;}const h=rampHeight(r,x,z);if(h===null)continue;if(h>f+1.05&&h-.4<f+HEIGHT)return true;}return false;}
 function pushOut(e){
   const feet=e.pos.y,top=feet+HEIGHT,r=RADIUS;
   for(const b of nearBoxes(e.pos.x,e.pos.z,r+.1)){
@@ -5099,14 +5148,26 @@ function backToMenu(msg){
   buildWorld((Math.random()*1e9)|0);resetStorm();
   netMsg(msg||'');
 }
+// Un refus du navigateur (demande trop rapide après Échap, fenêtre pas au premier plan…) est passager :
+// on montre la pause pour recliquer, au lieu de couper pour toujours le contrôle de la souris.
+// On ne passe en mode « sans verrouillage » que si le verrouillage n'a jamais marché (page intégrée qui l'interdit).
+let lockFails=0,lockReqT=0;
+function lockFailed(){
+  if(!state.lockEver&&++lockFails>=3){state.lockOK=false;state.paused=false;$('pause').hidden=true;return;}
+  if(!state.running||state.over||bigMapOn||staffMenuOn||!$('setScreen').hidden)return;
+  state.paused=true;state.pauseAt=performance.now();$('pause').hidden=false;mouseL=mouseR=false;setText($('resume'),'Reprendre');
+}
 function lockPointer(){
   if(!state.lockOK)return;
-  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{state.lockOK=false;state.paused=false;$('pause').hidden=true;});}catch(err){state.lockOK=false;}
+  if(!canvas.requestPointerLock){state.lockOK=false;return;}
+  lockReqT=performance.now();
+  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(lockFailed);}catch(err){lockFailed();}
 }
 // reprise du contrôle de la souris sans user-gesture garanti (touche Échap) : si le navigateur refuse, on montre la pause
 function relock(){
   if(!state.lockOK){state.paused=false;$('pause').hidden=true;return;}
-  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{if(!state.running||state.over)return;state.paused=true;state.pauseAt=performance.now();$('pause').hidden=false;setText($('resume'),'Reprendre');});}catch(err){}
+  lockReqT=performance.now();
+  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(lockFailed);}catch(err){lockFailed();}
 }
 // Échap : ferme la grande carte, les paramètres ouverts depuis la pause, puis la pause elle-même
 addEventListener('keydown',e=>{
@@ -5119,9 +5180,17 @@ addEventListener('keydown',e=>{
 document.addEventListener('pointerlockchange',()=>{
   state.locked=document.pointerLockElement===canvas;
   if(!state.locked&&state.running&&!state.over&&state.lockOK&&!bigMapOn&&!staffMenuOn&&$('setScreen').hidden){state.paused=true;state.pauseAt=performance.now();$('pause').hidden=false;mouseL=mouseR=false;}
-  if(state.locked){state.paused=false;$('pause').hidden=true;}
+  if(state.locked){state.lockEver=true;lockFails=0;state.paused=false;$('pause').hidden=true;}
 });
-document.addEventListener('pointerlockerror',()=>{state.lockOK=false;state.paused=false;$('pause').hidden=true;});
+document.addEventListener('pointerlockerror',lockFailed);
+// filet de sécurité : si la souris est libérée sans que la pause s'affiche (perte de focus, Alt+Tab, notification…),
+// la pause apparaît d'elle-même pour qu'un clic rende le contrôle
+setInterval(()=>{
+  if(!state.running||state.over||!state.lockOK||state.paused||bigMapOn||staffMenuOn||!$('setScreen').hidden)return;
+  if(document.pointerLockElement===canvas){state.locked=true;return;}
+  if(performance.now()-lockReqT<1500)return;
+  state.locked=false;state.paused=true;state.pauseAt=performance.now();$('pause').hidden=false;mouseL=mouseR=false;setText($('resume'),'Reprendre');
+},400);
 
 // ================== RÉSEAU ==================
 function netMsg(t){setText($('netMsg'),t||'');}
@@ -5657,8 +5726,8 @@ let storeTab='shop',storeSel=null;const invFilt={type:'all',rar:'all'};
 let hubTab='salon';
 function setHubTab(t){
   hubTab=t;document.querySelectorAll('#hubTabs button').forEach(b=>b.classList.toggle('sel',b.dataset.tab===t));
-  $('tabSalon').hidden=t!=='salon';$('tabArmory').hidden=t!=='armurerie';$('tabStore').hidden=!['inventaire','boutique','passe'].includes(t);$('tabParam').hidden=t!=='param';$('tabCompte').hidden=t!=='compte';$('pvPane').hidden=t==='param'||t==='armurerie'||t==='compte';if(t!=='armurerie'&&$('pv').parentNode!==$('pvPane'))$('pvPane').insertBefore($('pv'),$('pvName'));
-  storeTab={inventaire:'locker',boutique:'shop',passe:'pass',salon:'salon'}[t]||storeTab;if(t==='compte'){renderProfile();return;}storeSel=null;
+  $('tabSalon').hidden=t!=='salon';$('tabArmory').hidden=t!=='armurerie';$('tabStore').hidden=!['inventaire','boutique','passe','gacha'].includes(t);$('tabParam').hidden=t!=='param';$('tabCompte').hidden=t!=='compte';$('pvPane').hidden=t==='param'||t==='armurerie'||t==='compte';if(t!=='armurerie'&&$('pv').parentNode!==$('pvPane'))$('pvPane').insertBefore($('pv'),$('pvName'));
+  storeTab={inventaire:'locker',boutique:'shop',passe:'pass',salon:'salon',gacha:'gacha'}[t]||storeTab;if(t==='compte'){renderProfile();return;}storeSel=null;
   if(t==='param'){mountSettings($('paramHome'));refreshSettingsUI();}
   else if(t==='compte')renderAccount();
   else if(t==='salon'){updatePreviewPane();renderDaily();}else if(t==='armurerie')renderArmory();else renderStore();
@@ -5734,6 +5803,7 @@ function renderStore(){
   renderProfile();
   const grid=$('sGrid');grid.innerHTML='';
   const lv=levelOf(prof.xp);
+  if(storeTab==='gacha'){renderGacha(grid);updatePreviewPane();return;}
   if(storeTab==='pass'){
     const pl=passLv(),px=passXp()%XP_LVL,done=Math.min(pl,PASS_TIERS);
     const nObj=Object.values(PASS).filter(r=>r.skin||r.wrap).length,gotObj=Object.entries(PASS).filter(([t,r])=>(r.skin||r.wrap)&&+t<=pl).length;
@@ -5787,6 +5857,62 @@ function renderStore(){
   }
   updatePreviewPane();
 }
+// ================== GACHA ==================
+let gachaSel=GACHAS[0].id,gachaBusy=false;
+function curGacha(){return GACHAS.find(g=>g.id===gachaSel)||GACHAS[0];}
+function gachaKeys(g){return [g.main,...g.pool];}
+function gachaLeft(g){return gachaKeys(g).filter(k=>{const it=findItem(k);return it&&!owned(it);});}
+function gachaWeight(g,k){return k===g.main?GACHA_MAIN_W:GACHA_W;}
+function gachaOdds(g){const left=gachaLeft(g),tot=left.reduce((a,k)=>a+gachaWeight(g,k),0),o={};for(const k of left)o[k]=gachaWeight(g,k)/tot;return o;}
+function fmtPct(x){return (x*100).toFixed(x<.1?1:0).replace('.',',')+' %';}
+function renderGacha(grid){
+  const g=curGacha(),main=findItem(g.main),left=gachaLeft(g),odds=gachaOdds(g),all=gachaKeys(g),got=all.length-left.length;
+  if(!storeSel||!all.includes(storeSel))storeSel=g.main;
+  if(GACHAS.length>1){const nav=document.createElement('div');nav.className='invfilt';const row=document.createElement('div');row.className='frow';
+    for(const x of GACHAS){const b=document.createElement('button');b.className=x.id===g.id?'sel':'';b.innerHTML='<span></span><small></small>';b.children[0].textContent=x.name;b.children[1].textContent=(gachaKeys(x).length-gachaLeft(x).length)+'/'+gachaKeys(x).length;
+      b.onclick=()=>{gachaSel=x.id;storeSel=null;renderStore();};row.appendChild(b);}
+    nav.appendChild(row);grid.appendChild(nav);}
+  const hd=document.createElement('div');hd.className='gachahead';hd.style.setProperty('--gc',g.col);
+  const tu=thumbFor(main);
+  hd.innerHTML=`<div class="ghArt"><img data-thumb="${main.kind}:${main.id}" alt="" ${tu?'class="ok" src="'+tu+'"':''}></div>
+    <div class="ghTxt"><small></small><b></b><p></p>
+    <div class="ghBar"><i style="width:${got/all.length*100}%"></i></div>
+    <div class="ghInfo"><span>${got} / ${all.length} objets obtenus</span><span></span></div></div>`;
+  hd.querySelector('small').textContent=g.name;hd.querySelector('b').textContent=main.name;hd.querySelector('p').textContent=g.txt;
+  hd.querySelector('.ghInfo span+span').textContent=left.length?`Chance du ${main.name} : ${owned(main)?'obtenu ✓':fmtPct(odds[g.main])}`:'Gacha terminé : tout est obtenu';
+  hd.onclick=()=>{storeSel=g.main;renderStore();};
+  grid.appendChild(hd);
+  for(const k of all){const it=findItem(k);if(!it)continue;const own=owned(it);
+    const c=itemCard(it,own?'Obtenu ✓':fmtPct(odds[k]),own?' own':'');if(k===g.main)c.classList.add('gmain');grid.appendChild(c);}
+}
+function gachaPull(){
+  const g=curGacha(),left=gachaLeft(g);
+  if(gachaBusy||!left.length||prof.coins<GACHA_COST)return;
+  let r=Math.random()*left.reduce((a,k)=>a+gachaWeight(g,k),0),win=left[left.length-1];
+  for(const k of left){r-=gachaWeight(g,k);if(r<0){win=k;break;}}
+  const it=findItem(win);prof.coins-=GACHA_COST;ownList(it.kind).push(it.id);saveProf();renderProfile();
+  gachaReveal(g,it,left);
+}
+function gachaReveal(g,it,cands){
+  gachaBusy=true;
+  let ov=$('gachaRev');if(!ov){ov=document.createElement('div');ov.id='gachaRev';$('menu').appendChild(ov);}
+  ov.hidden=false;ov.className='';ov.style.setProperty('--rc',RARITY[it.rar||0].css);
+  ov.innerHTML=`<div class="grBox"><small>${g.name}</small><div class="grArt"><img alt=""></div><b class="grName"></b><span class="grMeta"></span><button class="go grOk" hidden>Super !</button></div>`;
+  const img=ov.querySelector('img'),nm=ov.querySelector('.grName'),mt=ov.querySelector('.grMeta'),ok=ov.querySelector('.grOk');
+  const show=k=>{const x=findItem(k);if(!x)return;const u=thumbFor(x);if(u){img.src=u;img.style.opacity=1;}else img.style.opacity=0;nm.textContent=x.name;ov.style.setProperty('--rc',RARITY[x.rar||0].css);};
+  // défilement qui ralentit puis s'arrête sur l'objet gagné
+  const seq=[];const pool=cands.length>1?cands:[it.kind+':'+it.id];for(let i=0;i<14;i++)seq.push(pool[(Math.random()*pool.length)|0]);seq.push(it.kind+':'+it.id);
+  let i=0;mt.textContent='Tirage…';
+  const step=()=>{show(seq[i]);beep(520+i*28,.04,.05,'square');
+    if(++i<seq.length){setTimeout(step,45+i*i*1.6);return;}
+    const main=g.main===it.kind+':'+it.id;ov.className='done'+(main?' main':'');
+    mt.textContent=(main?'SKIN PRINCIPAL ! · ':'Obtenu · ')+ITYPE[itemType(it)]+' · '+RARITY[it.rar||0].name;
+    beep(main?1320:990,.25,.12,'sine');if(main)setTimeout(()=>beep(1760,.35,.12,'sine'),180);
+    ok.hidden=false;ok.focus();};
+  step();
+  const close=()=>{if(!ok.hidden){ov.hidden=true;gachaBusy=false;storeSel=it.kind+':'+it.id;renderStore();}};
+  ok.onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
+}
 let armGun='ar',armSlot='optic';
 function armCat(){return WCATS.find(c=>c.g.includes(armGun))||WCATS[0];}
 function renderArmory(){
@@ -5833,11 +5959,23 @@ function updatePreviewPane(){
       :`${SKINS[prof.skin].name} avec le revêtement ${WRAPS[prof.wrap].name}. Choisis un objet pour le voir ici.`);
     act.hidden=true;return;
   }
+  if(storeTab==='gacha'){
+    const g=curGacha(),left=gachaLeft(g),odds=gachaOdds(g),k=it.kind+':'+it.id;
+    setText($('pvName'),it.name);
+    setText($('pvInfo'),`${ITYPE[itemType(it)]} · ${RARITY[it.rar||0].name}`+(k===g.main?' · Exclusif au Gacha':'')+' · '+(owned(it)?'Obtenu ✓':'Chance au prochain tirage : '+fmtPct(odds[k]||0))+(it.txt?' · '+it.txt:''));
+    act.classList.toggle('gdone',!left.length);
+    if(!left.length){act.disabled=true;setText(act,'Gacha terminé');}
+    else if(prof.coins<GACHA_COST){act.disabled=true;setText(act,`Encore ${fmtN(GACHA_COST-prof.coins)} coquillages`);}
+    else{act.disabled=gachaBusy;setText(act,`Tirer · ${fmtN(GACHA_COST)} coquillages`);}
+    act.onclick=gachaPull;return;
+  }
+  act.classList.remove('gdone');
   setText($('pvName'),it.name);
   const kind=it.kind==='skin'?'Tenue de personnage':it.kind==='car'?'Skin de voiture':it.kind==='pick'?'Skin de pioche':(itemType(it)==='skinarme'?"Skin d'arme":"Camo d'arme");
   setText($('pvInfo'),`${kind} · ${RARITY[it.rar||0].name}`+(it.kind==='car'?' · '+it.txt+(it.base?'':" Tu es le seul à le voir, sur les voitures que tu utilises ; les autres joueurs et les voitures que tu n'as pas prises restent normales."):'')+(it.kind==='pick'?' · '+it.txt+" Ton camo d'arme colore la pioche.":'')+(it.pass?` · Passe saison ${SEASON}, palier ${it.pass}`:it.s1?' · Passe saison 1':''));
   if(it.kind==='car'&&owned(it)){act.disabled=equipped(it);setText(act,equipped(it)?'Équipé':'Équiper');act.onclick=()=>{prof.car=it.base?'':it.id;saveProf();renderStore();};}
   else if(owned(it)){act.disabled=equipped(it);setText(act,equipped(it)?'Équipé':'Équiper');act.onclick=()=>{if(it.kind==='skin')prof.skin=it.id;else if(it.kind==='pick')prof.pick=it.id;else prof.wrap=it.id;saveProf();renderStore();};}
+  else if(it.gacha){act.disabled=true;setText(act,'Uniquement dans le Gacha');}
   else if(it.price){
     const can=prof.coins>=it.price;act.disabled=!can;
     setText(act,can?`Acheter · ${fmtN(it.price)}`:`Encore ${fmtN(it.price-prof.coins)} coquillages`);

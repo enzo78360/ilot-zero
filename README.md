@@ -12,7 +12,7 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 ## Menu
 
-Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Passe de combat** (saison 2 « Abysses » : une récompense à chaque palier) et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
+Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Gacha** (tirages à 1 000 coquillages : 9 objets de la boutique et un skin exclusif plus rare, sans doublon ; le premier est le Karambit, skin de pioche), **Passe de combat** (saison 2 « Abysses » : une récompense à chaque palier) et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
 
 ## Compte, amis et sauvegarde en ligne
 
