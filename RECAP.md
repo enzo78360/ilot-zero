@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 7 novembre 2026.
+Mise à jour du 9 novembre 2026.
 
 ## Liens utiles
 
@@ -21,6 +21,8 @@ Mise à jour du 7 novembre 2026.
 | Souris qui se détache du viseur, plus de pause, rechargement obligatoire | Un refus passager du navigateur (clic trop rapide après Échap, Alt+Tab…) coupait pour toujours le contrôle de la souris. Maintenant la pause s'affiche et un clic rend le contrôle ; si la souris est libérée sans prévenir, la pause apparaît d'elle-même |
 | Gacha | Nouvel onglet « Gacha » : skin exclusif présenté en grand, liste des 10 objets avec ce qui est obtenu et la chance de chacun ; tirage à 1 000 coquillages, 9 objets de boutique à chance égale (11 %) et le skin principal plus rare (3,2 % au départ) ; jamais un objet déjà obtenu ou acheté ; bouton gris « Gacha terminé » quand tout est obtenu. Premier Gacha : Karambit (skin de pioche, modèle 3D) |
 | Escaliers traversés par en dessous, coffres et armes sur les escaliers | L'escalier bloque comme un bloc plein (dessous et côtés) ; on monte toujours normalement. Coffres et butin à plus de 1,3 m de l'escalier, en bas comme sur le palier du haut (0 objet près d'un escalier sur les 3 cartes) |
+
+Publié : site à jour et Release 1.5.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v1.5.0).
 
 ## Corrections de la liste du 7 novembre 2026
 
