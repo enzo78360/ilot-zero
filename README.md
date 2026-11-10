@@ -8,11 +8,12 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 - **Solo, Duo, Escouade** : en duo et en escouade, un joueur à 0 PV tombe à terre et un coéquipier peut le réanimer (maintenir `E` pendant 5 s).
 - **Contre les bots** : tout seul, les bots complètent les 20 places.
+- **Zombies** : en solo ou dans un salon, par équipes de 1, 2 ou 4. Seuls les vrais joueurs sautent en planeur ; 30 zombies (dont 10 Zombies Soldats aussi rapides qu'un joueur) les traquent partout, cassent les constructions, prennent rampes, escaliers, portes et fenêtres, et reviennent 3 s après leur mort ailleurs sur l'île en lâchant un objet. Un coup sur 5 infecte : il faut boire une potion de bouclier dans les 60 s (elle soigne l'infection au lieu de donner du bouclier), sinon c'est la mort. Pas de zone : le but est de survivre le plus longtemps ; les autres équipes peuvent coopérer ou se tirer dessus.
 - **Avec des amis** : un joueur clique sur « Créer un salon » et donne le code à 4 caractères. Les autres l'entrent dans « Rejoindre ». Jusqu'à 8 joueurs, les bots complètent jusqu'à 20. En duo ou en escouade, les amis sont placés dans la même équipe.
 
 ## Menu
 
-Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Gacha** (tirages à 1 000 coquillages : 9 objets de la boutique et un skin exclusif plus rare, sans doublon ; le premier est le Karambit, skin de pioche), **Passe de combat** (saison 2 « Abysses » : une récompense à chaque palier) et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
+Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **Inventaire** (équiper tenues et revêtements), **Boutique**, **Gacha** (liste de Gachas au choix ; tirages à 1 000 coquillages : 9 objets de la boutique et un skin principal légendaire plus rare, sans doublon : Gacha Karambit, skin de pioche, et Gacha Zombie Soldat, tenue), **Passe de combat** (saison 2 « Abysses » : une récompense à chaque palier) et **Paramètres** (sensibilité de la souris, sensibilité en visée et sensibilité propre à chaque viseur : mire et point rouge, ×2, ×4, ×8, inversion de l'axe vertical, champ de vision, préréglages graphiques Bas à Ultra, ombres, distance d'affichage, herbe, eau avec reflets, échelle de rendu, volume, compteur d'images par seconde). Les paramètres sont aussi accessibles en jeu depuis la pause (Échap).
 
 ## Compte, amis et sauvegarde en ligne
 
@@ -51,7 +52,7 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 - **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
-- **3 cartes** : Îlot Zéro (villages et rivière), Métropole (grande ville avec un quartier de tours), Dunes (désert). Routes, ponts et voitures sur toutes les cartes.
+- **Une seule île** : Îlot Zéro, avec la ville du Quartier des Tours, des villages, des forêts, une rivière et une zone désert (ville de Mirage, cactus). Routes droites en quadrillage, plates en travers, toutes reliées, sans impasse et sans traverser de bâtiment ; ponts au-dessus de l'eau.
 - **Rendu réaliste** : textures photo avec relief (Poly Haven, CC0), routes avec marquages, trottoirs, passages piétons et lampadaires, façades variées (briques, crépi, bois, béton) avec balcons et commerces, montagne à crêtes. Personnage réaliste pour tous les joueurs et 4 voitures réalistes (modèles Sketchfab sous licence CC Attribution, auteurs cités dans Paramètres → Crédits).
 - **Style cartoon** (par défaut) : textures peintes à la main aux couleurs vives ; le rendu réaliste reste disponible dans Paramètres → Graphismes → Style graphique.
 - **Coffres** : coffres dorés posés contre les murs des bâtiments et dehors, signalés par une colonne de lumière dorée (sans son) ; on les ouvre avec `E` pour obtenir, devant le coffre, une arme rare à légendaire, des munitions, un soin et des matériaux.

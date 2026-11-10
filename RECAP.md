@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 9 novembre 2026.
+Mise à jour du 10 novembre 2026.
 
 ## Liens utiles
 
@@ -13,6 +13,23 @@ Mise à jour du 9 novembre 2026.
 | Identifiant Google (connexion) | https://console.cloud.google.com/auth/clients |
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
+
+## Cinquième liste (10 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Une seule carte | Îlot Zéro regroupe la ville (Quartier des Tours), les villages, les forêts et une zone désert (environ un quart de l'île, ville de Mirage, cactus, sable et roche ocre). Le choix de carte est retiré |
+| Routes | Quadrillage de routes droites nord-sud et est-ouest (72 m), terrain aplani sous la route : plate en travers, pente douce seulement dans le sens de la marche. Un seul réseau relié à la ville, aucune impasse (vérifié sur 5 îles : 0 impasse, 0 bâtiment touché). Levée de terre dans les zones basses, pont droit au-dessus de l'eau. Bâtiments à plus de 9,5 m de l'axe des routes ; les entrepôts trop larges ne sont plus dans les pâtés de la ville |
+| Gacha | Liste de Gachas (cartes avec l'image du skin principal et la progression). Nouveau **Gacha Zombie Soldat** : 9 objets de boutique (dont le skin Zombie) et le Zombie Soldat, légendaire, exclusif |
+| Skins zombies | **Zombie** (boutique, épique, 1 400) : peau gris-vert marbrée avec plaies, vêtements en lambeaux (trous, bords effilochés, crasse, sang). Remplace « Zombie des marais » (même objet : ceux qui l'avaient le gardent). **Zombie Soldat** : uniforme camouflage déchiré, casque, gilet, sac |
+| Karambit | Nouveau modèle : vraie lame en griffe creusée, dos crénelé, fil violet lumineux, manche galbé avec creux pour les doigts, anneau pour l'index. Tenu en prise inversée (anneau au-dessus du poing, lame sous le petit doigt), coup en diagonale |
+| Constructions | Grille invisible rétablie : hauteurs par pas de 4 m (comme les cases au sol), toutes les pièces s'alignent. Une pièce doit toucher le sol, un bâtiment ou une pièce qui tient ; quand une pièce casse, celles qui ne tiennent plus à rien s'écroulent (aussi pour les bots et en multijoueur) |
+| Mode Zombies | Nouveau jeu (Salon : Battle royale / Zombies), seul ou en salon, équipes de 1, 2 ou 4. 30 zombies impossibles à retirer, 10 Zombies Soldats aussi rapides qu'un joueur, les autres plus lents. Ils savent où sont les joueurs, contournent les murs, passent par les portes et sautent par les fenêtres, montent rampes et escaliers, cassent les constructions (et font tomber celui qui est perché), dévient un peu quand on leur tire dessus. Coup de pioche normal (20), infection 1 fois sur 5 : 60 s pour boire une potion de bouclier (soigne l'infection, sans bouclier, même à pleine vie ; non cumulable). Réapparition 3 s après la mort, ailleurs, avec un objet lâché (munitions, potion, bois, brique, métal, trampoline, feu de camp ou bandage). Pas de zone ; fin quand plus aucun joueur n'est en vie ; écran de fin avec le temps de survie |
+| Zombies modélisés dans Blender | Nouvelles animations sur le squelette du personnage (`models/zombie_anim.glb`) : marche titubante voûtée bras tendus et pied qui traîne, course penchée bras en avant (Zombie Soldat), attente qui se balance tête penchée, attaque bras levés puis abattus. Pièces modélisées (`models/zombies.glb`, source `models/zombies.blend`) : casque militaire (bosse, filet de camouflage, bande avec pansement, jugulaire), gilet tactique moulé sur le torse (plaques, ceinture, bretelles, 3 poches à chargeurs), plaques d'identité, lambeaux de vêtement à la taille, côtes à vif, morsure au cou. Grognements de zombies synthétisés (au loin, et cri à chaque attaque). Les joueurs qui portent ces skins ont les mêmes pièces |
+
+Les points « souris détachée », « Gacha Karambit » et « escaliers » de la même liste étaient déjà corrigés dans la 1.5.0.
+
+Vérification : banc de test Electron (génération sur 5 îles, constructions, Gacha, Karambit, mode Zombies solo et duo, Battle royale), sans erreur dans la console. Version 1.6.0 (pas encore publiée).
 
 ## Corrections de la liste du 9 novembre 2026
 
