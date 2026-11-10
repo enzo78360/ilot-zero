@@ -38,6 +38,14 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 // le nom accentué de l'app se retrouve dans le User-Agent, or les en-têtes HTTP doivent rester en ASCII
 app.userAgentFallback = app.userAgentFallback.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7e]/g, '');
 
+// fluidité : carte graphique dédiée si l'ordinateur en a deux, accélération GPU même sur les pilotes « non recommandés »,
+// pas de limite d'images en arrière-plan
+app.commandLine.appendSwitch('force_high_performance_gpu');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
 ]);

@@ -816,6 +816,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
             <label class="srow"><span>Herbe</span><select id="sGrass"><option value="0">Aucune</option><option value="0.5">Faible</option><option value="1">Normale</option><option value="1.6">Dense</option></select></label>
             <label class="srow"><span>Eau avec reflets</span><input type="checkbox" id="sWater"></label>
             <label class="srow"><span>Échelle de rendu</span><input type="range" id="sScale" min="0.5" max="1.5" step="0.05"><output id="oScale"></output></label>
+            <label class="srow"><span>Résolution dynamique (baisse un peu la netteté pour rester fluide)</span><input type="checkbox" id="sDynRes"></label>
             <label class="srow"><span>Afficher les images par seconde</span><input type="checkbox" id="sFps"></label>
           </section>
           <section>
@@ -1355,6 +1356,8 @@ if(THREE.Water){
     const wn=TEX.waterN.clone();wn.needsUpdate=true;wn.repeat.set(1,1);
     waterReal=new THREE.Water(waterGeo,{textureWidth:512,textureHeight:512,waterNormals:wn,sunDirection:sunDir.clone(),sunColor:0xfff3e0,waterColor:0x0b4656,distortionScale:2.4,fog:true,alpha:.9});
     waterReal.rotation.x=-Math.PI/2;waterReal.position.y=-1.4;waterReal.material.transparent=true;scene.add(waterReal);
+    // le reflet redessine toute la scène : on ne le recalcule qu'une image sur trois, sans l'herbe
+    {const orig=waterReal.onBeforeRender;let k=0;waterReal.onBeforeRender=function(r,sc,cam){if((k++)%3)return;const gv=grassIM&&grassIM.visible;if(grassIM)grassIM.visible=false;orig.call(this,r,sc,cam);if(grassIM)grassIM.visible=gv;};}
   }catch(err){waterReal=null;}
 }
 // storm
@@ -1802,8 +1805,14 @@ function makeCharGLB(color,owner,skinId,noShoot){
   return m;
 }
 const _qa=new THREE.Quaternion(),_qp=new THREE.Quaternion(),_va=new THREE.Vector3();
+const camFrustum=new THREE.Frustum(),_cpm=new THREE.Matrix4(),_csph=new THREE.Sphere(new THREE.Vector3(),2.4);
+function updCamFrustum(){camera.updateMatrixWorld();_cpm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);camFrustum.setFromProjectionMatrix(_cpm);}
 function poseGLB(e,m,dt){
   const G=m.glb;m.group.position.copy(e.pos);m.group.rotation.set(0,e.yaw,0);m.group.visible=!e.car;
+  const cdx=e.pos.x-camera.position.x,cdz=e.pos.z-camera.position.z,cd2=cdx*cdx+cdz*cdz,far=e!==player&&cd2>3600;
+  if(e!==player&&cd2>SET.view*SET.view){m.group.visible=false;return;}
+  let off=false;if(e!==player&&!e.car){_csph.center.set(e.pos.x,e.pos.y+1,e.pos.z);off=!camFrustum.intersectsSphere(_csph);if(off)m.group.visible=false;}
+  const sh=cd2<2025||e===player;if(G._sh!==sh){G._sh=sh;m.group.traverse(o=>{if(o.isMesh&&o.visible!==false&&!o.userData.part)o.castShadow=sh;});}
   const w=e.slots[e.cur],pick=!w||w.type==='pickaxe',busy=e.downed||e.reviving||e.rebooting||e.gliding;
   m.gunHolder.visible=!pick&&!busy;m.handHolder.visible=pick&&!busy;m.glider.visible=e.gliding;
   const sp=Math.hypot(e.vel.x,e.vel.z),fx=-Math.sin(e.yaw),fz=-Math.cos(e.yaw);
@@ -1830,7 +1839,7 @@ function poseGLB(e,m,dt){
   // inclinaison du corps dans les virages et les pas chassés
   e._lean=lerp(e._lean||0,e.onGround&&!e.crouch?clamp(-vr*.012,-.09,.09):0,Math.min(1,dt*6));e._tilt=lerp(e._tilt||0,e.onGround&&sp>7&&vf>0?.07:0,Math.min(1,dt*5));
   m.group.rotation.set(-e._tilt*0,e.yaw,e._lean,'YXZ');
-  G.mixer.update(dt);
+  if(far||off){G._acc=(G._acc||0)+dt;G._sk=!G._sk;if(G._sk||off&&(G._sk2=((G._sk2|0)+1)%4))return;G.mixer.update(G._acc);G._acc=0;}else{G._acc=0;G.mixer.update(dt);}
   if(e.downed){
     // à terre : corps allongé face au sol, reptation bras/jambes alternés
     const K={t:-1.5,y:.2,h:.8,a:.45,c:.25,k:.6,ks:1};
@@ -1854,7 +1863,10 @@ function makeTreeLayers(){
   world.userData.pineIM=mk(TREE.pineGeo,TREE.needleMat,560);
   world.userData.bushIM=mk(TREE.bushGeo,TREE.leafMat,420);
   world.userData.glbTrees=ASSETS.trees.map(pr=>({pr,ims:pr.parts.map(q=>{const im=new THREE.InstancedMesh(q.geo,q.mat,480);im.count=0;im.frustumCulled=false;im.castShadow=true;im.receiveShadow=true;
-    if(q.leaf)im.customDepthMaterial=leafDepthMat(q.mat.map);world.add(im);return im;})}));
+    if(q.leaf)im.customDepthMaterial=leafDepthMat(q.mat.map);im.userData.lodNear=true;world.add(im);return im;})}));
+  // niveau de détail : au-delà de 65 m, les arbres modélisés (~10 000 triangles) sont remplacés par l'arbre simplifié
+  if(TREE.broadTrunk){const far=(geo,mat)=>{const im=new THREE.InstancedMesh(geo,mat,480);im.count=0;im.frustumCulled=false;im.castShadow=false;im.receiveShadow=true;im.userData.lodFar=true;world.add(im);return im;};
+    world.userData.farLeafIM=far(TREE.leafGeo,TREE.leafMat);world.userData.farTrunkIM=far(TREE.broadTrunk,TREE.barkMat);}
 }
 // ---------- affichage à distance (optimisation) ----------
 // petits objets fixes masqués au-delà d'une distance ; instances (arbres, buissons) limitées aux proches et à celles devant la caméra
@@ -1873,9 +1885,10 @@ function cullUpdate(dt){
   for(const k of cullList){if(k.o.parent!==world)continue;const dx=k.c.x-cp.x,dz=k.c.z-cp.z;k.o.visible=dx*dx+dz*dz<(R+k.r*8)*(R+k.r*8);}
   // instances : proches, ou devant la caméra jusqu'à la limite du brouillard
   camera.getWorldDirection(_cd);const RI=Math.min(SET.view*.8,330),RI2=RI*RI;
-  world.traverse(o=>{if(!o.isInstancedMesh||!o.userData.M)return;const M=o.userData.M,n=o.userData.n;let j=0;
+  const LOD2=4225;
+  world.traverse(o=>{if(!o.isInstancedMesh||!o.userData.M)return;const M=o.userData.M,n=o.userData.n,ln=o.userData.lodNear,lf=o.userData.lodFar;let j=0;
     for(let i=0;i<n;i++){const m=M[i];if(!m)continue;const e=m.elements,dx=e[12]-cp.x,dz=e[14]-cp.z,d2=dx*dx+dz*dz;
-      if(d2>RI2)continue;if(d2>900&&(dx*_cd.x+dz*_cd.z)<-.35*Math.sqrt(d2*(_cd.x*_cd.x+_cd.z*_cd.z)))continue;o.setMatrixAt(j++,m);}
+      if(d2>RI2||(ln&&d2>LOD2)||(lf&&d2<=LOD2))continue;if(d2>900&&(dx*_cd.x+dz*_cd.z)<-.35*Math.sqrt(d2*(_cd.x*_cd.x+_cd.z*_cd.z)))continue;o.setMatrixAt(j++,m);}
     o.count=j;o.instanceMatrix.needsUpdate=true;});
 }
 function addInst(im,x,y,z,ry,s,sy){if(!im||im.count>=im.instanceMatrix.count)return null;const m=new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),ry),new THREE.Vector3(s,sy||s,s));const i=im.count++;im.setMatrixAt(i,m);im.instanceMatrix.needsUpdate=true;(im.userData.M=im.userData.M||[])[i]=m;im.userData.n=im.count;return {im,idx:i};}
@@ -2266,7 +2279,8 @@ function makeTree(x,z){
   col.mesh.position.set(x,y,z);col.mesh.scale.setScalar(s);col.mesh.rotation.y=ry;
   col.hp=100;
   const gt=world.userData.glbTrees;
-  if(!pine&&gt&&gt.length){const T0=gt[Math.floor(pick*gt.length)],k=s*(T0.pr.h<4?2.1:1.6);col.mesh.visible=false;col.inst=T0.ims.map(im=>addInst(im,x,y,z,ry,k)).filter(Boolean);return;}
+  if(!pine&&gt&&gt.length){const T0=gt[Math.floor(pick*gt.length)],k=s*(T0.pr.h<4?2.1:1.6);col.mesh.visible=false;col.inst=T0.ims.map(im=>addInst(im,x,y,z,ry,k)).filter(Boolean);
+    const U=world.userData;if(U.farLeafIM)col.inst.push(...[addInst(U.farLeafIM,x,y,z,ry,s*1.15,s*1.15),addInst(U.farTrunkIM,x,y,z,ry,s*1.15)].filter(Boolean));return;}
   const it=addInst(pine?world.userData.pineIM:world.userData.leafIM,x,y,z,ry,s,s*(pine?rand(.9,1.2):1));
   col.inst=it?[it]:null;
 }
@@ -2600,6 +2614,7 @@ function pickaxeMesh(wrap,model){
     add(new THREE.BoxGeometry(.071,.022,.088).translate(0,.012,-.665),M.band);
     add(new THREE.ConeGeometry(.012,.05,8).rotateZ(Math.PI).translate(0,-.33,-.585).rotateX(0),M.edge);
   }
+  mergeByMat(g);
   const t=new THREE.Object3D();if(mdl==='karambit')t.position.set(0,-.12,.22);else t.position.set(0,-.3,-.62);g.add(t);
   g.userData.tip=t;g.userData.grip=[0,0,0];g.userData.fore=null;g.userData.type='pickaxe';
   return g;
@@ -2679,7 +2694,7 @@ function gunMesh(type,rarity,wrap,att){
   const GL=ASSETS.guns[type];
   // armes presque entièrement en acier ou en bois (pompe, double canon, revolver…) : le camo couvre aussi l'acier et le bois, sinon il ne se voit pas
   let remap=null;if(GL&&wrap&&wrap!=='base'){let cam=0,tot=0;for(const q of GL){const n=q.geo.attributes.position.count;tot+=n;if(q.k==='poly'||q.k==='mid')cam+=n;}if(cam<tot*.25)remap={steel:'mid',wood:'poly'};}
-  if(GL)for(const q of GL){const k=remap&&remap[q.k]||q.k;const m=new THREE.Mesh(q.geo,M[k]||M.poly);m.castShadow=true;m.receiveShadow=true;g.add(m);}
+  if(GL){for(const q of GL){const k=remap&&remap[q.k]||q.k;const m=new THREE.Mesh(q.geo,M[k]||M.poly);m.castShadow=true;m.receiveShadow=true;g.add(m);}mergeByMat(g);}
   else for(const k in P){const geo=mergeG(P[k]);if(!geo)continue;const m=new THREE.Mesh(geo,M[k]);m.castShadow=true;m.receiveShadow=true;g.add(m);}
   const t=new THREE.Object3D();t.position.set(0,ty,-tip);g.add(t);g.userData.tip=t;
   g.userData.grip=grip;g.userData.fore=fore;g.userData.type=type;
@@ -2907,6 +2922,7 @@ function spawnLoot(kind,x,z,data,netId,y){
   g.position.set(x,item.pos.y,z);
   g.traverse(o=>{if(o.isMesh)o.castShadow=false;});
   world.add(g);loot.push(item);
+  g.traverse(o=>{o.castShadow=false;if(o!==g&&o!==spin){o.updateMatrix();o.matrixAutoUpdate=false;}});
   if(NET.role==='host'&&!genPhase)broadcast({t:'la',i:item.id,k:kind,x:r2(x),z:r2(z),y:r2(item.pos.y),d:kind==='weapon'?item.weapon:kind==='card'?item.owner:(item.n!==undefined?item.n:null)});
   return item;
 }
@@ -2953,16 +2969,54 @@ function buildWorld(seed){
   colSeq=0;colById=[];lootSeq=0;genPhase=true;props=[];propSeq=0;bornes=[];propTick=0;
   const origRandom=Math.random;Math.random=mulberry32(seed||12345);
   lootQ=[];try{genWorld();flushLoot();outdoorChests();}finally{Math.random=origRandom;genPhase=false;}
-  mergeStatic();
+  mergeStatic();mergeDecor();
   cullInit();
+  freezeStatic();
   setAmbiance(ambForSeed(seed||12345));
+}
+// décor fusionné : moulures, fenêtres, volets, lampadaires… regroupés par matériau et par zone de 64 m
+// (un objet dessiné par zone et par matériau au lieu de milliers de petits objets)
+function mergeDecor(){
+  const BU=THREE.BufferGeometryUtils;if(!BU)return;
+  const dyn=new Set(),mark=o=>{if(o)o.traverse(q=>dyn.add(q));};
+  loot.forEach(it=>mark(it.mesh));cars.forEach(c=>mark(c.g));doors.forEach(d=>mark(d.dl));chests.forEach(c=>mark(c.g));
+  for(const b of boxes)if(b.extra)b.extra.forEach(mark); // décor lié à un objet destructible : il doit pouvoir disparaître avec lui
+  world.updateMatrixWorld(true);const by=new Map(),list=[];
+  world.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh||dyn.has(o)||o.userData.col||o.userData.noCull||o===terrainMesh||Array.isArray(o.material)||!o.geometry)return;
+    let p=o;while(p){if(!p.visible)return;p=p.parent;}list.push(o);});
+  for(const o of list){const g=o.geometry,a=g.attributes;if(!a.position||!a.normal)continue;
+    const sig=(a.uv?'u':'')+(a.color?'c':''),k=o.material.uuid+'|'+sig+'|'+(o.castShadow?1:0)+(o.receiveShadow?1:0)+'|'+Math.floor(o.matrixWorld.elements[12]/64)+'|'+Math.floor(o.matrixWorld.elements[14]/64);
+    if(!by.has(k))by.set(k,[]);by.get(k).push(o);}
+  for(const [k,L] of by){if(L.length<2)continue;const geos=[];
+    for(const o of L){let g=o.geometry.clone();g.clearGroups();g.applyMatrix4(o.matrixWorld);if(g.index)g=g.toNonIndexed();
+      for(const n of Object.keys(g.attributes))if(!['position','normal','uv','color'].includes(n))g.deleteAttribute(n);g.morphAttributes={};geos.push(g);}
+    const mg=BU.mergeBufferGeometries(geos);geos.forEach(g=>g.dispose());if(!mg)continue;
+    const mm=new THREE.Mesh(mg,L[0].material);mm.castShadow=L[0].castShadow;mm.receiveShadow=L[0].receiveShadow;world.add(mm);
+    for(const o of L){if(o.parent)o.parent.remove(o);}}
+}
+// regroupe les maillages d'un objet par matériau (pioches, armes) : moins d'objets à dessiner par personnage
+function mergeByMat(g,keep){
+  const BU=THREE.BufferGeometryUtils;if(!BU)return g;g.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(g.matrixWorld).invert();const by=new Map();
+  for(const o of [...g.children]){if(!o.isMesh||Array.isArray(o.material)||keep&&keep.has(o))continue;const a=o.geometry.attributes;const k=o.material.uuid+'|'+(a.uv?'u':'')+(a.normal?'n':'');if(!by.has(k))by.set(k,[]);by.get(k).push(o);}
+  for(const L of by.values()){if(L.length<2)continue;const geos=L.map(o=>{let q=o.geometry.clone();q.clearGroups();q.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld));if(q.index)q=q.toNonIndexed();for(const n of Object.keys(q.attributes))if(!['position','normal','uv'].includes(n))q.deleteAttribute(n);return q;});
+    const mg=BU.mergeBufferGeometries(geos);if(!mg)continue;const m=new THREE.Mesh(mg,L[0].material);m.castShadow=m.receiveShadow=true;g.add(m);L.forEach(o=>g.remove(o));}
+  return g;
+}
+// décor figé : les objets qui ne bougent jamais ne recalculent plus leur matrice à chaque image (gros gain en ville)
+function freezeStatic(){
+  const dyn=new Set(),mark=o=>{if(o)o.traverse(q=>dyn.add(q));};
+  loot.forEach(it=>mark(it.mesh));cars.forEach(c=>mark(c.g));doors.forEach(d=>mark(d.dl));chests.forEach(c=>mark(c.g));
+  world.updateMatrixWorld(true);
+  world.traverse(o=>{if(o!==world&&!dyn.has(o))o.matrixAutoUpdate=false;});
 }
 // regroupe les murs fixes par matériau (moins d'appels de rendu) ; les colliders restent, invisibles
 function mergeStatic(){
   const BU=THREE.BufferGeometryUtils;if(!BU)return;const by=new Map();
   for(const b of boxes){const m=b.mesh;if(b.kind!=='static'||!m||!m.visible||Array.isArray(m.material)||!m.geometry||m.geometry.type!=='BoxGeometry'||m.parent!==world)continue;
-    if(!by.has(m.material))by.set(m.material,[]);by.get(m.material).push(m);}
-  for(const [mat,list] of by){if(list.length<3)continue;const geos=[];
+    // par matériau et par zone de 64 m : ce qui est hors champ (ou hors de la zone d'ombre) n'est plus dessiné
+    const k=m.material.uuid+'|'+Math.floor(m.position.x/64)+'|'+Math.floor(m.position.z/64);
+    if(!by.has(k))by.set(k,[]);by.get(k).push(m);}
+  for(const [k,list] of by){if(list.length<3)continue;const geos=[],mat=list[0].material;
     for(const m of list){m.updateMatrix();const g=m.geometry.clone();g.applyMatrix4(m.matrix);geos.push(g);m.visible=false;}
     const mg=BU.mergeBufferGeometries(geos);if(!mg){list.forEach(m=>m.visible=true);continue;}geos.forEach(g=>g.dispose());
     const mm=new THREE.Mesh(mg,mat);mm.castShadow=true;mm.receiveShadow=true;world.add(mm);}
@@ -3843,10 +3897,13 @@ function tracer(a,b,mine){
   const geo=new THREE.BufferGeometry().setFromPoints([a.clone(),b.clone()]);
   const l=new THREE.Line(geo,mine?tracerMatP:tracerMatB);scene.add(l);effects.push({type:'line',obj:l,t:0,life:.06});
 }
-const puffGeo=new THREE.BoxGeometry(.12,.12,.12);
+const puffGeo=new THREE.BoxGeometry(.12,.12,.12),puffMats=new Map();
+// un matériau par couleur, partagé : la particule rétrécit au lieu de s'effacer (plus de matériau créé à chaque impact)
 function puff(p,color,n,spd){
+  let pm=puffMats.get(color);if(!pm)puffMats.set(color,pm=BMat({color}));
+  if(effects.length>420)n=Math.min(n||5,2);
   for(let i=0;i<(n||5);i++){
-    const m=new THREE.Mesh(puffGeo,BMat({color,transparent:true}));
+    const m=new THREE.Mesh(puffGeo,pm);
     m.position.copy(p);scene.add(m);
     effects.push({type:'puff',obj:m,t:0,life:rand(.25,.5),v:new THREE.Vector3(rand(-1,1),rand(0,1.5),rand(-1,1)).multiplyScalar(spd||1.6)});
   }
@@ -3855,10 +3912,9 @@ function updateEffects(dt){
   for(let i=effects.length-1;i>=0;i--){
     const f=effects[i];f.t+=dt;
     if(f.type==='grow'){const s=Math.min(1,.3+f.t*6);f.mesh.scale.setScalar(s);if(s>=1)effects.splice(i,1);continue;}
-    if(f.type==='puff'){f.obj.position.addScaledVector(f.v,dt);f.v.y-=6*dt;f.obj.material.opacity=1-f.t/f.life;}
-    if(f.type==='line'){f.obj.material.opacity=Math.max(0,1-f.t/f.life);}
+    if(f.type==='puff'){f.obj.position.addScaledVector(f.v,dt);f.v.y-=6*dt;f.obj.scale.setScalar(Math.max(.05,1-f.t/f.life));}
     if(f.type==='shell'){f.obj.position.addScaledVector(f.v,dt);f.v.y-=9.8*dt;f.obj.rotation.x+=f.w*dt;f.obj.rotation.z+=f.w*.7*dt;}
-    if(f.t>=f.life){scene.remove(f.obj);if(f.type==='line')f.obj.geometry.dispose();else if(f.type!=='shell')f.obj.material.dispose();effects.splice(i,1);}
+    if(f.t>=f.life){scene.remove(f.obj);if(f.type==='line')f.obj.geometry.dispose();effects.splice(i,1);}
   }
 }
 
@@ -4071,7 +4127,7 @@ function kill(t,src,wtype){
   // zombie : un seul objet au hasard (munitions, potion, matériaux, trampoline, feu de camp ou bandage), il revient 3 s plus tard ailleurs
   if(t.zombie){t.respawnAt=T+3;if(src&&src.isPlayer)addXP('Zombies',15);
     const k=pickW(['ammo','potion','bois','brique','metal','tramp','camp','bandage'],[24,16,12,10,8,8,8,14]);
-    spawnLoot.hintY=t.pos.y;spawnLoot(k,t.pos.x,t.pos.z,k==='bois'||k==='brique'||k==='metal'?rand(20,40)|0:k==='bandage'?2:undefined);spawnLoot.hintY=0;return;}
+    spawnLoot.hintY=t.pos.y;const it=spawnLoot(k,t.pos.x,t.pos.z,k==='bois'||k==='brique'||k==='metal'?rand(20,40)|0:k==='bandage'?2:undefined);spawnLoot.hintY=0;if(it)it.expire=T+90;return;}
   // butin lâché
   let k=0;spawnLoot.hintY=t.pos.y;const drop=(kind,data)=>{const a=k++*1.3+rand(0,.4);spawnLoot(kind,t.pos.x+Math.cos(a)*1.4,t.pos.z+Math.sin(a)*1.4,data);};
   for(let i=1;i<4;i++)if(t.slots[i])drop('weapon',t.slots[i]);
@@ -6005,12 +6061,13 @@ addEventListener('beforeunload',()=>leaveNet());
 if(matchMedia('(pointer:coarse)').matches)$('touchNote').hidden=false;
 
 // ================== PARAMÈTRES ==================
-const SET_DEF={sndViz:true,sens:1,adsSens:.8,sensX1:1,sensX2:1,sensX4:1,sensX8:1,invY:false,fov:80,bob:true,quality:'haut',shadow:2048,view:460,grass:1,water:true,scale:1,fps:false,vol:70,style:'cartoon',sfxVol:100,ambVol:45,autoDoor:false,apOn:true,apAmmo:true,apMats:true,apBandage:true,apPotion:true,apTramp:false,apCamp:false,apWeapon:false};
+const SET_DEF={dynRes:true,sndViz:true,sens:1,adsSens:.8,sensX1:1,sensX2:1,sensX4:1,sensX8:1,invY:false,fov:80,bob:true,quality:'haut',shadow:2048,view:460,grass:1,water:true,scale:1,fps:false,vol:70,style:'cartoon',sfxVol:100,ambVol:45,autoDoor:false,apOn:true,apAmmo:true,apMats:true,apBandage:true,apPotion:true,apTramp:false,apCamp:false,apWeapon:false};
 const PRESETS={bas:{shadow:0,view:260,grass:0,water:false,scale:.75},moyen:{shadow:1024,view:360,grass:.5,water:false,scale:1},haut:{shadow:2048,view:460,grass:1,water:true,scale:1},ultra:{shadow:4096,view:620,grass:1.6,water:true,scale:1.25}};
 let SET=(function(){try{return Object.assign({},SET_DEF,JSON.parse(localStorage.getItem('ilotzero-reglages')||'{}'));}catch(err){return Object.assign({},SET_DEF);}})();
 function saveSet(){try{localStorage.setItem('ilotzero-reglages',JSON.stringify(SET));}catch(err){}}
+let basePR=1,dynK=1;
 function applyGraphics(){
-  const cap={ultra:2,haut:1.5,moyen:1.15,bas:1}[SET.quality]||1.5,dpr=Math.min(window.devicePixelRatio||1,cap);renderer.setPixelRatio(clamp(dpr*SET.scale,.5,2.5));renderer.setSize(innerWidth,innerHeight);
+  const cap={ultra:2,haut:1.5,moyen:1.15,bas:1}[SET.quality]||1.5,dpr=Math.min(window.devicePixelRatio||1,cap);basePR=clamp(dpr*SET.scale,.5,2.5);dynK=1;renderer.setPixelRatio(basePR);renderer.setSize(innerWidth,innerHeight);
   const sh=+SET.shadow,was=renderer.shadowMap.enabled;renderer.shadowMap.enabled=sh>0;sun.castShadow=sh>0;
   if(sh>0&&sun.shadow.mapSize.x!==sh){sun.shadow.mapSize.set(sh,sh);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   if(was!==(sh>0))scene.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);});
@@ -6024,7 +6081,7 @@ function applyGraphics(){
 const SET_UI=[
   ['sSens','sens','range',v=>'×'+(+v).toFixed(2)],['sAdsSens','adsSens','range',v=>'×'+(+v).toFixed(2)],['sSensX1','sensX1','range',v=>'×'+(+v).toFixed(2)],['sSensX2','sensX2','range',v=>'×'+(+v).toFixed(2)],['sSensX4','sensX4','range',v=>'×'+(+v).toFixed(2)],['sSensX8','sensX8','range',v=>'×'+(+v).toFixed(2)],['sInvY','invY','check'],['sFov','fov','range',v=>v+'°'],['sBob','bob','check'],['sSndViz','sndViz','check'],
   ['sShadow','shadow','select',null,true],['sView','view','range',v=>v+' m',true],['sGrass','grass','select',null,true],['sWater','water','check',null,true],['sScale','scale','range',v=>Math.round(v*100)+' %',true],
-  ['sFps','fps','check'],['sVol','vol','range',v=>v+' %'],['sSfxVol','sfxVol','range',v=>v+' %'],['sAmbVol','ambVol','range',v=>v+' %'],
+  ['sFps','fps','check'],['sDynRes','dynRes','check'],['sVol','vol','range',v=>v+' %'],['sSfxVol','sfxVol','range',v=>v+' %'],['sAmbVol','ambVol','range',v=>v+' %'],
   ['sAutoDoor','autoDoor','check'],['sApOn','apOn','check'],['sApAmmo','apAmmo','check'],['sApMats','apMats','check'],['sApBandage','apBandage','check'],['sApPotion','apPotion','check'],['sApTramp','apTramp','check'],['sApCamp','apCamp','check'],['sApWeapon','apWeapon','check']];
 function refreshSettingsUI(){
   for(const [id,k,type,fmt] of SET_UI){const el=$(id);if(type==='check')el.checked=!!SET[k];else el.value=String(SET[k]);
@@ -6827,9 +6884,21 @@ loadAssets().then(()=>{ASSETS.done=true;if(!state.running){buildWorld(20261105);
 if(THREE.GLTFLoader){setText($('play'),'Chargement des modèles 3D…');$('play').disabled=true;}
 buildWorld(20261105);resetStorm();
 applyGraphics();setHubTab('salon');
+// résolution dynamique : si les images ralentissent, on baisse un peu la résolution (jusqu'à 60 %), puis on la remonte
+let dynT=0,dynN=0,dynS=0,shF=0;
+function dynRes(rawDt){
+  if(!SET.dynRes||!state.running||document.hidden){if(dynK!==1&&!SET.dynRes){dynK=1;renderer.setPixelRatio(basePR);}return;}
+  dynS+=rawDt;dynN++;dynT+=rawDt;if(dynT<1.2)return;
+  const avg=dynS/dynN;dynT=dynS=dynN=0;let k=dynK;
+  if(avg>1/50&&k>.6)k=Math.max(.6,k*.88);else if(avg<1/58&&k<1)k=Math.min(1,k*1.07);
+  if(Math.abs(k-dynK)>.01){dynK=k;renderer.setPixelRatio(basePR*k);}
+}
+renderer.shadowMap.autoUpdate=false;
 function frame(){
   requestAnimationFrame(frame);
-  const dt=Math.min(.05,clock.getDelta());
+  const rawDt=clock.getDelta(),dt=Math.min(.05,rawDt);dynRes(rawDt);updCamFrustum();
+  // ombres recalculées une image sur deux (toutes les images en qualité Ultra)
+  if(SET.quality==='ultra'||!state.running||(shF++)%2===0)renderer.shadowMap.needsUpdate=true;
   bgLast=performance.now();
   if(state.running&&(!state.paused||NET.role!=='solo')){
     T+=dt;
@@ -6853,10 +6922,11 @@ function frame(){
     updateEffects(dt);
     cullUpdate(dt);
     updateGlints(dt);updateChests(dt);
-    // voitures réalistes : masquées au-delà de 180 m (beaucoup de triangles)
-    for(const c of cars){const dx=c.x-camera.position.x,dz=c.z-camera.position.z;c.g.visible=dx*dx+dz*dz<32400||c.driver===player;}
+    // voitures réalistes : masquées au-delà de 120 m (beaucoup de triangles)
+    for(const c of cars){const dx=c.x-camera.position.x,dz=c.z-camera.position.z;c.g.visible=dx*dx+dz*dz<14400||c.driver===player;}
     for(const it of loot)if(it.fly)lootFly(it,dt);
-    for(const it of loot){{const dx=it.pos.x-camera.position.x,dz=it.pos.z-camera.position.z;it.mesh.visible=dx*dx+dz*dz<7225;}it.bob+=dt*2;const c=it.spin||it.mesh.children[0];if(c&&it.mesh.visible)c.rotation.y+=dt*(it.kind==='weapon'?.8:1);}
+    if(NET.role!=='client'&&state.game==='zombie')for(let i=loot.length-1;i>=0;i--){const it=loot[i];if(it.expire&&T>it.expire&&!it.fly)removeLoot(it);}
+    for(const it of loot){{const dx=it.pos.x-camera.position.x,dz=it.pos.z-camera.position.z;it.mesh.visible=dx*dx+dz*dz<4225;}it.bob+=dt*2;const c=it.spin||it.mesh.children[0];if(c&&it.mesh.visible)c.rotation.y+=dt*(it.kind==='weapon'?.8:1);}
     // caméra
     const p=player;
     const spec=!p.alive&&state.spectate&&state.spectate.alive&&T-p.deathT>2?state.spectate:null;
