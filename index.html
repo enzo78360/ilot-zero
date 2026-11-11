@@ -936,6 +936,7 @@ const BUILD_COST = 10;
 const MODES = { solo:{size:1,name:'Solo'}, duo:{size:2,name:'Duo'}, escouade:{size:4,name:'Escouade'} };
 const REVIVE_T = 5, BLEED = 4, DOWN_HP = 100;
 const HUMAN_COLORS = [0xff8a4c,0x5fd0ff,0xffd23f,0x9be27a,0xff6fb5,0xb48cff,0xf2f2f2,0x40e0d0];
+const MAX_PLAYERS=25; // joueurs réels par salon, hôte compris
 const PEER_PREFIX = 'ilotzero-v1-';
 const MAT_KEYS = ['bois','brique','metal'];
 const XP_LVL = 1000, PASS_TIERS = 50, BORNE_COOL = 30, CARD_LIFE = 90;
@@ -3389,7 +3390,7 @@ function spawnAll(){
   if(state.game==='zombie'){spawnZombies(humans.length,size);return;}
   for(let bi=0;state.bots&&entities.length<20;bi++)entities.push(makeEntity(false,NAMES[bi],COLORS[bi],clamp(sk+rand(-.12,.12),.15,.97),randomSkin(),randomWrap(),Math.random()<.3?pickW(Object.keys(PICKS),[4,2,1,1]):'base'));
   entities.forEach((e,i)=>{e.id=i;e.team=Math.floor(i/size);if(!e.att)e.att=randomLoad();});
-  const nTeams=Math.ceil(20/size);
+  const nTeams=Math.ceil(entities.length/size); // 20 combattants, plus si plus de 20 vrais joueurs
   for(let t=0;t<nTeams;t++){
     const a=rand(0,Math.PI*2),r=Math.sqrt(Math.random())*250;const cx=Math.cos(a)*r,cz=Math.sin(a)*r;
     const h=houses[Math.floor(rand(0,houses.length))];
@@ -5831,7 +5832,7 @@ function lobbyFriendsRender(){
 }
 function modeLabel(m,d,b,g){if(g==='zombie')return `${MODES[m]?MODES[m].name:m} · 30 zombies (impossible de les retirer). Survis le plus longtemps possible.`;return b===false?`${MODES[m]?MODES[m].name:m} · sans bots : uniquement les joueurs du salon.`:`${MODES[m]?MODES[m].name:m} · bots ${(({facile:'faciles',normal:'normaux',difficile:'difficiles'})[d]||d)} · les bots complètent jusqu'à 20 combattants.`;}
 function renderLobby(names,m,d,b){
-  if(b===undefined)b=true;lobbySettingsRender(m,d,b,arguments[4]);setText($('lbCount'),'('+names.length+'/8)');
+  if(b===undefined)b=true;lobbySettingsRender(m,d,b,arguments[4]);setText($('lbCount'),'('+names.length+'/'+MAX_PLAYERS+')');
   const ul=$('plist');ul.innerHTML='';
   names.forEach((n,i)=>{const li=document.createElement('li');li.textContent=n;const em=document.createElement('em');em.textContent=i===0?'Hôte':'Joueur '+(i+1);li.appendChild(em);ul.appendChild(li);});
   setText($('lobbyMode'),(GAMES[arguments[4]]?GAMES[arguments[4]].name+' · ':'')+modeLabel(m,d,b,arguments[4]));lobbyFriendsRender();
@@ -5880,7 +5881,7 @@ function mmCancel(){mmReset();leaveNet();mmMsg('');mmUI();}
 function mmReset(){if(MM.row)mmUnlist();MM.on=false;MM.seq++;MM.launchAt=0;MM.cliEnd=0;NET.pub=false;mmUI();}
 async function mmList(){
   if(NET.role!=='host'||!MM.on||state.running||!ACC.sb||!ACC.user)return;MM.row=true;
-  await ACC.sb.from('mm_lobbies').upsert({code:NET.code,host:ACC.user.id,game:MM.game,mode:MM.mode,players:Math.min(8,1+NET.conns.length),updated_at:new Date().toISOString()},{onConflict:'host'});
+  await ACC.sb.from('mm_lobbies').upsert({code:NET.code,host:ACC.user.id,game:MM.game,mode:MM.mode,players:Math.min(MAX_PLAYERS,1+NET.conns.length),updated_at:new Date().toISOString()},{onConflict:'host'});
   if(!MM.row||state.running)mmUnlist(); // lancé ou quitté pendant l'envoi
 }
 function mmUnlist(){MM.row=false;if(ACC.sb&&ACC.user)ACC.sb.from('mm_lobbies').delete().eq('host',ACC.user.id).then(()=>{},()=>{});}
@@ -5904,7 +5905,7 @@ function lobbyPubRender(){
   setText($('launch'),pub?'Lancer maintenant':'Lancer la partie');
   if(!pub){setText($('lobbyWait'),"En attente du lancement par l'hôte…");return;}
   const n=$('plist').children.length;
-  setText($('lobbyInfo'),`Partie publique : recherche de joueurs (${n}/8). Lancement automatique dans ${mmLeft()} s, ou dès que le salon est plein. Les bots complètent les places libres.`);
+  setText($('lobbyInfo'),`Partie publique : recherche de joueurs (${n}/${MAX_PLAYERS}). Lancement automatique dans ${mmLeft()} s, ou dès que le salon est plein. Les bots complètent les places libres.`);
   setText($('lobbyWait'),'Lancement automatique dans '+mmLeft()+' s…');
 }
 setInterval(()=>{
@@ -5912,7 +5913,7 @@ setInterval(()=>{
   if(state.running||$('lobby').hidden)return;
   if(NET.role==='host'&&MM.on){
     const now=performance.now(),n=1+NET.conns.length;
-    if(n>=8&&MM.launchAt-now>5000){MM.launchAt=now+5000;lobbyUpdate();}
+    if(n>=MAX_PLAYERS&&MM.launchAt-now>5000){MM.launchAt=now+5000;lobbyUpdate();}
     if(now>=MM.launchAt){startGame();return;}
     MM.tick++;
     if(MM.tick%4===0){mmList();lobbyUpdate();if(n===1&&now-MM.openT>3000)mmMerge();}
@@ -5926,7 +5927,7 @@ function onHostData(conn,m){
   if(m.t==='join'){
     if(NET.conns.includes(conn))return;
     if(state.running&&!state.globalOver){send(conn,{t:'deny',r:'Une partie est déjà en cours dans ce salon. Réessaie à la fin de la partie.'});setTimeout(()=>conn.close(),800);return;}
-    if(NET.conns.length>=7){send(conn,{t:'deny',r:'Le salon est complet (8 joueurs maximum).'});setTimeout(()=>conn.close(),800);return;}
+    if(NET.conns.length>=MAX_PLAYERS-1){send(conn,{t:'deny',r:'Le salon est complet ('+MAX_PLAYERS+' joueurs maximum).'});setTimeout(()=>conn.close(),800);return;}
     conn.pname=cleanName(m.n);conn.skin=SKINS[m.sk]?m.sk:'base';conn.wrap=WRAPS[m.wr]?m.wr:'base';conn.pick=PICKS[m.pk]?m.pk:'base';conn.ld=cleanLoad(m.ld);NET.conns.push(conn);lobbyUpdate();
     if(state.running)addFeed(`${conn.pname} <em>attend la prochaine partie</em>`,true);
     return;
@@ -6006,8 +6007,12 @@ function sendSnapshots(){
       Math.ceil(e.hp),Math.ceil(e.shield),Math.ceil(e.downHp),w.type,w.rarity||0,e.kills,e.emote|0];});
   const S=[r2(storm.cx),r2(storm.cz),r2(storm.r),storm.phase,storm.mode==='wait'?0:1,r2(storm.t),storm.to?[r2(storm.to.cx),r2(storm.to.cz),storm.to.r]:null];
   const C=cars.map(c=>[r2(c.x),r2(c.z),Math.round(c.yaw*1000)/1000,r2(c.sp),r2(c.steer),c.driver?c.driver.id:-1,Math.ceil(c.hp)]);
+  // salon très rempli : les personnages loin d'un joueur (plus de 180 m, pas de son équipe) ne lui sont envoyés
+  // qu'un envoi sur trois, pour ménager la connexion de l'hôte (0 = inchangé, le client garde la dernière valeur)
+  const crowd=entities.length*NET.conns.length>160;NET.snapN=(NET.snapN||0)+1;const full=NET.snapN%3===0;
   for(const c of NET.conns){const e=c.ent;if(!e||!e.remote)continue;
-    send(c,{t:'st',E,S,C,me:{sl:e.slots,c:e.cur,m:e.mats,tr:e.tramps,cp:e.camps,cd:e.cards,b:e.bandages,p:e.potions,inf:e.infected&&e.alive?Math.ceil(e.infected-T):0,pr:progressOf(e),rv:e.reviving?e.reviving.target.id:-1,rb:e.revivedBy?e.revivedBy.id:-1}});}
+    const Ec=crowd&&!full?E.map((r,i)=>{const o=entities[i];if(o===e||o.team===e.team)return r;const dx=o.pos.x-e.pos.x,dz=o.pos.z-e.pos.z;return dx*dx+dz*dz<32400?r:0;}):E;
+    send(c,{t:'st',E:Ec,S,C,me:{sl:e.slots,c:e.cur,m:e.mats,tr:e.tramps,cp:e.camps,cd:e.cards,b:e.bandages,p:e.potions,inf:e.infected&&e.alive?Math.ceil(e.infected-T):0,pr:progressOf(e),rv:e.reviving?e.reviving.target.id:-1,rb:e.revivedBy?e.revivedBy.id:-1}});}
 }
 function onClientData(m){
   NET.lastRx=performance.now();
@@ -6055,7 +6060,7 @@ function onShot(m){
 }
 function applySnap(m){
   (m.E||[]).forEach((a,i)=>{
-    const e=entities[i];if(!e)return;
+    const e=entities[i];if(!e||!Array.isArray(a))return;
     const fl=a[5];const alive=!!(fl&1);
     if(e!==player){
       const ddx=a[0]-e.tpos.x,ddz=a[2]-e.tpos.z,dts=Math.max(.03,T-(e._snT||T-.066));e._snT=T;
@@ -7108,7 +7113,7 @@ function frame(){
       for(const e of entities){if(e.isPlayer||!e.alive)continue;if(e.remote)updateRemote(e,dt);else updateBot(e,dt);}
       updateStorm(dt);updateProps(dt);hostDrops();
       for(let i=loot.length-1;i>=0;i--){const it=loot[i];if(it.kind==='card'){const o=entities[it.owner];if(T>it.expire||!o||o.alive)removeLoot(it);}}
-      if(NET.role==='host'){NET.snapT-=dt;if(NET.snapT<=0){NET.snapT=1/15;sendSnapshots();}}
+      if(NET.role==='host'){NET.snapT-=dt;if(NET.snapT<=0){const n=NET.conns.length;NET.snapT=n>15?1/10:n>7?1/12:1/15;sendSnapshots();}} // moins souvent quand le salon est très rempli (connexion de l'hôte)
     }
     updateCars(dt);updateDrops(dt);updateDoors(dt);footsteps(dt);updateMarks();updateAmbience(dt);
     for(const e of entities)commonUpdate(e,dt);
