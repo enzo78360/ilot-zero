@@ -6,6 +6,7 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 
 ## Modes
 
+- **Bus volant** : chaque partie commence dans un bus volant à rotors qui traverse l'île en ligne droite (trajet en pointillés sur la carte). Les portes s'ouvrent au-dessus de la côte : `Espace` pour sauter, éjection automatique avant qu'il ne quitte l'île. Les bots sautent au-dessus de l'endroit où ils veulent atterrir ; la zone attend que tout le monde soit sorti. En mode Zombies, seuls les vrais joueurs sont dans le bus.
 - **Solo, Duo, Escouade** : en duo et en escouade, un joueur à 0 PV tombe à terre et un coéquipier peut le réanimer (maintenir `E` pendant 5 s).
 - **Contre les bots** : tout seul, les bots complètent les 20 places.
 - **Zombies** : en solo ou dans un salon, par équipes de 1, 2 ou 4. Seuls les vrais joueurs sautent en planeur ; 30 zombies (dont 10 Zombies Soldats aussi rapides qu'un joueur) les traquent partout, cassent les constructions, prennent rampes, escaliers, portes et fenêtres, et reviennent 3 s après leur mort ailleurs sur l'île en lâchant un objet. Un coup sur 5 infecte : il faut boire une potion de bouclier dans les 60 s (elle soigne l'infection au lieu de donner du bouclier), sinon c'est la mort. Pas de zone : le but est de survivre le plus longtemps ; les autres équipes peuvent coopérer ou se tirer dessus.

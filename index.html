@@ -1810,7 +1810,7 @@ const _qa=new THREE.Quaternion(),_qp=new THREE.Quaternion(),_va=new THREE.Vector
 const camFrustum=new THREE.Frustum(),_cpm=new THREE.Matrix4(),_csph=new THREE.Sphere(new THREE.Vector3(),2.4);
 function updCamFrustum(){camera.updateMatrixWorld();_cpm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);camFrustum.setFromProjectionMatrix(_cpm);}
 function poseGLB(e,m,dt){
-  const G=m.glb;m.group.position.copy(e.pos);m.group.rotation.set(0,e.yaw,0);m.group.visible=!e.car;
+  const G=m.glb;m.group.position.copy(e.pos);m.group.rotation.set(0,e.yaw,0);m.group.visible=!e.car&&!e.inBus;if(e.inBus)return;
   const cdx=e.pos.x-camera.position.x,cdz=e.pos.z-camera.position.z,cd2=cdx*cdx+cdz*cdz,far=e!==player&&cd2>3600;
   if(e!==player&&cd2>SET.view*SET.view){m.group.visible=false;return;}
   let off=false;if(e!==player&&!e.car){_csph.center.set(e.pos.x,e.pos.y+1,e.pos.z);off=!camFrustum.intersectsSphere(_csph);if(off)m.group.visible=false;}
@@ -3400,8 +3400,109 @@ function spawnAll(){
       if(!e.human)e.goal={x:land.x+rand(-4,4),z:land.z+rand(-4,4)};
     }
   }
+  busBoard();
   mates=entities.filter(e=>e.team===player.team);
   buildTeamHUD();
+}
+// ---------- bus volant ----------
+// Au début de la partie, tous les combattants (pas les zombies) montent dans un bus volant à rotors qui traverse
+// l'île en ligne droite. Les portes s'ouvrent au-dessus de la côte ; Espace pour sauter, éjection automatique
+// avant qu'il ne quitte l'île. Les bots sautent au-dessus de l'endroit où ils veulent atterrir, ceux d'une équipe
+// avec un vrai joueur sautent juste après lui. L'hôte choisit le trajet et l'envoie aux autres joueurs.
+const BUS_Y=112,BUS_SP=27,BUS_SEA=80;
+function busPlan(){
+  const a=rand(0,Math.PI*2),dx=Math.cos(a),dz=Math.sin(a),d=rand(-.35,.35)*PLAY_R,R=PLAY_R*.82,c=Math.sqrt(Math.max(R*R*.3,R*R-d*d)),L=c+BUS_SEA;
+  return {ax:-dz*d-dx*L,az:dx*d-dz*L,dx,dz,open:BUS_SEA/BUS_SP,close:(BUS_SEA+2*c)/BUS_SP,end:2*L/BUS_SP};
+}
+function busCleanPlan(b){
+  if(!b||typeof b!=='object')return null;const n=k=>Number.isFinite(+b[k])?+b[k]:NaN;
+  const o={ax:n('ax'),az:n('az'),dx:n('dx'),dz:n('dz'),open:n('open'),close:n('close'),end:n('end')};
+  return Object.values(o).every(Number.isFinite)&&o.end<120?o:null;
+}
+const _busV=new THREE.Vector3();
+function busPos(t,out){const b=state.bus,s=Math.max(0,t)*BUS_SP;return out.set(b.ax+b.dx*s,BUS_Y,b.az+b.dz*s);}
+function busBoard(){
+  state.bus=busPlan();const b=state.bus,nT=Math.max(0,...entities.map(e=>e.zombie?0:e.team+1));
+  for(let t=0;t<nT;t++){
+    const team=entities.filter(e=>e.team===t&&!e.zombie);if(!team.length)continue;
+    const withHuman=team.some(e=>e.human);
+    // point d'atterrissage à portée de planeur du trajet (une maison le plus souvent)
+    const near=houses.filter(h=>{const rx=h.cx-b.ax,rz=h.cz-b.az,s=rx*b.dx+rz*b.dz,p=Math.abs(-rx*b.dz+rz*b.dx);return p<105&&s>b.open*BUS_SP+10&&s<b.close*BUS_SP-10;});
+    let land;if(near.length&&Math.random()<.75){const h=near[Math.floor(rand(0,near.length))];land={x:h.cx,z:h.cz};}
+    else{const s=rand(b.open+1,b.close-1)*BUS_SP,p=rand(-90,90);land={x:b.ax+b.dx*s-b.dz*p,z:b.az+b.dz*s+b.dx*p};}
+    const s=(land.x-b.ax)*b.dx+(land.z-b.az)*b.dz,drop=clamp(s/BUS_SP-2.5,b.open+.4,b.close-.6);
+    for(const e of team){
+      e.inBus=true;e.gliding=false;e.onGround=false;e.vel.set(0,0,0);busPos(0,e.pos);if(e.remote)e.inp=null;
+      if(!e.human){e.goal={x:land.x+rand(-4,4),z:land.z+rand(-4,4)};e.busDrop=withHuman?Infinity:drop+rand(0,.9);}
+    }
+  }
+}
+function busEject(e){
+  if(!e.inBus)return;e.inBus=false;const p=busPos(T,_busV);
+  e.pos.set(p.x+rand(-1.5,1.5),BUS_Y-3,p.z+rand(-1.5,1.5));e.vel.set(state.bus.dx*6,0,state.bus.dz*6);
+  e.gliding=true;e.onGround=false;e.landed=false;
+  if(e===player){showBanner('Saut !','Dirige ta chute avec ZQSD',2.5);beep(520,.12,.06,'triangle');$('prompt').hidden=true;}
+  // les bots de son équipe sautent juste après
+  if(e.human)for(const o of entities)if(o.team===e.team&&o.inBus&&!o.human&&o.busDrop===Infinity)o.busDrop=T+rand(.25,.9);
+}
+function busPlayer(dt){
+  const p=player,b=state.bus;busPos(T,p.pos);p.vel.set(0,0,0);p.onGround=false;buildType=null;ghost.visible=false;p.ads=false;
+  const pr=$('prompt');pr.hidden=false;pr.style.borderBottom='3px solid #ffb347';pr.classList.remove('drive');
+  const txt=T<b.open?`Bus volant · portes ouvertes dans ${Math.ceil(b.open-T)} s`:`<kbd>Espace</kbd>Sauter du bus · éjection dans ${Math.max(0,Math.ceil(b.close-T))} s`;
+  if(pr._v!==txt){pr._v=txt;pr.innerHTML=txt;}
+  engineSound(false,0);
+  if((keys.Space&&T>=b.open)||T>=b.close)busEject(p);
+}
+function busBot(b){busPos(T,b.pos);b.vel.set(0,0,0);b.moving=false;if(T>=b.busDrop||T>=state.bus.close)busEject(b);}
+// modèle : car orange et crème à vitres teintées, quatre rotors carénés sur bras, phares, bandeau au nom de l'île
+let busMesh=null,busRotors=[],busSnd=null;
+function makeBusMesh(){
+  const g=new THREE.Group(),M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.55,metalness:.15},o||{}));
+  const orange=M(0xff8a45,{emissive:0x5a2208,roughness:.4}),cream=M(0xfff6e2,{emissive:0x2a2620}),dark=M(0x14181c,{roughness:.2,metalness:.6}),grey=M(0x4a5560,{metalness:.5}),teal=M(0x2fb3b0),tire=M(0x1a1a1a,{roughness:.9});
+  const add=(geo,mat,x,y,z,rx,ry,rz)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.set(rx||0,ry||0,rz||0);m.castShadow=true;g.add(m);return m;};
+  add(new THREE.BoxGeometry(3,1.5,11),orange,0,.75,0);
+  add(new THREE.BoxGeometry(3,1.35,10.6),cream,0,2.17,.1);
+  add(new THREE.CylinderGeometry(1.5,1.5,10.6,16,1,false,0,Math.PI),cream,0,2.84,.1,Math.PI/2,0,Math.PI/2).scale.set(1,1,.22);
+  for(const s of [-1,1]){add(new THREE.BoxGeometry(.06,.85,9.2),dark,s*1.51,2.2,.4);add(new THREE.BoxGeometry(.07,.12,10.8),teal,s*1.52,1.5,0);}
+  add(new THREE.BoxGeometry(2.7,1.1,.06),dark,0,2.15,-5.21,.12);add(new THREE.BoxGeometry(2.6,1,.06),dark,0,2.15,5.42);
+  add(new THREE.BoxGeometry(3.1,.35,.3),grey,0,.35,-5.55);add(new THREE.BoxGeometry(3.1,.35,.3),grey,0,.35,5.55);
+  const lamp=M(0xfff2b0,{emissive:0xffd060,emissiveIntensity:1.4});for(const s of [-1,1]){add(new THREE.CylinderGeometry(.2,.2,.08,12),lamp,s*1.1,.85,-5.52,Math.PI/2);add(new THREE.BoxGeometry(.35,.22,.06),M(0xff3030,{emissive:0xff2020,emissiveIntensity:1}),s*1.15,.85,5.53);}
+  for(const z of [-3.6,3.6])for(const s of [-1,1])add(new THREE.CylinderGeometry(.55,.55,.45,16),tire,s*1.35,.05,z,0,0,Math.PI/2);
+  // nom de l'île sur les flancs
+  const cv=document.createElement('canvas');cv.width=512;cv.height=64;const cx=cv.getContext('2d');cx.fillStyle='#ff7a3d';cx.fillRect(0,0,512,64);
+  cx.font='700 44px "Chakra Petch",sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillStyle='#fff';cx.fillText('ÎLOT ZÉRO · LIGNE 0',256,34);
+  const tx=new THREE.CanvasTexture(cv);for(const s of [-1,1]){const pl=new THREE.Mesh(new THREE.PlaneGeometry(7,.875),new THREE.MeshBasicMaterial({map:tx}));pl.position.set(s*1.52,.8,0);pl.rotation.y=s*Math.PI/2;g.add(pl);}
+  // rotors carénés
+  busRotors=[];
+  for(const z of [-3.4,3.4])for(const s of [-1,1]){
+    add(new THREE.BoxGeometry(2.2,.22,.45),grey,s*2.5,2.9,z);
+    const hub=new THREE.Group();hub.position.set(s*3.9,3.05,z);g.add(hub);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(1.55,.13,8,28),teal);ring.rotation.x=Math.PI/2;hub.add(ring);
+    const mot=new THREE.Mesh(new THREE.CylinderGeometry(.28,.34,.55,12),grey);hub.add(mot);
+    const rot=new THREE.Group();rot.position.y=.3;hub.add(rot);
+    for(let i=0;i<3;i++){const bl=new THREE.Mesh(new THREE.BoxGeometry(2.8,.04,.26),M(0x222a30,{transparent:true,opacity:.85}));bl.rotation.y=i*2*Math.PI/3;rot.add(bl);}
+    busRotors.push(rot);
+  }
+  g.scale.setScalar(1.6);g.visible=false;scene.add(g);return g;
+}
+function busSound(on,vol){
+  try{if(!AC)return;if(!busSnd){const o=AC.createOscillator(),o2=AC.createOscillator(),lp=AC.createBiquadFilter(),gn=AC.createGain(),lfo=AC.createOscillator(),lg=AC.createGain();
+      o.type='sawtooth';o.frequency.value=62;o2.type='square';o2.frequency.value=31;lp.type='lowpass';lp.frequency.value=320;gn.gain.value=0;
+      lfo.frequency.value=18;lg.gain.value=.35;lfo.connect(lg);lg.connect(gn.gain);o.connect(lp);o2.connect(lp);lp.connect(gn);gn.connect(sfxBus||master);o.start();o2.start();lfo.start();busSnd={gn};}
+    busSnd.gn.gain.setTargetAtTime(on?vol:0,AC.currentTime,.25);}catch(err){}
+}
+function busUpdate(dt){
+  const b=state.bus,live=state.running&&b&&T<b.end+6;
+  if(!live){if(busMesh)busMesh.visible=false;busSound(false);if(b&&state.running&&state.game!=='zombie')stormMesh.visible=true;return;}
+  if(!busMesh)busMesh=makeBusMesh();
+  if(state.game!=='zombie')stormMesh.visible=T>=b.close+3; // rideau de la zone caché pendant le vol
+  busPos(T,busMesh.position);busMesh.position.y+=Math.sin(T*1.3)*.4;busMesh.rotation.set(Math.sin(T*.9)*.02,Math.atan2(-b.dx,-b.dz),Math.sin(T*.7)*.03);busMesh.visible=true;
+  for(const r of busRotors)r.rotation.y+=dt*38;
+  const d=busMesh.position.distanceTo(camera.position);busSound(true,player&&player.inBus?.05:clamp(.06*(1-d/260),0,.06));
+}
+function busCamera(p){
+  const bp=busPos(T,_busV),pt=clamp(p.pitch,-1.1,.45),cp=Math.cos(pt),dist=30;
+  camera.position.set(bp.x+Math.sin(p.yaw)*cp*dist,bp.y+5-Math.sin(pt)*dist,bp.z+Math.cos(p.yaw)*cp*dist);camera.lookAt(bp.x,bp.y+2,bp.z);
 }
 // ---------- mode Zombies ----------
 // Seuls les vrais joueurs sautent en planeur ; 30 zombies (dont 10 Zombies Soldats rapides) sont déjà au sol.
@@ -3422,6 +3523,7 @@ function spawnZombies(nh,size){
     const z=makeEntity(false,fast?'Zombie Soldat':'Zombie',0x6b7a4a,.5,fast?'zsoldat':'zombie','base','base');
     z.zombie=true;z.fast=fast;z.team=ZOMBIE_TEAM;z.id=entities.length;z.att=randomLoad();z.mats={bois:0,brique:0,metal:0};
     const p=zombieSpot();z.pos.set(p.x,p.y,p.z);z.gliding=false;z.landed=true;z.yaw=rand(-Math.PI,Math.PI);z.think=rand(0,.3);entities.push(z);}
+  busBoard();
   mates=entities.filter(e=>e.team===player.team);
   buildTeamHUD();
 }
@@ -3440,7 +3542,7 @@ function zombieTick(){for(const e of entities)if(e.zombie&&!e.alive&&T>=(e.respa
 function updateZombie(b,dt){
   b.think-=dt;
   if(b.think<=0){b.think=rand(.2,.32);
-    let best=null,bd=1e9;for(const e of entities){if(!e.human||!e.alive)continue;const d=Math.hypot(e.pos.x-b.pos.x,e.pos.z-b.pos.z)+Math.abs(e.pos.y-b.pos.y)*.6;if(d<bd){bd=d;best=e;}}
+    let best=null,bd=1e9;for(const e of entities){if(!e.human||!e.alive||e.inBus)continue;const d=Math.hypot(e.pos.x-b.pos.x,e.pos.z-b.pos.z)+Math.abs(e.pos.y-b.pos.y)*.6;if(d<bd){bd=d;best=e;}}
     b.target=best;b.breakCol=null;
     if(best){const dx=best.pos.x-b.pos.x,dz=best.pos.z-b.pos.z,d=Math.hypot(dx,dz),dy=best.pos.y-b.pos.y;
       // une construction entre lui et sa cible : il la casse
@@ -4002,7 +4104,7 @@ function muzzle(e,v){
 function hasGun(e){for(let i=1;i<4;i++){const w=e.slots[i];if(w&&(w.ammo>0||w.reserve>0))return true;}return false;}
 
 function tryFire(e,dir){
-  const w=e.slots[e.cur];if(!w||!e.alive||e.downed||e.reviving)return false;
+  const w=e.slots[e.cur];if(!w||!e.alive||e.inBus||e.downed||e.reviving)return false;
   if(T<e.nextFire||T<e.equipEnd)return false;
   if(e.healing)cancelHeal(e);
   if(w.type==='pickaxe'){e.nextFire=T+.42;e.swingT=T;melee(e,dir);return true;}
@@ -4097,7 +4199,7 @@ function melee(e,dir){
   else{puff(h.point,0xcfc6b5,3);}
 }
 function damage(t,amount,src,head,wtype,pt){
-  if(!t.alive)return;
+  if(!t.alive||t.inBus)return;
   if(t.isPlayer&&staffOn('god'))return;
   if(src&&src!==t&&src.team===t.team)return;
   amount=Math.round(amount);
@@ -4254,6 +4356,7 @@ function nextCircle(){
 function resetStorm(){storm.cx=0;storm.cz=0;storm.r=240*MAPK;storm.phase=0;storm.mode='wait';storm.t=0;storm.tick=0;storm.from=null;nextCircle();}
 function updateStorm(dt){
   if(state.game==='zombie'){zombieTick();stormMesh.visible=false;return;}stormMesh.visible=true;
+  if(state.bus&&T<state.bus.close+3){stormVisual();return;} // la zone attend la fin du bus
   storm.t+=dt;
   const ph=PHASES[Math.min(storm.phase,PHASES.length-1)];
   if(storm.phase<PHASES.length){
@@ -4306,7 +4409,7 @@ function botThink(b){
   // perception : champ de vision, temps de repérage, distance de vue réduite (plus de « wallhack » ni de GPS)
   const cands=[],now=T,dtT=now-(b.lastThinkT||now);b.lastThinkT=now;b.spot=b.spot||{};
   const fx=-Math.sin(b.yaw),fz=-Math.cos(b.yaw);
-  for(const e of entities){if(e===b||!e.alive||e.team===b.team){if(b.spot[e.id])b.spot[e.id]=0;continue;}
+  for(const e of entities){if(e===b||!e.alive||e.inBus||e.team===b.team){if(b.spot[e.id])b.spot[e.id]=0;continue;}
     const dx=e.pos.x-b.pos.x,dz=e.pos.z-b.pos.z,d=Math.hypot(dx,dz,e.pos.y-b.pos.y);
     const range=(armed?(b.slots.some(w=>w&&(w.type==='sniper'||w.type==='dmr'))?95:60):25)*(e.crouch?.65:1);
     if(d>range){b.spot[e.id]=0;continue;}
@@ -4437,6 +4540,7 @@ function stairWay(b,gx,gz,up){
     const tgt=on||near?ex:ent,d=Math.hypot(tgt[0]-b.pos.x,tgt[1]-b.pos.z)-(on||near?50:0);if(d<bd){bd=d;best=tgt;}}
   return best;}
 function updateBot(b,dt){
+  if(b.inBus){busBot(b);return;}
   if(b.zombie){updateZombie(b,dt);return;}
   if(b.emote&&(T>b.emoteEnd||b.canSee&&b.target))b.emote=0;
   b.crouch=!!(b.target&&b.canSee&&!b.gliding&&!b.downed&&Math.hypot(b.vel.x,b.vel.z)<2.5&&((b.seed*7)|0)%3===0);
@@ -5129,6 +5233,7 @@ function updatePlayer(dt){
   if(staffOn('mats'))for(const k of MAT_KEYS)p.mats[k]=999;
   if(staffOn('ammo'))for(let i=1;i<4;i++){const sw=p.slots[i];if(sw){sw.reserve=Math.max(sw.reserve,999);if(i===p.cur&&!p.reloading)sw.ammo=WS(p,sw.type).mag;}}
   if(p.car){updatePlayerCar(dt);return;}
+  if(p.inBus){busPlayer(dt);return;}
   if(p.emote&&(keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD||keys.Space||mouseL||mouseR||p.downed||!p.onGround))p.emote=0;
   $('prompt').classList.remove('drive');
   engineSound(false,0);
@@ -5219,6 +5324,7 @@ function commonUpdate(e,dt){
   }
   // modèle
   const m=e.model;
+  if(e.inBus){m.group.visible=false;return;}
   if(!e.alive){
     const k=Math.min(1,(T-e.deathT)*3);m.group.rotation.x=-k*Math.PI/2;
     if(T-e.deathT>4&&m.group.parent){world.remove(m.group);}
@@ -5332,8 +5438,8 @@ function updateHUD(){
   const scoped=p.ads&&w&&w.type!=='pickaxe'&&WS(p,w.type).scope&&fovK>.8;
   const ironAds=!scoped&&!buildType&&p.ads&&fovK>.5&&viewGun&&viewGun.userData.sightY!=null&&!viewGun.userData.reticle;
   sty($('scope'),'opacity',scoped?1:0);if(scoped){const k=(attOf(p,w.type)||{}).optic==='x8'?'x8':'x4';if($('scope').dataset.k!==k)$('scope').dataset.k=k;}if(scoped)sty($('scope'),'transform',`translateY(${(recoil*22).toFixed(1)}px) scale(${(1+recoil*.05).toFixed(3)})`);
-  $('cross').classList.toggle('ironads',!!ironAds);sty($('cross'),'opacity',scoped||buildType?.35:(p.ads&&fovK>.5&&viewGun&&viewGun.userData.sightY!=null&&!ironAds?0:1));
-  view.visible=!scoped&&!buildType&&p.alive&&!p.gliding&&!p.downed&&!p.reviving&&!p.car&&!tpActive();
+  $('cross').classList.toggle('ironads',!!ironAds);sty($('cross'),'opacity',p.inBus?0:scoped||buildType?.35:(p.ads&&fovK>.5&&viewGun&&viewGun.userData.sightY!=null&&!ironAds?0:1));
+  view.visible=!scoped&&!buildType&&p.alive&&!p.inBus&&!p.gliding&&!p.downed&&!p.reviving&&!p.car&&!tpActive();
   sty($('vign'),'opacity',Math.min(1,vignT*2+(p.hp<30?.35:0)));
   {const ring=$('sndRing');for(let i=sndCues.length-1;i>=0;i--)if(T-sndCues[i].t>1.6||!sndCues[i].e.alive)sndCues.splice(i,1);
     while(ring.children.length<6){const i=document.createElement('i');i.appendChild(document.createElement('b'));ring.appendChild(i);}
@@ -5426,6 +5532,8 @@ function drawMap(mini,mx){
   mx.save();mx.beginPath();mx.rect(0,0,W,W);mx.arc(X(storm.cx),X(storm.cz),Math.max(0,storm.r)*sc,0,Math.PI*2);mx.fillStyle='rgba(138,77,255,.5)';mx.fill('evenodd');mx.restore();
   if(storm.to){mx.strokeStyle='#fff';mx.lineWidth=3;mx.beginPath();mx.arc(X(storm.to.cx),X(storm.to.cz),Math.max(1,storm.to.r*sc),0,Math.PI*2);mx.stroke();
     if(player&&player.alive){mx.setLineDash([6,6]);mx.strokeStyle='rgba(255,255,255,.6)';mx.lineWidth=2;mx.beginPath();mx.moveTo(X(player.pos.x),X(player.pos.z));mx.lineTo(X(storm.to.cx),X(storm.to.cz));mx.stroke();mx.setLineDash([]);}}
+  if(state.bus&&state.running&&T<state.bus.close+1){const b=state.bus,sa=b.open*BUS_SP,sb=b.close*BUS_SP;mx.setLineDash([7*k,5*k]);mx.strokeStyle='rgba(255,210,90,.95)';mx.lineWidth=3*k;mx.beginPath();mx.moveTo(X(b.ax+b.dx*sa),X(b.az+b.dz*sa));mx.lineTo(X(b.ax+b.dx*sb),X(b.az+b.dz*sb));mx.stroke();mx.setLineDash([]);
+    const bp=busPos(T,_busV);mx.save();mx.translate(X(bp.x),X(bp.z));mx.rotate(Math.atan2(b.dz,b.dx));mx.scale(k,k);mx.fillStyle='#ff7a3d';mx.strokeStyle='#1b0f08';mx.lineWidth=2;mx.fillRect(-11,-6,22,12);mx.strokeRect(-11,-6,22,12);mx.fillStyle='#14181c';mx.fillRect(4,-4,5,8);mx.restore();}
   for(const m of marks){const e=entities[m.id];mx.fillStyle=e?hexCss(e.color):'#ffd23a';mx.save();mx.translate(X(m.x),X(m.z));mx.rotate(Math.PI/4);mx.fillRect(-4*k,-4*k,8*k,8*k);mx.restore();}
   for(const d of drops){const px=X(d.x),pz=X(d.z),s=(7+(d.landed?0:Math.sin(T*6)*2))*k;mx.fillStyle='#ffa23a';mx.strokeStyle='#0b1d24';mx.lineWidth=2;mx.beginPath();mx.moveTo(px,pz-s);mx.lineTo(px+s,pz);mx.lineTo(px,pz+s);mx.lineTo(px-s,pz);mx.closePath();mx.fill();mx.stroke();}
   for(let i=pings.length-1;i>=0;i--){const p=pings[i];const a=1-(T-p.t)/1.5;if(a<=0){pings.splice(i,1);continue;}mx.fillStyle=`rgba(255,77,94,${a})`;mx.beginPath();mx.arc(X(p.x),X(p.z),5,0,Math.PI*2);mx.fill();}
@@ -5494,18 +5602,19 @@ function startGame(){
   buildWorld(seed);resetStorm();spawnAll();
   if(NET.role==='host'){
     const roster=rosterOf();
-    for(const c of NET.conns)if(c.ent)send(c,{t:'init',seed,map:state.map,game:state.game,mode:state.mode,diff:state.diff,you:c.ent.id,roster});
+    for(const c of NET.conns)if(c.ent)send(c,{t:'init',seed,map:state.map,game:state.game,mode:state.mode,diff:state.diff,you:c.ent.id,roster,bus:state.bus});
   }
   commonStart();
 }
 function startClientGame(m){
   initAudio();if(AC&&AC.state==='suspended')AC.resume();
   state.mode=MODES[m.mode]?m.mode:'solo';state.diff=m.diff;state.map='ilot';state.game=GAMES[m.game]?m.game:'br';
-  buildWorld(m.seed);resetStorm();
+  buildWorld(m.seed);resetStorm();state.bus=busCleanPlan(m.bus);
   NET.myId=m.you;NET.curKey='';
   m.roster.forEach((r,i)=>{
     const e=makeEntity(i===m.you,cleanName(r.n),r.c,.5,r.sk,r.wr,r.pk);e.att=cleanLoad(r.at);
     e.id=i;e.team=r.tm;e.human=!!r.h;if(r.z){e.zombie=true;e.fast=r.z===2;}e.pos.set(r.p[0],r.p[1],r.p[2]);e.tpos=e.pos.clone();e.yaw=e.tyaw=r.y;
+    if(state.bus&&!r.z){e.inBus=true;e.gliding=false;}
     entities.push(e);
   });
   player=entities[m.you];
@@ -5522,7 +5631,7 @@ function commonStart(){
   refreshView();
   stormMesh.visible=state.game!=='zombie';player.deathCause=null;
   if(state.game==='zombie')showBanner('Mode Zombies','Survis le plus longtemps possible · un coup sur 5 infecte',4);
-  else showBanner('Saut !','Dirige ta chute avec ZQSD',3);
+  else showBanner('Bus volant','Espace pour sauter quand les portes s\'ouvrent',3.5);
   if(NET.role==='client'){
     state.paused=true;$('pause').hidden=false;
     setText($('pauseTxt'),"La partie commence ! Clique sur « Jouer » pour prendre le contrôle de la souris.");
@@ -5542,7 +5651,7 @@ function refreshEndButtons(){
 function backToMenu(msg){
   if(staffMenuOn)toggleStaffMenu(false);
   if(state.running&&!state.awarded)finalizeMatch(null,false);
-  setHubTab('salon');$('setScreen').hidden=true;mmReset();
+  setHubTab('salon');$('setScreen').hidden=true;mmReset();state.bus=null;
   state.running=false;state.over=false;state.paused=false;
   if(document.pointerLockElement)document.exitPointerLock();
   $('hud').hidden=true;$('end').hidden=true;$('pause').hidden=true;$('lobby').hidden=true;$('menu').hidden=false;
@@ -5866,8 +5975,8 @@ function updateRemote(e,dt){
   const m=e.inp;if(!m)return;
   if(e.alive){
     e.pos.set(+m.x||0,+m.y||0,+m.z||0);e.vel.set(+m.vx||0,+m.vy||0,+m.vz||0);
-    e.yaw=+m.yw||0;e.pitch=clamp(+m.pt||0,-1.5,1.5);e.onGround=!!m.og;e.crouch=!!m.cr;e.sliding=!!m.sl;e.emote=(m.em|0)%4;
-    if(e.gliding&&!m.gl)e.gliding=false;
+    e.yaw=+m.yw||0;e.pitch=clamp(+m.pt||0,-1.5,1.5);e.onGround=!!m.og;e.gliding=!!m.gl&&!e.inBus;e.crouch=!!m.cr;e.sliding=!!m.sl;e.emote=(m.em|0)%4;
+    if(e.inBus&&!m.ib){e.inBus=false;for(const o of entities)if(o.team===e.team&&o.inBus&&!o.human&&o.busDrop===Infinity)o.busDrop=T+rand(.25,.9);}
     e.moving=Math.hypot(e.vel.x,e.vel.z)>.5;
   }
   e.holdE=!!m.E;
@@ -5893,7 +6002,7 @@ function sendSnapshots(){
   if(!NET.conns.length)return;
   const E=entities.map(e=>{const w=e.slots[e.cur]||{type:'pickaxe'};
     return [r2(e.pos.x),r2(e.pos.y),r2(e.pos.z),r2(e.yaw),r2(e.pitch),
-      (e.alive?1:0)|(e.downed?2:0)|(e.gliding?4:0)|(e.reviving?8:0)|(e.moving?16:0)|(e.onGround?32:0)|(T-e.swingT<.3?64:0)|(e.crouch?128:0)|(e.sliding?256:0)|(e.ads?512:0),
+      (e.alive?1:0)|(e.downed?2:0)|(e.gliding?4:0)|(e.reviving?8:0)|(e.moving?16:0)|(e.onGround?32:0)|(T-e.swingT<.3?64:0)|(e.crouch?128:0)|(e.sliding?256:0)|(e.ads?512:0)|(e.inBus?1024:0),
       Math.ceil(e.hp),Math.ceil(e.shield),Math.ceil(e.downHp),w.type,w.rarity||0,e.kills,e.emote|0];});
   const S=[r2(storm.cx),r2(storm.cz),r2(storm.r),storm.phase,storm.mode==='wait'?0:1,r2(storm.t),storm.to?[r2(storm.to.cx),r2(storm.to.cz),storm.to.r]:null];
   const C=cars.map(c=>[r2(c.x),r2(c.z),Math.round(c.yaw*1000)/1000,r2(c.sp),r2(c.steer),c.driver?c.driver.id:-1,Math.ceil(c.hp)]);
@@ -5951,7 +6060,7 @@ function applySnap(m){
     if(e!==player){
       const ddx=a[0]-e.tpos.x,ddz=a[2]-e.tpos.z,dts=Math.max(.03,T-(e._snT||T-.066));e._snT=T;
       e.tpos.set(a[0],a[1],a[2]);if(e.tpos.distanceTo(e.pos)>12)e.pos.copy(e.tpos);
-      e.tyaw=a[3];e.pitch=a[4];e.gliding=!!(fl&4);e.moving=!!(fl&16);e.onGround=!!(fl&32);
+      e.tyaw=a[3];e.pitch=a[4];e.gliding=!!(fl&4);e.inBus=!!(fl&1024);e.moving=!!(fl&16);e.onGround=!!(fl&32);
       if(e.moving&&Math.hypot(ddx,ddz)<4){e.vel.x=lerp(e.vel.x,ddx/dts,.6);e.vel.z=lerp(e.vel.z,ddz/dts,.6);}else if(!e.moving)e.vel.set(0,0,0);
       if((fl&64)&&T-e.swingT>.3)e.swingT=T;e.crouch=!!(fl&128);e.sliding=!!(fl&256);if(e!==player)e.ads=!!(fl&512);e.emote=a[12]|0;
       if(e._ct!==a[9]||e._cr!==a[10]){e._ct=a[9];e._cr=a[10];e.slots=[{type:a[9],rarity:a[10]},null,null,null];e.cur=0;refreshHeld(e);}
@@ -6007,7 +6116,7 @@ function clientFire(p){
 function sendInput(){
   const p=player;if(!p||NET.role!=='client')return;
   sendHost({t:'in',x:r2(p.pos.x),y:r2(p.pos.y),z:r2(p.pos.z),vx:r2(p.vel.x),vy:r2(p.vel.y),vz:r2(p.vel.z),yw:Math.round(p.yaw*1000)/1000,pt:Math.round(p.pitch*1000)/1000,
-    og:p.onGround?1:0,gl:p.gliding?1:0,em:p.emote|0,cr:p.crouch?1:0,sl:p.sliding?1:0,fh:(mouseL&&!buildType&&!state.paused)?1:0,fe:NET.fe,ad:p.ads?1:0,E:keys.KeyE?1:0,car:p.car?[p.car.id,r2(p.car.x),r2(p.car.z),Math.round(p.car.yaw*1000)/1000,r2(p.car.sp),r2(p.car.steer)]:null});
+    og:p.onGround?1:0,gl:p.gliding?1:0,ib:p.inBus?1:0,em:p.emote|0,cr:p.crouch?1:0,sl:p.sliding?1:0,fh:(mouseL&&!buildType&&!state.paused)?1:0,fe:NET.fe,ad:p.ads?1:0,E:keys.KeyE?1:0,car:p.car?[p.car.id,r2(p.car.x),r2(p.car.z),Math.round(p.car.yaw*1000)/1000,r2(p.car.sp),r2(p.car.steer)]:null});
 }
 function chooseSlot(i){
   if(!player.slots[i])return;
@@ -6069,6 +6178,7 @@ addEventListener('keydown',e=>{
   if(e.repeat)return;
   const p=player;
   if(p.downed)return;
+  if(p.inBus){if(code==='KeyM')toggleBigMap(!bigMapOn);return;}
   switch(code){
     case 'Digit1':chooseSlot(0);break;case 'Digit2':chooseSlot(1);break;case 'Digit3':chooseSlot(2);break;case 'Digit4':chooseSlot(3);break;
     case 'KeyN':if(p.car||!p.onGround)break;p.emote=(p.emote||0)%3+1;buildType=null;showBanner(EMOTEN[p.emote],'N : suivante · bouge pour arrêter',1.4);break;
@@ -6988,7 +7098,7 @@ function frame(){
   bgLast=performance.now();
   if(state.running&&(!state.paused||NET.role!=='solo')){
     T+=dt;
-    if(!state.paused)updatePlayer(dt);else if(player.alive)physics(player,0,0,0,dt);
+    if(!state.paused)updatePlayer(dt);else if(player.inBus){busPos(T,player.pos);if(T>=state.bus.close)busEject(player);}else if(player.alive)physics(player,0,0,0,dt);
     if(NET.role==='client'){
       for(const e of entities){if(e===player||!e.alive||!e.tpos)continue;e.pos.lerp(e.tpos,Math.min(1,dt*12));e.yaw+=angDiff(e.yaw,e.tyaw)*Math.min(1,dt*12);}
       for(const c of cars){if(!c.alive||c.driver===player||c.netT===undefined)continue;const k=Math.min(1,dt*10);c.x+=(c.tx-c.x)*k;c.z+=(c.tz-c.z)*k;c.yaw+=angDiff(c.yaw,c.tyaw)*k;placeCar(c,dt);}
@@ -7002,7 +7112,7 @@ function frame(){
     }
     updateCars(dt);updateDrops(dt);updateDoors(dt);footsteps(dt);updateMarks();updateAmbience(dt);
     for(const e of entities)commonUpdate(e,dt);
-    animateProps();
+    animateProps();busUpdate(dt);
     if(player.alive)state.aliveT+=dt;
     xpToastT-=dt;if(xpToastT<=0)$('xpToast').style.opacity=0;
     updateEffects(dt);
@@ -7023,6 +7133,7 @@ function frame(){
       {const fx=-Math.sin(p.yaw),fz=-Math.cos(p.yaw),vr=p.vel.x*-fz+p.vel.z*fx;p._roll=lerp(p._roll||0,p.alive&&p.onGround&&SET.bob&&!p.ads?clamp(-vr*.0012,-.01,.01)+(p.sliding?.05:0):(p.sliding?.05:0),Math.min(1,dt*8));}
       camera.rotation.set(p.alive?p.pitch:lerp(p.pitch,-.7,Math.min(1,(T-p.deathT))),p.yaw,p.alive?p._roll:0);
       if(tpActive())tpCamera(p,dt);
+      if(p.alive&&p.inBus)busCamera(p);
       if(p.alive&&p.car){const c=p.car,pt=clamp(p.pitch,-.7,.35),cp=Math.cos(pt),dist=7.2;
         const tx=c.x,ty=c.y+1.5,tz=c.z;let cx=tx+Math.sin(p.yaw)*cp*dist,cy=ty-Math.sin(pt)*dist+.8,cz=tz+Math.cos(p.yaw)*cp*dist;cy=Math.max(cy,heightAt(cx,cz)+.6);
         camera.position.set(cx,cy,cz);camera.lookAt(tx,ty,tz);}
