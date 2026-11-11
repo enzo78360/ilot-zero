@@ -659,6 +659,8 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
             <button id="dDifficile" data-d="difficile">Difficile</button>
           </div>
           <button class="go" id="play">Jouer contre les bots</button>
+          <button class="wide" id="quick" style="margin-top:10px">Partie rapide en ligne</button>
+          <p class="note" id="mmMsg"></p>
         </div>
         <div class="pane panel mp">
           <h3>Avec des amis</h3>
@@ -5486,6 +5488,7 @@ function endGame(win){
 function startGame(){
   if(prof.car)loadCarSkin(prof.car);
   if(NET.role==='client')return;
+  if(MM.row)mmUnlist();MM.launchAt=0;
   initAudio();if(AC&&AC.state==='suspended')AC.resume();
   const seed=(Math.random()*2147483647)|0;
   buildWorld(seed);resetStorm();spawnAll();
@@ -5539,7 +5542,7 @@ function refreshEndButtons(){
 function backToMenu(msg){
   if(staffMenuOn)toggleStaffMenu(false);
   if(state.running&&!state.awarded)finalizeMatch(null,false);
-  setHubTab('salon');$('setScreen').hidden=true;
+  setHubTab('salon');$('setScreen').hidden=true;mmReset();
   state.running=false;state.over=false;state.paused=false;
   if(document.pointerLockElement)document.exitPointerLock();
   $('hud').hidden=true;$('end').hidden=true;$('pause').hidden=true;$('lobby').hidden=true;$('menu').hidden=false;
@@ -5626,44 +5629,47 @@ function canNet(){
   if(!window.Peer||!window.RTCPeerConnection){netMsg('Le multijoueur ne fonctionne pas sur cette page. Ouvre le jeu depuis sa page GitHub.');return false;}
   return true;
 }
-function hostLobby(){
+function hostLobby(pub){
   if(!canNet())return;
+  if(pub!==true)mmReset();
   savePseudo();leaveNet();
-  NET.code=makeCode();netMsg('Création du salon…');
+  NET.code=makeCode();if(!MM.on)netMsg('Création du salon…');
   let peer;
-  try{peer=new Peer(PEER_PREFIX+NET.code,{debug:0});}catch(err){netMsg(peerErr(err));return;}
+  try{peer=new Peer(PEER_PREFIX+NET.code,{debug:0});}catch(err){if(MM.on)mmFail(peerErr(err));else netMsg(peerErr(err));return;}
   NET.peer=peer;
-  peer.on('open',()=>{NET.role='host';NET.conns=[];netMsg('');showLobby(true);lobbyUpdate();accHeartbeat();});
+  peer.on('open',()=>{NET.role='host';NET.conns=[];netMsg('');if(MM.on)mmHostOpen();showLobby(true);lobbyUpdate();accHeartbeat();});
   peer.on('connection',conn=>{
     conn.on('data',m=>{conn.lastRx=performance.now();m=unchunk(conn,m);if(m)onHostData(conn,m);});
     conn.on('close',()=>onHostClose(conn));
     conn.on('error',()=>onHostClose(conn));
   });
   peer.on('error',err=>{
-    if(err.type==='unavailable-id'&&NET.role!=='host'){hostLobby();return;}
+    if(err.type==='unavailable-id'&&NET.role!=='host'){hostLobby(MM.on);return;}
     if(NET.role==='host'&&(err.type==='peer-unavailable'))return;
+    if(MM.on&&NET.role!=='host'){mmFail(peerErr(err));return;}
     netMsg(peerErr(err));
     if(NET.role!=='host'){leaveNet();}
   });
   peer.on('disconnected',()=>{try{if(NET.peer===peer&&!peer.destroyed)peer.reconnect();}catch(err){}});
 }
-function joinLobby(){
+function joinLobby(mmCode){
   if(!canNet())return;
-  const code=$('code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const pub=typeof mmCode==='string';if(!pub)mmReset();
+  const code=pub?mmCode:$('code').value.toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(code.length!==4){netMsg('Entre le code à 4 caractères donné par ton ami.');return;}
-  savePseudo();leaveNet();netMsg('Connexion au salon '+code+'…');
+  savePseudo();leaveNet();if(!pub)netMsg('Connexion au salon '+code+'…');
   let peer;
-  try{peer=new Peer({debug:0});}catch(err){netMsg(peerErr(err));return;}
+  try{peer=new Peer({debug:0});}catch(err){if(pub)mmJoinFail(code);else netMsg(peerErr(err));return;}
   NET.peer=peer;
   peer.on('open',()=>{
     const conn=peer.connect(PEER_PREFIX+code,{reliable:true,serialization:'json'});
     NET.host=conn;
-    const to=setTimeout(()=>{if(!conn.open&&NET.peer===peer){netMsg('Pas de réponse du salon '+code+'. Vérifie le code, ou le réseau bloque peut-être les connexions directes.');leaveNet();}},12000);
+    const to=setTimeout(()=>{if(!conn.open&&NET.peer===peer){if(pub){mmJoinFail(code);return;}netMsg('Pas de réponse du salon '+code+'. Vérifie le code, ou le réseau bloque peut-être les connexions directes.');leaveNet();}},pub?8000:12000);
     conn.on('open',()=>{clearTimeout(to);NET.lastRx=performance.now();NET.role='client';NET.code=code;send(conn,{t:'join',n:NET.name,sk:prof.skin,wr:prof.wrap,pk:prof.pick,ld:prof.loadout});netMsg('');showLobby(false);});
     conn.on('data',m=>{NET.lastRx=performance.now();m=unchunk(conn,m);if(m)onClientData(m);});
     conn.on('close',()=>{if(NET.host===conn)onLostHost();});
   });
-  peer.on('error',err=>{if(NET.peer!==peer)return;netMsg(peerErr(err));if(NET.role!=='client')leaveNet();});
+  peer.on('error',err=>{if(NET.peer!==peer)return;if(pub&&NET.role!=='client'){mmJoinFail(code);return;}netMsg(peerErr(err));if(NET.role!=='client')leaveNet();});
 }
 function showLobby(isHost){
   $('menu').hidden=true;$('lobby').hidden=false;
@@ -5724,8 +5730,86 @@ function renderLobby(names,m,d,b){
 function lobbyUpdate(){
   const names=[NET.name].concat(NET.conns.map(c=>c.pname));
   renderLobby(names,state.mode,state.diff,state.bots,state.game);
-  broadcast({t:'lobby',p:names,m:state.mode,d:state.diff,b:state.bots?1:0,k:state.map,g:state.game});
+  const pub=MM.on&&NET.role==='host';
+  broadcast({t:'lobby',p:names,m:state.mode,d:state.diff,b:state.bots?1:0,k:state.map,g:state.game,pub:pub?1:0,cd:pub?Math.max(0,Math.ceil((MM.launchAt-performance.now())/1000)):0});
+  lobbyPubRender();
 }
+
+// ================== MATCHMAKING (« Partie rapide ») ==================
+// Salons publics listés dans Supabase (table mm_lobbies). On rejoint le salon ouvert le plus rempli
+// pour le même jeu et le même mode ; s'il n'y en a pas, on en ouvre un. Lancement automatique au bout
+// de 45 s (ou 5 s quand il est plein) ; les bots complètent. Deux joueurs seuls dans deux salons se regroupent.
+const MM_WAIT=45000;
+const MM={on:false,game:'br',mode:'solo',tried:[],launchAt:0,cliEnd:0,row:false,seq:0,tick:0,openT:0};
+NET.pub=false;
+function mmMsg(t){setText($('mmMsg'),t||'');}
+function mmUI(){setText($('quick'),MM.on&&NET.role==='solo'?'Annuler la recherche':'Partie rapide en ligne');}
+function quickPlay(){
+  if(MM.on){mmCancel();return;}
+  if(!ACC.sb||!ACC.user){mmMsg('Connecte-toi pour jouer en ligne.');return;}
+  if(!canNet())return;
+  leaveNet();MM.on=true;MM.game=state.game;MM.mode=state.mode;MM.tried=[];MM.seq++;
+  mmMsg('Recherche d\'une partie '+GAMES[MM.game].name+' · '+MODES[MM.mode].name+'…');mmUI();mmSearch();
+}
+async function mmSearch(){
+  if(!MM.on)return;const s=MM.seq;
+  const {data,error}=await ACC.sb.rpc('mm_find',{p_game:MM.game,p_mode:MM.mode,p_exclude:MM.tried});
+  if(!MM.on||s!==MM.seq)return;
+  if(error){mmFail('Recherche impossible : '+errFr(error));return;}
+  const r=data&&data[0];
+  if(r&&r.code){mmMsg('Partie trouvée, connexion…');joinLobby(r.code);return;}
+  mmMsg('Aucune partie ouverte : création d\'une partie publique…');hostLobby(true);
+}
+function mmToMenu(){leaveNet();$('lobby').hidden=true;$('menu').hidden=false;mmUI();}
+function mmJoinFail(code){
+  if(!MM.on)return;if(code)MM.tried.push(code);mmToMenu();
+  if(MM.tried.length>6){mmFail('Impossible de rejoindre une partie. Réessaie dans un instant.');return;}
+  mmMsg('Nouvelle recherche…');mmSearch();
+}
+function mmFail(msg){mmReset();mmToMenu();mmMsg(msg);}
+function mmCancel(){mmReset();leaveNet();mmMsg('');mmUI();}
+function mmReset(){if(MM.row)mmUnlist();MM.on=false;MM.seq++;MM.launchAt=0;MM.cliEnd=0;NET.pub=false;mmUI();}
+async function mmList(){
+  if(NET.role!=='host'||!MM.on||state.running||!ACC.sb||!ACC.user)return;MM.row=true;
+  await ACC.sb.from('mm_lobbies').upsert({code:NET.code,host:ACC.user.id,game:MM.game,mode:MM.mode,players:Math.min(8,1+NET.conns.length),updated_at:new Date().toISOString()},{onConflict:'host'});
+  if(!MM.row||state.running)mmUnlist(); // lancé ou quitté pendant l'envoi
+}
+function mmUnlist(){MM.row=false;if(ACC.sb&&ACC.user)ACC.sb.from('mm_lobbies').delete().eq('host',ACC.user.id).then(()=>{},()=>{});}
+function mmHostOpen(){
+  setGame(MM.game);setMode(MM.mode);setDiff('normal');state.bots=true;
+  MM.openT=performance.now();MM.launchAt=MM.openT+MM_WAIT;MM.tick=0;mmMsg('');mmList();
+}
+// seul dans son salon : s'il existe un autre salon public plus rempli (ou plus ancien à égalité), on le rejoint
+async function mmMerge(){
+  const s=MM.seq,code=NET.code;
+  const {data}=await ACC.sb.rpc('mm_find',{p_game:MM.game,p_mode:MM.mode,p_exclude:[code]});
+  const r=data&&data[0];
+  if(!r||!MM.on||s!==MM.seq||NET.role!=='host'||NET.code!==code||NET.conns.length||state.running)return;
+  if(r.players>1||r.code<code){mmUnlist();leaveNet();joinLobby(r.code);}
+}
+function mmLeft(){return Math.max(0,Math.ceil(((NET.role==='host'?MM.launchAt:MM.cliEnd)-performance.now())/1000));}
+function lobbyPubRender(){
+  if($('lobby').hidden)return;
+  const host=NET.role==='host',pub=host?MM.on:NET.pub;
+  document.querySelectorAll('#lbModes button,#lbDiffs button,#lbBots button,#lbGames button').forEach(b=>b.disabled=!host||pub);
+  setText($('launch'),pub?'Lancer maintenant':'Lancer la partie');
+  if(!pub){setText($('lobbyWait'),"En attente du lancement par l'hôte…");return;}
+  const n=$('plist').children.length;
+  setText($('lobbyInfo'),`Partie publique : recherche de joueurs (${n}/8). Lancement automatique dans ${mmLeft()} s, ou dès que le salon est plein. Les bots complètent les places libres.`);
+  setText($('lobbyWait'),'Lancement automatique dans '+mmLeft()+' s…');
+}
+setInterval(()=>{
+  if(!MM.on&&!NET.pub)return;
+  if(state.running||$('lobby').hidden)return;
+  if(NET.role==='host'&&MM.on){
+    const now=performance.now(),n=1+NET.conns.length;
+    if(n>=8&&MM.launchAt-now>5000){MM.launchAt=now+5000;lobbyUpdate();}
+    if(now>=MM.launchAt){startGame();return;}
+    MM.tick++;
+    if(MM.tick%4===0){mmList();lobbyUpdate();if(n===1&&now-MM.openT>3000)mmMerge();}
+  }
+  lobbyPubRender();
+},1000);
 function onHostData(conn,m){
   conn.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
@@ -5774,6 +5858,7 @@ function onHostClose(conn){
 }
 function onLostHost(){
   if(NET.role!=='client')return;
+  if(MM.on&&!state.running){const c=NET.code;mmJoinFail(c);return;}
   leaveNet();
   backToMenu("La connexion avec l'hôte est perdue. Le salon est fermé.");
 }
@@ -5819,8 +5904,8 @@ function onClientData(m){
   NET.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
   if(m.t==='chat'){chatAdd(cleanName(m.n||'?'),chatClean(m.x));return;}
-  if(m.t==='lobby'){renderLobby((m.p||[]).map(cleanName),m.m,m.d,m.b!==0,GAMES[m.g]?m.g:'br');return;}
-  if(m.t==='deny'){leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg(m.r);return;}
+  if(m.t==='lobby'){NET.pub=!!m.pub;if(NET.pub)MM.cliEnd=performance.now()+clamp(+m.cd||0,0,60)*1000;renderLobby((m.p||[]).map(cleanName),m.m,m.d,m.b!==0,GAMES[m.g]?m.g:'br');lobbyPubRender();return;}
+  if(m.t==='deny'){if(MM.on){mmJoinFail(NET.code);return;}leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg(m.r);return;}
   if(m.t==='init'){startClientGame(m);return;}
   if(!state.running||!player)return;
   switch(m.t){
@@ -6045,10 +6130,11 @@ $('launch').addEventListener('click',()=>{if(NET.role!=='host')return;
   const humans=1+NET.conns.filter(c=>c.ent!==undefined||c.pname).length,size=MODES[state.mode].size;
   if(!state.bots&&state.game!=='zombie'&&Math.ceil(humans/size)<2){setText($('lobbyMode'),size>1?'Sans bots, il faut au moins 2 équipes : invite plus de joueurs ou passe en Solo.':'Sans bots, il faut au moins 2 joueurs dans le salon.');return;}
   startGame();});
-$('leave').addEventListener('click',()=>{leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg('');});
+$('leave').addEventListener('click',()=>{mmReset();leaveNet();$('lobby').hidden=true;$('menu').hidden=false;netMsg('');});
 $('toMenu').addEventListener('click',()=>{leaveNet();backToMenu('');});
 try{const pv=localStorage.getItem('ilotzero-pseudo');if(pv)$('pseudo').value=pv;}catch(err){}
-$('play').addEventListener('click',()=>{leaveNet();state.bots=true;startGame();});
+$('quick').addEventListener('click',quickPlay);
+$('play').addEventListener('click',()=>{mmReset();mmMsg('');leaveNet();state.bots=true;startGame();});
 setGame(state.game);
 $('again').addEventListener('click',startGame);
 $('resume').addEventListener('click',()=>{
@@ -6057,7 +6143,7 @@ $('resume').addEventListener('click',()=>{
   if(NET.role!=='solo')setText($('pauseTxt'),'La partie continue pendant la pause. Clique vite pour reprendre.');
   lockPointer();if(!state.lockOK){state.paused=false;$('pause').hidden=true;}
 });
-addEventListener('beforeunload',()=>leaveNet());
+addEventListener('beforeunload',()=>{if(MM.row)mmUnlist();leaveNet();});
 if(matchMedia('(pointer:coarse)').matches)$('touchNote').hidden=false;
 
 // ================== PARAMÈTRES ==================
