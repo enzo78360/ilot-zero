@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 11 novembre 2026.
+Mise à jour du 11 novembre 2026 (soir).
 
 ## Liens utiles
 
@@ -13,6 +13,17 @@ Mise à jour du 11 novembre 2026.
 | Identifiant Google (connexion) | https://console.cloud.google.com/auth/clients |
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
+
+## Emotes, salon, modération du chat, tenue staff (11 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Emotes à débloquer | 9 nouvelles emotes animées dans Blender sur le squelette du personnage (`models/emotes_anim.glb`, source `models/staff_emotes.blend`) : Applaudir, Salut militaire, Pas impressionné (bras croisés), Flexions, Fou rire, Victoire, Vague, Guitare imaginaire, Feu d'artifice. Avec Salut, Danse et Danse robot (offertes) : 12 emotes. Boutique : Applaudir 300, Salut militaire 500, Pas impressionné 600, Fou rire 900, Vague 1 100, Guitare imaginaire 1 600. Nouveau **Gacha Fête** (en tête de la liste des Gachas) : Feu d'artifice (légendaire, exclusif, fusées colorées au-dessus du joueur), Victoire et Flexions (exclusives), les 6 emotes de la boutique et le camo Arc-en-ciel. Nouveau type « Emote » dans l'Inventaire et la Boutique, aperçu animé, vignettes. Roue d'emotes : maintenir N, viser à la souris (ou 1 à 6), relâcher ; jusqu'à 6 emotes choisies dans l'Inventaire (« Ajouter à la roue »). Visibles par les autres en multijoueur ; les bots en font aussi |
+| Salon comme dans les grands battle royale | Salon en plein écran : les personnages de tous les joueurs (jusqu'à 8 affichés) avec leur tenue, sur des socles lumineux, le sien au centre en orange, pseudo et « Hôte » au-dessus. Code, infos, joueurs et invitations à gauche, réglages et chat à droite, emotes et bouton de lancement en bas. Les emotes jouées dans le salon sont vues par tout le monde |
+| Modération du chat | Insultes masquées (français et anglais, y compris déguisées : c0nn4rd, lettres espacées), liens retirés, majuscules adoucies, lettres répétées réduites. Anti-spam appliqué par l'hôte : plus de 4 messages en 6 s ou le même message 3 fois → réduit au silence 30 s. L'hôte peut rendre un joueur muet (liste des joueurs). Chaque joueur peut masquer quelqu'un ou signaler un message (au survol, dans le chat du salon). Signalements visibles par le staff dans Compte → Modération, avec « Bannir 1 h » et « Traité » (`supabase/chat_reports.sql`) |
+| Tenue réservée au staff | « Staff de l'Îlot » modélisée dans Blender (`models/staff.glb`) : casque audio avec micro et visière lumineuse, cape noire et or avec emblème, insigne doré sur la poitrine, brassard ; tenue noire, gants dorés. Rareté « Staff ». Ajoutée automatiquement aux comptes staff, retirée des autres, jamais en boutique ni dans un Gacha |
+
+Vérification : menus (8 onglets), achat d'une emote, tirage du Gacha Fête, roue d'emotes et Feu d'artifice en partie, salon à 2 (tenues, emotes vues par l'autre, chat filtré, spam bloqué), partie en ligne à 2 (emote de l'invité vue par l'hôte, chat en jeu), Battle royale et Zombies, sans erreur dans la console.
 
 ## Salons de 25 joueurs (11 novembre 2026)
 
