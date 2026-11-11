@@ -20,7 +20,7 @@ Mise à jour du 11 novembre 2026.
 | --- | --- |
 | Un système de matchmaking | Bouton « Partie rapide en ligne » sous « Jouer » : cherche une partie publique du jeu et du mode choisis (Battle royale ou Zombies ; Solo, Duo ou Escouade), rejoint la plus remplie, sinon en ouvre une. Salon public : réglages verrouillés (bots normaux), compte à rebours de 45 s puis lancement automatique (5 s dès qu'il y a 8 joueurs), bouton « Lancer maintenant » pour l'hôte, les bots complètent. Deux joueurs qui cherchent en même temps se regroupent dans le même salon en quelques secondes. Salon complet, déjà lancé ou fermé : on passe au suivant tout seul. Les amis peuvent toujours entrer avec le code. Base : table `mm_lobbies` et fonction `mm_find` (`supabase/matchmaking.sql`), chaque joueur ne peut créer ou effacer que son propre salon ; un salon qui ne donne plus de nouvelles depuis 15 s n'est plus proposé |
 
-Vérification : règles d'accès testées sur la base (on ne trouve pas son propre salon, un autre joueur le trouve, il ne peut pas l'effacer) ; deux onglets reliés par PeerJS : recherche puis entrée dans le salon, recherche simultanée regroupée, lancement automatique en mode Zombies (2 joueurs, 30 zombies), salon retiré de la liste au lancement.
+Vérification : règles d'accès testées sur la base (on ne trouve pas son propre salon, un autre joueur le trouve, il ne peut pas l'effacer) ; deux onglets reliés par PeerJS : recherche puis entrée dans le salon, recherche simultanée regroupée, lancement automatique en mode Zombies (2 joueurs, 30 zombies), salon retiré de la liste au lancement. Publié : site à jour et Release 1.7.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v1.7.0).
 
 ## Cinquième liste (10 novembre 2026)
 
