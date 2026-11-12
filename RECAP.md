@@ -14,6 +14,16 @@ Mise à jour du 12 novembre 2026 (soir).
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## Permissions réglables et inventaire des joueurs (12 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Journal et AutoMod vides au clic | Les deux panneaux restaient masqués : ils s'affichent maintenant pour le staff et se chargent à l'ouverture de la section |
+| Choisir soi-même ce que chaque rang peut faire | Nouvelle section **Permissions** : pour chacun des 12 pouvoirs (avertir, exclure jusqu'à 1 h, exclure plus longtemps, signalements, journal, bannir, AutoMod, liste des joueurs, inventaire, coquillages et XP, codes, gestion du staff), un choix « Assistant et plus », « Modérateur et plus » ou « Admin seulement ». Seul le propriétaire modifie le tableau ; le serveur vérifie chaque action selon ce tableau ; le changement est noté au journal. L'interface n'affiche que les boutons permis |
+| Gérer l'inventaire des joueurs | Section Joueurs → **Inventaire d'un joueur** (ou bouton Inventaire dans la liste) : ses skins, camos, pioches, voitures et emotes, avec Retirer, et une liste de tous les objets pour Donner. Les dons et retraits en attente sont signalés. Le joueur les reçoit dès qu'il est connecté, avec un message ; un objet équipé qu'on lui retire est remplacé par celui de base. La tenue staff ne peut pas être donnée. Chaque don et retrait est noté au journal |
+
+Base : `supabase/moderation_perms.sql`. Vérification : en base en tant que propriétaire puis joueur (transaction annulée) ; dans le jeu, clic sur Journal, AutoMod, Permissions, Inventaire, don et retrait livrés au joueur, aucune erreur.
+
 ## Modération façon Discord (12 novembre 2026)
 
 | Demande | Ce qui a changé |

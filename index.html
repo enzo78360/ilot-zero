@@ -49,6 +49,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 #amWords{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;background:rgba(0,0,0,.28);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;font:inherit;margin:6px 0 10px}
 .amgrid{display:grid;gap:8px;margin:10px 0}.amgrid input{width:64px;margin:0 4px}
 .rkoff{display:none!important}
+#ivList h4{margin:12px 0 6px}#ivList .chips{display:flex;flex-wrap:wrap;gap:6px}#ivList .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:8px;background:rgba(255,255,255,.07);font-size:13px}
+#ivList .chip button{padding:2px 8px;font-size:11px}#ivList .chip.pend{outline:1px dashed rgba(255,200,80,.6)}
+#pmList select{min-width:190px}
 .rtag.r-admin{background:#c0392b}.rtag.r-mod{background:#2e86de}.rtag.r-helper{background:#16a085}
 #syrHud{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-align:center;color:#fff;background:linear-gradient(135deg,rgba(110,40,200,.92),rgba(180,108,255,.88));white-space:nowrap;margin-top:6px}
 #syrHud.cd{background:rgba(40,30,60,.85);color:#cdb8f0}
@@ -742,7 +745,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
       </div>
     </div></section>
-    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="journal">Journal</button><button data-sec="automod">AutoMod</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
+    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="journal">Journal</button><button data-sec="automod">AutoMod</button><button data-sec="permissions">Permissions</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
       <div class="pane panel" data-sec="moi">
         <h3>Mon compte</h3>
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
@@ -817,6 +820,23 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         </div>
         <button class="wide" id="amSave">Enregistrer l'AutoMod</button>
         <p class="acsync" id="amMsg"></p>
+      </div>
+      <div class="pane panel" id="permPane" data-sec="permissions" hidden>
+        <h3>Permissions des rangs</h3>
+        <p class="tag" id="pmTag">Choisis, pour chaque pouvoir, à partir de quel rang il est permis. Les Admins ont toujours tout ce qui est permis aux rangs en dessous. Personne n'agit sur un membre de rang égal ou supérieur.</p>
+        <ul class="salist" id="pmList"></ul>
+        <button class="wide" id="pmSave">Enregistrer les permissions</button>
+        <p class="acsync" id="pmMsg"></p>
+      </div>
+      <div class="pane panel" id="invPane" data-sec="joueurs" hidden>
+        <h3>Inventaire d'un joueur</h3>
+        <p class="tag">Ajoute ou retire des skins, camos, pioches, voitures et emotes. Le joueur reçoit le changement dès qu'il est connecté (en moins de 10 secondes dans le menu, sinon à sa prochaine connexion).</p>
+        <div class="pfield">
+          <div class="row"><input id="ivPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur"><button id="ivLoad">Afficher</button></div>
+          <div class="row"><select id="ivItem" aria-label="Objet à donner"></select><button id="ivAdd">Donner</button></div>
+        </div>
+        <p class="acsync" id="ivMsg"></p>
+        <div id="ivList"></div>
       </div>
       <div class="pane panel" id="accountsPane" data-sec="joueurs" hidden>
         <h3>Comptes des joueurs</h3>
@@ -7272,14 +7292,35 @@ setInterval(async()=>{if(NET.role!=='host'||!NET.conns.length||!ACC.sb||!ACC.use
   const {data,error}=await ACC.sb.rpc('chat_muted',{pseudos:ps});if(error)return;chatMutedP.clear();for(const n of data||[])chatMutedP.add(String(n).toLowerCase());},20000);
 const RANK_N={admin:3,mod:2,helper:1},RANK_NAME={admin:'Admin',mod:'Modérateur',helper:'Assistant'};
 const rankN=()=>ACC.role==='staff'?(RANK_N[ACC.rank]||1):0;
-async function rankLoad(){if(!ACC.sb||ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('my_rank');if(error)return;const ch=ACC.rank!==(data||null);ACC.rank=data||null;rankRender();if(ch){staffAdminLoad();playersLoad();reportsLoad();}}
+const PERM_DEF={warn:1,timeout:1,timeout_long:2,reports:1,log:1,ban:2,automod:2,players:1,inventory:3,economy:3,codes:3,staff:3};
+const PERM_TXT=[['warn','Avertir un joueur'],['timeout','Exclure du chat (jusqu\'à 1 h) et lever une exclusion'],['timeout_long','Exclure du chat plus d\'1 h (jusqu\'à 7 jours)'],
+  ['reports','Voir et traiter les signalements'],['log','Lire le journal de modération'],['ban','Bannir et débannir'],['automod','Régler l\'AutoMod'],
+  ['players','Voir la liste des comptes des joueurs'],['inventory','Donner ou retirer des objets (inventaire)'],['economy','Coquillages et XP des joueurs'],
+  ['codes','Codes cadeaux'],['staff','Ajouter ou retirer du staff, changer les rangs']];
+let PERMS=Object.assign({},PERM_DEF),PERM_OWNER=false;
+const can=k=>rankN()>=(PERMS[k]||3);
+async function permsLoad(){if(!ACC.sb||ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('perms_get');if(error||!data)return;
+  PERMS=Object.assign({},PERM_DEF,data.perms||{});PERM_OWNER=!!data.owner;permsRender();rankRender();}
+function permsRender(){const ul=$('pmList');if(document.activeElement&&ul.contains(document.activeElement))return;ul.textContent='';
+  for(const [k,lab] of PERM_TXT){const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b');b.textContent=lab;d.append(b);
+    const sel=document.createElement('select');sel.dataset.k=k;sel.disabled=!PERM_OWNER;sel.setAttribute('aria-label',lab);
+    for(const [v,t] of [[1,'Assistant et plus'],[2,'Modérateur et plus'],[3,'Admin seulement']]){const o=document.createElement('option');o.value=v;o.textContent=t;if(+PERMS[k]===v)o.selected=true;sel.append(o);}
+    li.append(d,sel);ul.append(li);}
+  $('pmSave').hidden=!PERM_OWNER;setText($('pmTag'),'Choisis, pour chaque pouvoir, à partir de quel rang il est permis. Personne n\'agit sur un membre de rang égal ou supérieur.'+(PERM_OWNER?'':' Seul le propriétaire peut modifier ce tableau.'));}
+$('pmSave').addEventListener('click',async()=>{const cfg={};$('pmList').querySelectorAll('select').forEach(x=>cfg[x.dataset.k]=+x.value);
+  const {error}=await ACC.sb.rpc('perms_set',{cfg:JSON.stringify(cfg)});const m=$('pmMsg');m.className='acsync '+(error?'err':'ok');
+  setText(m,error?'Impossible : '+errFr(error):'Permissions enregistrées : elles s\'appliquent tout de suite.');if(!error){PERMS=Object.assign({},PERM_DEF,cfg);rankRender();}});
+async function rankLoad(){if(!ACC.sb||ACC.role!=='staff')return;const [{data,error}]=await Promise.all([ACC.sb.rpc('my_rank'),permsLoad()]);if(error)return;const ch=ACC.rank!==(data||null);ACC.rank=data||null;rankRender();if(ch){staffAdminLoad();playersLoad();reportsLoad();}}
 function rankRender(){const r=rankN();
-  setText($('mdRankTxt'),r?'Ton rang : '+(RANK_NAME[ACC.rank]||'Assistant')+'. '+(r>=3?'Tu as tous les pouvoirs.':r>=2?'Tu peux avertir, exclure du chat jusqu\'à 7 jours, bannir et régler l\'AutoMod.':'Tu peux avertir, exclure du chat jusqu\'à 1 h et traiter les signalements.'):'');
-  $('mdBanRow').hidden=r<2;$('acNavCodes').hidden=r<3;$('saAddRow').hidden=r<3;$('managePane').classList.toggle('rkoff',r<3);
-  for(const o of $('mdToDur').options)o.disabled=r<2&&+o.value>60;if(r<2&&+$('mdToDur').value>60)$('mdToDur').value='60';
-  for(const id of ['amWords','amLinks','amCaps','amSpamN','amSpamWin','amDupN','amMuteS','amSlow','amSave'])$(id).disabled=r<2;
-  setText($('amTag'),'Appliqué partout : dans le salon et en partie, par l\'hôte et par chaque joueur.'+(r<2?' Seuls les Modérateurs et les Admins peuvent le modifier.':''));
-  if(acSec==='codes'&&r<3){acSec='moderation';acNavRender();}}
+  const list=PERM_TXT.filter(([k])=>can(k)).map(([,t])=>t.charAt(0).toLowerCase()+t.slice(1));
+  setText($('mdRankTxt'),r?'Ton rang : '+(RANK_NAME[ACC.rank]||'Assistant')+(PERM_OWNER?' (propriétaire)':'')+'. Tes pouvoirs : '+(list.join(', ')||'aucun')+'.':'');
+  $('mdBanRow').hidden=!can('ban');$('acNavCodes').hidden=!can('codes');$('saAddRow').hidden=!can('staff');$('managePane').classList.toggle('rkoff',!can('economy'));
+  $('invPane').classList.toggle('rkoff',!can('inventory'));$('accountsPane').classList.toggle('rkoff',!can('players'));
+  $('mdWarn').hidden=!can('warn');$('mdTo').hidden=$('mdUnTo').hidden=$('mdToDur').hidden=!can('timeout');
+  for(const o of $('mdToDur').options)o.disabled=!can('timeout_long')&&+o.value>60;if(!can('timeout_long')&&+$('mdToDur').value>60)$('mdToDur').value='60';
+  for(const id of ['amWords','amLinks','amCaps','amSpamN','amSpamWin','amDupN','amMuteS','amSlow','amSave'])$(id).disabled=!can('automod');
+  setText($('amTag'),'Appliqué partout : dans le salon et en partie, par l\'hôte et par chaque joueur.'+(can('automod')?'':' Ton rang ne peut pas le modifier.'));
+  if(acSec==='codes'&&!can('codes')){acSec='moderation';acNavRender();}}
 async function amLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('automod_get');if(!error&&data){amApply(data);amRender();}}
 function amRender(){if(document.activeElement&&$('amPane').contains(document.activeElement))return;
   $('amWords').value=(AM.words||[]).join(', ');$('amLinks').checked=!!AM.links;$('amCaps').checked=!!AM.caps;
@@ -7289,6 +7330,32 @@ $('amSave').addEventListener('click',async()=>{const m=$('amMsg');
   const cfg={words,links:$('amLinks').checked,caps:$('amCaps').checked,spamN:+$('amSpamN').value,spamWin:+$('amSpamWin').value,dupN:+$('amDupN').value,muteS:+$('amMuteS').value,slow:+$('amSlow').value};
   const {error}=await ACC.sb.rpc('automod_set',{cfg:JSON.stringify(cfg)});m.className='acsync '+(error?'err':'ok');
   setText(m,error?'Impossible : '+errFr(error):'AutoMod enregistré ('+words.length+' mot'+(words.length>1?'s':'')+'). Les salons l\'appliquent dans la minute.');if(!error){amApply(cfg);amRender();}});
+// inventaire des joueurs (staff) : objets livrés par les cadeaux du staff
+const INV_CATS=[['skin','Skins',()=>SKINS,'skins'],['wrap','Camos',()=>WRAPS,'wraps'],['pick','Pioches',()=>PICKS,'picks'],['car','Voitures',()=>CARSKINS,'cars'],['emote','Emotes',()=>EMOTE_DEF,'emotes']];
+function invName(key){const [c,id]=String(key).split(':'),C=INV_CATS.find(x=>x[0]===c);const d=C&&C[2]()[id];return d?d.name||id:id;}
+function invFill(){const sel=$('ivItem');if(sel.options.length)return;
+  for(const [c,lab,get] of INV_CATS){const g=document.createElement('optgroup');g.label=lab;
+    for(const [id,d] of Object.entries(get())){if(id==='base'||d.base||id==='staff'||!/^[a-z0-9_]{1,40}$/.test(id))continue;const o=document.createElement('option');o.value=c+':'+id;o.textContent=d.name||id;g.append(o);}
+    sel.append(g);}}
+function ivMsg(t,ok){const m=$('ivMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
+async function invLoad(){invFill();const p=$('ivPseudo').value.trim();if(!p)return ivMsg('Entre le pseudo du joueur.',false);
+  const {data,error}=await ACC.sb.rpc('staff_inventory',{target_pseudo:p});const box=$('ivList');box.textContent='';
+  if(error)return ivMsg('Impossible : '+errFr(error),false);const r=data&&data[0];if(!r)return ivMsg('Aucun inventaire pour '+p+'.',false);
+  ivMsg('Inventaire de '+p+' (dernière sauvegarde du joueur).',true);
+  const pend=r.pending||[];
+  for(const [c,lab,get,field] of INV_CATS){const own=(r[field]||[]).filter(id=>id!=='base'&&!(get()[id]&&get()[id].base));
+    const adds=pend.filter(x=>x.kind==='item_add'&&x.item.startsWith(c+':')).map(x=>x.item.split(':')[1]);
+    const h=document.createElement('h4');h.className='lbl';h.textContent=lab+' ('+own.length+')';box.append(h);
+    const w=document.createElement('div');w.className='chips';box.append(w);
+    if(!own.length&&!adds.length){const sm=document.createElement('small');sm.textContent='Rien de plus que les objets de départ.';w.append(sm);}
+    for(const id of own){const ch=document.createElement('span'),rm=pend.some(x=>x.kind==='item_remove'&&x.item===c+':'+id);ch.className='chip'+(rm?' pend':'');
+      ch.textContent=invName(c+':'+id)+(rm?' (retrait en attente)':'');if(!rm){const b=document.createElement('button');b.textContent='Retirer';b.addEventListener('click',()=>invSet(c+':'+id,false));ch.append(b);}w.append(ch);}
+    for(const id of adds){const ch=document.createElement('span');ch.className='chip pend';ch.textContent=invName(c+':'+id)+' (don en attente)';w.append(ch);}}}
+async function invSet(item,add){const p=$('ivPseudo').value.trim();if(!p)return ivMsg('Entre le pseudo du joueur.',false);
+  const {error}=await ACC.sb.rpc('staff_item',{target_pseudo:p,p_item:item,p_add:add});
+  if(error)return ivMsg('Impossible : '+errFr(error),false);ivMsg((add?'Donné à ':'Retiré à ')+p+' : '+invName(item)+'.',true);invLoad();}
+$('ivLoad').addEventListener('click',invLoad);$('ivPseudo').addEventListener('keydown',e=>{if(e.key==='Enter')invLoad();});
+$('ivAdd').addEventListener('click',()=>{invFill();const it=$('ivItem').value;if(it)invSet(it,true);});
 async function timeoutLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('my_timeout');if(!error)ACC.timeout=data&&data.length?data[0]:null;}
 async function warnLoad(){if(!ACC.sb||!ACC.user||(state.running&&!state.over))return;const {data,error}=await ACC.sb.rpc('my_warnings');if(error||!data||!data.length)return;
   const ul=$('warnList');ul.textContent='';for(const w of data){const li=document.createElement('li');li.textContent=w.reason+' ('+fmtDate(w.created_at)+')';ul.append(li);}$('warnBox').hidden=false;}
@@ -7347,7 +7414,7 @@ function renderAccount(){
   if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
     setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
-  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';$('accountsPane').hidden=ACC.role!=='staff';$('managePane').hidden=ACC.role!=='staff';
+  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';for(const id of ['logPane','amPane','permPane','invPane'])$(id).hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';$('accountsPane').hidden=ACC.role!=='staff';$('managePane').hidden=ACC.role!=='staff';
   $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
   if(u&&ACC.ready&&hubTab==='compte'&&Date.now()-accRefreshT>8000)accRefresh(true);
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
@@ -7361,7 +7428,8 @@ function acNavRender(){
   document.querySelectorAll('#acNav button').forEach(b=>b.classList.toggle('sel',b.dataset.sec===acSec));
   document.querySelectorAll('#acBody>[data-sec]').forEach(p=>p.classList.toggle('acoff',p.dataset.sec!==acSec));
 }
-document.querySelectorAll('#acNav button').forEach(b=>b.addEventListener('click',()=>{acSec=b.dataset.sec;acNavRender();$('tabCompte').scrollTop=0;}));
+document.querySelectorAll('#acNav button').forEach(b=>b.addEventListener('click',()=>{acSec=b.dataset.sec;acNavRender();$('tabCompte').scrollTop=0;
+  if(acSec==='journal')logLoad();else if(acSec==='automod')amLoad();else if(acSec==='permissions')permsLoad();else if(acSec==='moderation'){timeoutsLoad();modLoad();reportsLoad();}}));
 // gestion du staff (fonctions serveur qui vérifient elles-mêmes le rôle staff)
 const errFr=e=>e&&e.message?e.message:'erreur inconnue';
 async function staffAdminLoad(cached){
@@ -7374,7 +7442,7 @@ async function staffAdminLoad(cached){
     const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');
     b.textContent=r.email;b.append(Object.assign(document.createElement('span'),{className:'rtag r-'+(r.rank||'helper'),textContent:RANK_NAME[r.rank]||'Assistant'}));
     sm.textContent=(r.owner?'Propriétaire · ':'')+(r.connected?(r.name||'Compte créé'):'Pas encore connecté');d.append(b,sm);li.append(d);
-    if(!r.owner&&r.email!==me&&rankN()>=3){const sel=document.createElement('select');sel.setAttribute('aria-label','Rang de '+r.email);
+    if(!r.owner&&r.email!==me&&can('staff')){const sel=document.createElement('select');sel.setAttribute('aria-label','Rang de '+r.email);
       for(const k of ['helper','mod','admin']){const o=document.createElement('option');o.value=k;o.textContent=RANK_NAME[k];if(k===r.rank)o.selected=true;sel.append(o);}
       sel.addEventListener('change',async()=>{const {error:e}=await ACC.sb.rpc('staff_set_rank',{target_email:r.email,p_rank:sel.value});const m=$('saMsg');m.className='acsync '+(e?'err':'ok');
         setText(m,e?'Impossible : '+errFr(e):'Nouveau rang : '+RANK_NAME[sel.value]+'.');staffAdminLoad();});li.append(sel);
@@ -7606,8 +7674,9 @@ async function playersLoad(){
     sm.textContent=(x.banned?(x.banned_until?'banni encore '+fmtDur(new Date(x.banned_until)-Date.now()):'banni définitivement')+' · ':'')+fmtAgo(x.last_seen)+' · niveau '+levelOf(x.xp)+' · '+fmtN(x.coins)+' coquillages';
     d.append(t,sm);li.append(d,btns);
     const btn=(lab,fn)=>{const b=document.createElement('button');b.textContent=lab;b.addEventListener('click',fn);btns.append(b);};
-    if(rankN()>=3)btn('Gérer',()=>{$('mgPseudo').value=x.pseudo;$('mgCoins').value=x.coins;$('mgXp').value=x.xp;$('managePane').scrollIntoView({behavior:'smooth',block:'nearest'});setText($('mgMsg'),'');});
-    if(x.role!=='staff'){if(x.banned&&rankN()>=2)btn('Débannir',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:x.pseudo});modMsg(e?'Impossible : '+errFr(e):x.pseudo+' est débanni.',!e);playersLoad();modLoad();});
+    if(can('economy'))btn('Gérer',()=>{$('mgPseudo').value=x.pseudo;$('mgCoins').value=x.coins;$('mgXp').value=x.xp;$('managePane').scrollIntoView({behavior:'smooth',block:'nearest'});setText($('mgMsg'),'');});
+    if(can('inventory'))btn('Inventaire',()=>{$('ivPseudo').value=x.pseudo;invLoad();$('invPane').scrollIntoView({behavior:'smooth',block:'nearest'});});
+    if(x.role!=='staff'){if(x.banned&&can('ban'))btn('Débannir',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:x.pseudo});modMsg(e?'Impossible : '+errFr(e):x.pseudo+' est débanni.',!e);playersLoad();modLoad();});
       else btn('Modérer',()=>{$('mdPseudo').value=x.pseudo;acSec='moderation';acNavRender();$('mdWhy').focus();});}
     ul.append(li);}
 }
@@ -7623,10 +7692,18 @@ document.querySelectorAll('#managePane [data-g]').forEach(b=>b.addEventListener(
 }));
 // ----- dons du staff reçus par le joueur : réclamés un par un (une seule fois), puis appliqués -----
 let grantsBusy=false;
+function applyItemGrant(g){const [c,id]=String(g.item||'').split(':'),C=INV_CATS.find(x=>x[0]===c);if(!C||!C[2]()[id]||id==='base')return;
+  const f=C[3],arr=prof[f]||(prof[f]=[]),who=(g.by_pseudo?g.by_pseudo+' (staff)':'Le staff');
+  if(g.kind==='item_add'){if(!arr.includes(id))arr.push(id);toast(who+' t\'a donné : '+invName(g.item));}
+  else{const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);
+    const eq={skins:'skin',wraps:'wrap',picks:'pick',cars:'car'}[f];if(eq&&prof[eq]===id)prof[eq]=f==='cars'?'':'base';
+    if(f==='emotes'&&Array.isArray(prof.emoteSel))prof.emoteSel=prof.emoteSel.filter(x=>x!==id);
+    toast(who+' t\'a retiré : '+invName(g.item));}}
 async function grantsLoad(){
   if(grantsBusy||!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;grantsBusy=true;
   try{const {data}=await ACC.sb.rpc('my_grants');
     for(const g of data||[]){const {data:ok}=await ACC.sb.rpc('grant_claim',{grant_id:g.id});if(!ok)continue;
+      if(g.kind==='item_add'||g.kind==='item_remove'){applyItemGrant(g);continue;}
       const k=g.kind.startsWith('coins')?'coins':'xp',before=prof[k];
       prof[k]=Math.max(0,g.kind.endsWith('_set')?g.amount:prof[k]+g.amount);if(k==='xp')claimRewards();
       const d=prof[k]-before;toast((g.by_pseudo?g.by_pseudo+' (staff)':'Le staff')+' : '+(g.kind.endsWith('_set')?(k==='coins'?'coquillages réglés à ':'XP réglée à ')+fmtN(prof[k]):(d>=0?'+':'−')+fmtN(Math.abs(d))+(k==='coins'?' coquillages':' XP')));}
@@ -7650,9 +7727,9 @@ async function reportsLoad(){
   for(const r of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
     t.textContent=r.target_pseudo+' : « '+r.msg+' »';sm.textContent=fmtDate(r.created_at)+(r.ctx?' · '+r.ctx:'')+(r.reporter?' · signalé par '+r.reporter:'');d.append(t,sm);li.append(d);
     const why='Chat : '+r.msg.slice(0,80),mk=(lab,fn)=>{const b=document.createElement('button');b.textContent=lab;b.addEventListener('click',fn);li.append(b);};
-    mk('Avertir',()=>modAct('mod_warn',{target_pseudo:r.target_pseudo,why:'Message inapproprié dans le chat'},r.target_pseudo+' est averti.'));
-    mk('Exclure 1 h',()=>modAct('mod_timeout',{target_pseudo:r.target_pseudo,minutes:60,why},r.target_pseudo+' est exclu du chat 1 h.'));
-    const ban=document.createElement('button');ban.textContent='Bannir 1 h';ban.hidden=rankN()<2;ban.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_ban',{target_pseudo:r.target_pseudo,hours:1,why});modMsg(e?'Impossible : '+errFr(e):r.target_pseudo+' est banni 1 h.',!e);modLoad();});
+    if(can('warn'))mk('Avertir',()=>modAct('mod_warn',{target_pseudo:r.target_pseudo,why:'Message inapproprié dans le chat'},r.target_pseudo+' est averti.'));
+    if(can('timeout'))mk('Exclure 1 h',()=>modAct('mod_timeout',{target_pseudo:r.target_pseudo,minutes:60,why},r.target_pseudo+' est exclu du chat 1 h.'));
+    const ban=document.createElement('button');ban.textContent='Bannir 1 h';ban.hidden=!can('ban');ban.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_ban',{target_pseudo:r.target_pseudo,hours:1,why});modMsg(e?'Impossible : '+errFr(e):r.target_pseudo+' est banni 1 h.',!e);modLoad();});
     const del=document.createElement('button');del.textContent='Traité';del.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_report_delete',{rid:r.id});if(!e)li.remove();else modMsg('Impossible : '+errFr(e),false);});
     li.append(ban,del);ul.append(li);}
 }

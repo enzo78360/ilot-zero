@@ -37,10 +37,11 @@ Le staff a trois **rangs**, comme sur Discord :
 - **Modérateur** : en plus, exclure du chat jusqu'à 7 jours, bannir et débannir, régler l'AutoMod ;
 - **Admin** : en plus, gérer le staff et les rangs, faire des cadeaux aux joueurs, créer des codes. Le propriétaire est toujours Admin et lui seul nomme ou rétrograde un Admin.
 
-Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
+Ce ne sont que les réglages de départ : dans Compte → **Permissions**, le propriétaire choisit pour chacun des 12 pouvoirs à partir de quel rang il est permis (Assistant et plus, Modérateur et plus, Admin seulement). Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
 - l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
 - les **Comptes des joueurs** : liste avec recherche, en ligne ou non, niveau, coquillages, bannissement en cours ;
 - **Gérer un joueur** : ajouter, retirer ou régler ses coquillages et son XP ;
+- l'**Inventaire d'un joueur** : voir ses skins, camos, pioches, voitures et emotes, lui en donner ou lui en retirer (livré dès qu'il est connecté ; un objet équipé qu'on retire est remplacé par celui de base) ;
 - la **Modération** : pour un pseudo et un motif, **avertir** (le joueur voit l'avertissement en ouvrant le menu), **exclure du chat** de 5 min à 7 jours (il joue mais ne peut plus écrire dans aucun chat, l'hôte du salon ignore aussi ses messages), lever l'exclusion, voir l'**historique** du joueur, **bannir** pour une durée libre ou définitivement. Listes des exclus et des bannis. Signalements du chat avec Avertir, Exclure 1 h, Bannir 1 h et Traité ;
 - le **Journal** : toutes les actions du staff (qui, quoi, à qui, quand, pourquoi), filtrable par pseudo ;
 - l'**AutoMod** : mots interdits en plus de la liste de base (variantes et lettres espacées comprises), liens retirés ou non, majuscules adoucies ou non, seuils de l'anti-spam (messages, durée, répétitions, durée du silence) et mode lent, appliqués dans tous les salons ;
