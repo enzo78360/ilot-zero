@@ -14,6 +14,14 @@ Mise à jour du 12 novembre 2026 (soir).
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## Pouvoirs du staff dans les permissions (12 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Accorder ou non les pouvoirs du menu `O` (vie infinie…) | Le tableau Permissions a une deuxième partie : Vie illimitée, Munitions, Matériaux, Super vitesse, Radar, Soin complet, Arme légendaire, Kit, Aller au marqueur, Redéployer en planeur, Coquillages illimités et XP illimitée, chacun réglable (Assistant et plus, Modérateur et plus, Admin seulement). Un pouvoir non accordé disparaît du menu `O` et de l'Espace staff et ne marche plus même s'il était activé. Par défaut, tous restent permis à tout le staff, comme avant |
+
+Base : `supabase/moderation_powers.sql`. Vérification : Assistant sans Vie illimitée, sans Arme légendaire et sans Coquillages illimités : ces pouvoirs sont coupés, masqués et refusés en partie ; les autres restent ; aucune erreur.
+
 ## Permissions réglables et inventaire des joueurs (12 novembre 2026)
 
 | Demande | Ce qui a changé |

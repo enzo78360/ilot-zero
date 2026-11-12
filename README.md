@@ -37,7 +37,7 @@ Le staff a trois **rangs**, comme sur Discord :
 - **Modérateur** : en plus, exclure du chat jusqu'à 7 jours, bannir et débannir, régler l'AutoMod ;
 - **Admin** : en plus, gérer le staff et les rangs, faire des cadeaux aux joueurs, créer des codes. Le propriétaire est toujours Admin et lui seul nomme ou rétrograde un Admin.
 
-Ce ne sont que les réglages de départ : dans Compte → **Permissions**, le propriétaire choisit pour chacun des 12 pouvoirs à partir de quel rang il est permis (Assistant et plus, Modérateur et plus, Admin seulement). Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
+Ce ne sont que les réglages de départ : dans Compte → **Permissions**, le propriétaire choisit pour chacun des 12 pouvoirs de modération, et pour chacun des 12 pouvoirs du menu `O` et de l'Espace staff (vie illimitée, munitions, matériaux, super vitesse, radar, soin, arme légendaire, kit, téléportation, redéploiement, coquillages et XP illimités), à partir de quel rang il est permis (Assistant et plus, Modérateur et plus, Admin seulement). Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
 - l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
 - les **Comptes des joueurs** : liste avec recherche, en ligne ou non, niveau, coquillages, bannissement en cours ;
 - **Gérer un joueur** : ajouter, retirer ou régler ses coquillages et son XP ;
