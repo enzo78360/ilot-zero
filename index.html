@@ -44,6 +44,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .stat b{font-family:var(--display);font-size:22px;line-height:1.1}
 #stormTxt{padding:6px 10px;border-radius:6px;font-size:13px;text-align:center;letter-spacing:.04em}
 #stormTxt.warn{color:#fff;background:rgba(110,50,200,.7)}
+#annBar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9000;max-width:min(720px,94vw);padding:9px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(110,40,200,.95),rgba(255,120,60,.92));color:#fff;font-weight:600;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.4);text-align:center}
+#annBar.maint{background:linear-gradient(135deg,rgba(190,40,40,.95),rgba(230,120,30,.92))}
+.mdta{width:100%;box-sizing:border-box;resize:vertical;background:rgba(0,0,0,.28);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;font:inherit;margin:6px 0}
+.tbrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}#rpClear{margin-left:8px;padding:2px 10px;font-size:11px}
+#cdBox .cdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}#cdBox .cdgrid div{background:rgba(255,255,255,.05);border-radius:8px;padding:8px}
+#cdBox .cdgrid small{display:block;opacity:.7}#cdBox h4{margin:12px 0 6px}
 #warnBox{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;max-width:min(440px,92vw);padding:20px 22px;border:2px solid #ffb347}
 #warnBox ul{margin:10px 0;padding-left:18px}#warnBox li{margin:4px 0}#warnBox button{margin-top:8px;width:100%}
 #amWords{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;background:rgba(0,0,0,.28);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;font:inherit;margin:6px 0 10px}
@@ -574,6 +580,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
 
 </head>
 <body>
+<div id="annBar" hidden></div>
 <div id="warnBox" class="panel" hidden role="alertdialog" aria-labelledby="warnTitle"><h3 id="warnTitle">Avertissement du staff</h3><ul id="warnList"></ul><p class="tag">Respecte les autres joueurs : la prochaine fois, ce peut être une exclusion du chat ou un bannissement.</p><button id="warnOk">J'ai compris</button></div>
 <div id="game"></div>
 
@@ -745,7 +752,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
       </div>
     </div></section>
-    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="journal">Journal</button><button data-sec="automod">AutoMod</button><button data-sec="permissions">Permissions</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
+    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="fiche">Fiche joueur</button><button data-sec="journal">Journal</button><button data-sec="outils">Outils</button><button data-sec="automod">AutoMod</button><button data-sec="permissions">Permissions</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
       <div class="pane panel" data-sec="moi">
         <h3>Mon compte</h3>
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
@@ -785,6 +792,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
           <div class="row"><button id="mdWarn">Avertir</button>
             <select id="mdToDur" aria-label="Durée de l'exclusion"><option value="5">5 min</option><option value="15">15 min</option><option value="60" selected>1 h</option><option value="360">6 h</option><option value="1440">1 jour</option><option value="10080">7 jours</option></select>
             <button id="mdTo">Exclure du chat</button><button id="mdUnTo">Lever l'exclusion</button><button id="mdHist">Historique</button></div>
+          <div class="row"><button id="mdKick">Expulser de sa partie</button><button id="mdRename">Refuser son pseudo</button><button id="mdCard">Fiche du joueur</button></div>
           <div class="row" id="mdBanRow"><input id="mdNum" type="number" min="1" max="99999" value="24" aria-label="Durée" style="max-width:110px">
             <select id="mdUnit" aria-label="Unité"><option value="1">minutes</option><option value="60" selected>heures</option><option value="1440">jours</option><option value="0">définitif</option></select><button id="mdBan">Bannir</button></div>
         </div>
@@ -795,8 +803,38 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <h4 class="lbl" style="margin-top:16px">Bannis</h4>
         <ul class="salist" id="mdList"></ul>
         <h4 class="lbl" style="margin-top:16px">Signalements du chat</h4>
-        <p class="tag">Messages signalés par les joueurs (les plus récents en premier). Le message est déjà masqué par le filtre si besoin.</p>
+        <p class="tag">Messages signalés par les joueurs (les plus récents en premier). Le message est déjà masqué par le filtre si besoin. <button id="rpClear">Tout vider</button></p>
         <ul class="salist" id="rpList"></ul>
+      </div>
+      <div class="pane panel" id="cardPane" data-sec="fiche" hidden>
+        <h3>Fiche d'un joueur</h3>
+        <p class="tag">Tout sur un joueur : compte, sanctions en cours, avertissements, signalements reçus et notes internes du staff (jamais visibles par le joueur).</p>
+        <div class="pfield"><div class="row"><input id="cdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur"><button id="cdGo">Afficher</button></div></div>
+        <p class="acsync" id="cdMsg"></p>
+        <div id="cdBox"></div>
+        <div id="cdNoteRow" hidden><textarea id="cdNote" class="mdta" rows="2" maxlength="500" placeholder="Note interne pour le staff"></textarea><button id="cdNoteAdd">Ajouter la note</button></div>
+      </div>
+      <div class="pane panel" id="toolsPane" data-sec="outils" hidden>
+        <h3>Outils</h3>
+        <h4 class="lbl">Annonce à tous les joueurs</h4>
+        <p class="tag">Bandeau en haut du menu et message en partie, pour tout le monde.</p>
+        <textarea id="anText" class="mdta" rows="2" maxlength="300" placeholder="Texte de l'annonce"></textarea>
+        <div class="row tbrow"><select id="anDur" aria-label="Durée de l'annonce"><option value="60">1 h</option><option value="360">6 h</option><option value="1440" selected>1 jour</option><option value="10080">7 jours</option><option value="0">Sans fin</option></select>
+          <button id="anPub">Publier</button><button id="anDel">Retirer</button></div>
+        <p class="acsync" id="anMsg"></p>
+        <h4 class="lbl" style="margin-top:16px">Mode maintenance</h4>
+        <p class="tag">Personne sauf le staff ne peut jouer : les joueurs voient le message à la place du jeu (ceux en partie reviennent au menu).</p>
+        <label class="srow"><span>Maintenance en cours</span><input type="checkbox" id="mtOn"></label>
+        <textarea id="mtMsg" class="mdta" rows="2" maxlength="300" placeholder="Message (ex. : mise à jour, retour vers 20 h)"></textarea>
+        <button class="wide" id="mtSave">Enregistrer la maintenance</button>
+        <p class="acsync" id="mtTxt"></p>
+        <h4 class="lbl" style="margin-top:16px">Salons publics</h4>
+        <p class="tag">Parties rapides ouvertes en ce moment. Fermer un salon le retire de la recherche (pour arrêter un salon et son hôte, expulse l'hôte).</p>
+        <button id="lbRefresh">Actualiser</button>
+        <ul class="salist" id="lbList"></ul>
+        <h4 class="lbl" style="margin-top:16px">Pseudos refusés</h4>
+        <p class="tag">Ils ne peuvent plus être repris par personne. Les mots interdits de l'AutoMod sont aussi refusés dans les pseudos.</p>
+        <ul class="salist" id="psList"></ul>
       </div>
       <div class="pane panel" id="logPane" data-sec="journal" hidden>
         <h3>Journal de modération</h3>
@@ -7293,11 +7331,14 @@ setInterval(async()=>{if(NET.role!=='host'||!NET.conns.length||!ACC.sb||!ACC.use
 const RANK_N={admin:3,mod:2,helper:1},RANK_NAME={admin:'Admin',mod:'Modérateur',helper:'Assistant'};
 const rankN=()=>ACC.role==='staff'?(RANK_N[ACC.rank]||1):0;
 const PERM_DEF={warn:1,timeout:1,timeout_long:2,reports:1,log:1,ban:2,automod:2,players:1,inventory:3,economy:3,codes:3,staff:3,
+  kick:1,rename:2,notes:1,announce:2,maintenance:3,lobbies:2,
   pw_god:1,pw_ammo:1,pw_mats:1,pw_speed:1,pw_radar:1,pw_coins:1,pw_xp:1,pw_heal:1,pw_gun:1,pw_kit:1,pw_tp:1,pw_sky:1};
 const PERM_TXT=[['warn','Avertir un joueur'],['timeout','Exclure du chat (jusqu\'à 1 h) et lever une exclusion'],['timeout_long','Exclure du chat plus d\'1 h (jusqu\'à 7 jours)'],
   ['reports','Voir et traiter les signalements'],['log','Lire le journal de modération'],['ban','Bannir et débannir'],['automod','Régler l\'AutoMod'],
   ['players','Voir la liste des comptes des joueurs'],['inventory','Donner ou retirer des objets (inventaire)'],['economy','Coquillages et XP des joueurs'],
   ['codes','Codes cadeaux'],['staff','Ajouter ou retirer du staff, changer les rangs'],
+  ['kick','Expulser un joueur de sa partie'],['rename','Refuser un pseudo (le joueur doit en choisir un autre)'],['notes','Notes internes sur les joueurs'],
+  ['announce','Annonce à tous les joueurs'],['maintenance','Mode maintenance'],['lobbies','Voir et fermer les salons publics'],
   ['_','Pouvoirs du staff (menu O en partie et Espace staff)'],
   ['pw_god','Vie illimitée'],['pw_ammo','Munitions illimitées'],['pw_mats','Matériaux illimités'],['pw_speed','Super vitesse'],['pw_radar','Radar des ennemis'],
   ['pw_heal','Soin complet'],['pw_gun','Arme légendaire'],['pw_kit','Kit : soins, trampolines, feux'],['pw_tp','Aller au marqueur de la carte'],['pw_sky','Redéployer en planeur'],
@@ -7330,7 +7371,10 @@ function rankRender(){const r=rankN();
   // pouvoirs : on ne montre que ceux que le rang permet
   document.querySelectorAll('#staffMenu [data-st],#staffMenu [data-sa]').forEach(b=>b.hidden=!can('pw_'+(b.dataset.st||b.dataset.sa)));
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).closest('label').hidden=!can('pw_'+k);
-  $('stXp').hidden=!can('pw_xp');}
+  $('stXp').hidden=!can('pw_xp');
+  $('mdKick').hidden=!can('kick');$('mdRename').hidden=!can('rename');$('mdCard').hidden=!can('players');$('rpClear').hidden=!can('reports');
+  $('anPub').disabled=$('anDel').disabled=$('anText').disabled=$('anDur').disabled=!can('announce');
+  $('mtOn').disabled=$('mtMsg').disabled=$('mtSave').disabled=!can('maintenance');$('lbRefresh').hidden=!can('lobbies');}
 async function amLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('automod_get');if(!error&&data){amApply(data);amRender();}}
 function amRender(){if(document.activeElement&&$('amPane').contains(document.activeElement))return;
   $('amWords').value=(AM.words||[]).join(', ');$('amLinks').checked=!!AM.links;$('amCaps').checked=!!AM.caps;
@@ -7368,13 +7412,13 @@ $('ivLoad').addEventListener('click',invLoad);$('ivPseudo').addEventListener('ke
 $('ivAdd').addEventListener('click',()=>{invFill();const it=$('ivItem').value;if(it)invSet(it,true);});
 async function timeoutLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('my_timeout');if(!error)ACC.timeout=data&&data.length?data[0]:null;}
 async function warnLoad(){if(!ACC.sb||!ACC.user||(state.running&&!state.over))return;const {data,error}=await ACC.sb.rpc('my_warnings');if(error||!data||!data.length)return;
-  const ul=$('warnList');ul.textContent='';for(const w of data){const li=document.createElement('li');li.textContent=w.reason+' ('+fmtDate(w.created_at)+')';ul.append(li);}$('warnBox').hidden=false;}
+  setText($('warnTitle'),'Avertissement du staff');const ul=$('warnList');ul.textContent='';for(const w of data){const li=document.createElement('li');li.textContent=w.reason+' ('+fmtDate(w.created_at)+')';ul.append(li);}$('warnBox').hidden=false;}
 $('warnOk').addEventListener('click',()=>{$('warnBox').hidden=true;});
 let accRefreshT=0;
 async function accRefresh(all){
   if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;accRefreshT=Date.now();
   const jobs=[friendsLoad(),invitesLoad()];
-  jobs.push(grantsLoad(),timeoutLoad(),warnLoad());if(all||!(accRefresh.n++%6))jobs.push(amLoad());
+  jobs.push(grantsLoad(),timeoutLoad(),warnLoad(),statusLoad());if(all||!(accRefresh.n++%6))jobs.push(amLoad());
   if(ACC.role==='staff')jobs.push(rankLoad());
   if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),reportsLoad(),codesLoad(),playersLoad(),timeoutsLoad());
   await Promise.all(jobs);
@@ -7424,7 +7468,7 @@ function renderAccount(){
   if(u){setText($('acName'),md.full_name||md.name||'Joueur');setText($('acMail'),u.email||'');const pic=md.avatar_url||md.picture||'';if($('acPic').getAttribute('src')!==pic)$('acPic').src=pic;
     setText($('acRole'),ACC.role==='staff'?'Staff':'Joueur');$('acRole').classList.toggle('staff',ACC.role==='staff');}
   const sy=$('acSync');setText(sy,ACC.state||'');sy.classList.toggle('err',/Erreur|impossible|indisponible/.test(ACC.state));
-  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';for(const id of ['logPane','amPane','permPane','invPane'])$(id).hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';$('accountsPane').hidden=ACC.role!=='staff';$('managePane').hidden=ACC.role!=='staff';
+  $('staffPane').hidden=ACC.role!=='staff';$('staffAdmin').hidden=ACC.role!=='staff';$('modPane').hidden=ACC.role!=='staff';for(const id of ['logPane','amPane','permPane','invPane','cardPane','toolsPane'])$(id).hidden=ACC.role!=='staff';$('codesPane').hidden=ACC.role!=='staff';$('accountsPane').hidden=ACC.role!=='staff';$('managePane').hidden=ACC.role!=='staff';
   $('friendsPane').hidden=!u;$('giftPane').hidden=!u;
   if(u&&ACC.ready&&hubTab==='compte'&&Date.now()-accRefreshT>8000)accRefresh(true);
   for(const [id,k] of [['stCoins','coins'],['stGod','god'],['stAmmo','ammo'],['stMats','mats']])$(id).checked=!!STAFF[k];
@@ -7439,7 +7483,7 @@ function acNavRender(){
   document.querySelectorAll('#acBody>[data-sec]').forEach(p=>p.classList.toggle('acoff',p.dataset.sec!==acSec));
 }
 document.querySelectorAll('#acNav button').forEach(b=>b.addEventListener('click',()=>{acSec=b.dataset.sec;acNavRender();$('tabCompte').scrollTop=0;
-  if(acSec==='journal')logLoad();else if(acSec==='automod')amLoad();else if(acSec==='permissions')permsLoad();else if(acSec==='moderation'){timeoutsLoad();modLoad();reportsLoad();}}));
+  if(acSec==='journal')logLoad();else if(acSec==='automod')amLoad();else if(acSec==='permissions')permsLoad();else if(acSec==='outils')toolsLoad();else if(acSec==='moderation'){timeoutsLoad();modLoad();reportsLoad();}}));
 // gestion du staff (fonctions serveur qui vérifient elles-mêmes le rôle staff)
 const errFr=e=>e&&e.message?e.message:'erreur inconnue';
 async function staffAdminLoad(cached){
@@ -7483,10 +7527,12 @@ function renderGate(){
   else if(!ACC.user)k='login';
   else if(!ACC.ready)k='load';
   else if(ACC.ban)k='ban';
+  else if(ACC.maint&&ACC.role!=='staff')k='maint';
   else if(!ACC.pseudo)k='pseudo';
-  g.hidden=!k;$('gLogout').hidden=!(ACC.user&&(k==='ban'||k==='pseudo'));
+  g.hidden=!k;$('gLogout').hidden=!(ACC.user&&(k==='ban'||k==='pseudo'||k==='maint'));
   if(!k){setText($('gMsg'),'');return;}
-  gateShow(k);
+  gateShow(k==='maint'?'ban':k);$('gBan').querySelector('.gbanT').textContent=k==='maint'?'Maintenance en cours':'Compte suspendu';
+  if(k==='maint')setText($('gBanTxt'),(ACC.maint.msg||'Le jeu revient très vite.')+' Cette page se rouvre toute seule à la fin de la maintenance.');
   if(k==='login'){const st=ACC.state||'';setText($('gMsg'),/Erreur|impossible|indisponible|Termine|annulée/.test(st)?st:'');$('gMsg').classList.toggle('err',/Erreur|impossible|indisponible/.test(st));}
   if(k==='ban'){const b=ACC.ban;setText($('gBanTxt'),(b.until?'Jusqu\'au '+new Date(b.until).toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'}):'Suspension définitive')+(b.reason?' · Motif : '+b.reason:''));}
   if(k==='pseudo'&&!$('gPseudoIn').value){const md=ACC.user.user_metadata||{};$('gPseudoIn').value=String(md.full_name||md.name||'').split(' ')[0].normalize('NFD').replace(/[^A-Za-z0-9_-]/g,'').slice(0,14);}
@@ -7517,7 +7563,7 @@ setInterval(async()=>{
   if(!ACC.sb||!ACC.user||!ACC.ready)return;pollN++;
   const inGame=state.running&&!state.over;
   if(inGame&&pollN%6)return; // en partie : une fois par minute seulement
-  const [b]=await Promise.all([ACC.sb.rpc('my_ban'),pollN%6===0||NET.role==='host'?accHeartbeat():null,inGame?timeoutLoad():null,inGame&&NET.role==='host'&&pollN%6===0?amLoad():null]);
+  const [b]=await Promise.all([ACC.sb.rpc('my_ban'),statusLoad(),pollN%6===0||NET.role==='host'?accHeartbeat():null,inGame?timeoutLoad():null,inGame&&NET.role==='host'&&pollN%6===0?amLoad():null]);
   const nb=b.data&&b.data.length?b.data[0]:null;
   if(!!nb!==!!ACC.ban){ACC.ban=nb;renderGate();renderAccount();}
   if(!inGame)accRefresh(false);
@@ -7752,6 +7798,75 @@ $('mdTo').addEventListener('click',()=>{const p=$('mdPseudo').value.trim(),m=+$(
   modAct('mod_timeout',{target_pseudo:p,minutes:m,why:$('mdWhy').value.trim()},p+' est exclu du chat pour '+DUR_TXT(m)+'.');});
 $('mdUnTo').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);modAct('mod_untimeout',{target_pseudo:p},'Exclusion de '+p+' levée.');});
 $('mdHist').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);$('lgSearch').value=p;acSec='journal';acNavRender();logLoad();});
+// expulsion, refus de pseudo, fiche joueur, notes, annonce, maintenance, salons publics
+$('mdKick').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);
+  modAct('mod_kick',{target_pseudo:p,why:$('mdWhy').value.trim()},p+' sera renvoyé au menu dans les 10 s (1 min s\'il est en pleine partie).');});
+$('mdRename').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);
+  modAct('mod_rename',{target_pseudo:p,why:$('mdWhy').value.trim()},'Le pseudo '+p+' est refusé : le joueur devra en choisir un autre.');});
+$('mdCard').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);$('cdPseudo').value=p;acSec='fiche';acNavRender();cardLoad();});
+$('rpClear').addEventListener('click',async()=>{if(!confirm('Supprimer tous les signalements ?'))return;const {error}=await ACC.sb.rpc('mod_reports_clear');modMsg(error?'Impossible : '+errFr(error):'Signalements vidés.',!error);reportsLoad();});
+function cdMsg(t,ok){const m=$('cdMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
+async function cardLoad(){const p=$('cdPseudo').value.trim();if(!p)return cdMsg('Entre le pseudo du joueur.',false);
+  const {data:c,error}=await ACC.sb.rpc('mod_player_card',{target_pseudo:p});const box=$('cdBox');box.textContent='';$('cdNoteRow').hidden=true;
+  if(error)return cdMsg('Impossible : '+errFr(error),false);cdMsg('',true);
+  const el=(tag,txt,cls)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+  const g=el('div',null,'cdgrid');box.append(g);
+  const cell=(lab,val)=>{const d=el('div');d.append(el('small',lab),el('b',val));g.append(d);};
+  cell('Pseudo',c.pseudo+(c.rank?' · '+RANK_NAME[c.rank]:''));cell('État',c.online?'En ligne'+(c.lobby?' · salon '+c.lobby:''):'Vu '+fmtAgo(c.last_seen));
+  cell('Compte créé',fmtDate(c.created_at));cell('Niveau',levelOf(c.xp)+' · '+fmtN(c.coins)+' coquillages');
+  cell('Bannissement',c.ban?(c.ban.until?'jusqu\'au '+fmtDate(c.ban.until):'définitif')+(c.ban.reason?' · '+c.ban.reason:''):'Non');
+  cell('Exclusion du chat',c.timeout?'jusqu\'au '+fmtDate(c.timeout.until)+(c.timeout.reason?' · '+c.timeout.reason:''):'Non');
+  cell('Actions du staff',String(c.actions||0));
+  const list=(title,items,fmt)=>{box.append(el('h4',title+' ('+items.length+')','lbl'));const ul=el('ul',null,'salist');box.append(ul);
+    if(!items.length)ul.append(Object.assign(el('li'),{innerHTML:'<div><small>Aucun.</small></div>'}));for(const it of items)ul.append(fmt(it));};
+  list('Avertissements',c.warnings||[],w=>{const li=el('li'),d=el('div');d.append(el('b',w.reason),el('small',fmtDate(w.at)+(w.by?' · par '+w.by:'')+(w.seen?' · lu':' · pas encore lu')));li.append(d);return li;});
+  list('Signalements reçus',c.reports||[],r=>{const li=el('li'),d=el('div');d.append(el('b','« '+r.msg+' »'),el('small',fmtDate(r.at)+(r.ctx?' · '+r.ctx:'')+(r.by?' · signalé par '+r.by:'')));li.append(d);return li;});
+  if(c.notes){list('Notes du staff',c.notes,n=>{const li=el('li'),d=el('div');d.append(el('b',n.note),el('small',fmtDate(n.at)+(n.by?' · '+n.by:'')));li.append(d);
+      const x=el('button','Supprimer');x.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_note_delete',{nid:n.id});if(e)cdMsg('Impossible : '+errFr(e),false);else cardLoad();});li.append(x);return li;});
+    $('cdNoteRow').hidden=false;}
+  const act=el('div',null,'row');act.style.marginTop='10px';box.append(act);
+  for(const [lab,fn] of [['Modérer',()=>{$('mdPseudo').value=c.pseudo;acSec='moderation';acNavRender();}],['Journal',()=>{$('lgSearch').value=c.pseudo;acSec='journal';acNavRender();logLoad();}],
+    ['Inventaire',()=>{$('ivPseudo').value=c.pseudo;acSec='joueurs';acNavRender();invLoad();}]]){const b=el('button',lab);b.addEventListener('click',fn);act.append(b);}}
+$('cdGo').addEventListener('click',cardLoad);$('cdPseudo').addEventListener('keydown',e=>{if(e.key==='Enter')cardLoad();});
+$('cdNoteAdd').addEventListener('click',async()=>{const n=$('cdNote').value.trim();if(!n)return;const {error}=await ACC.sb.rpc('mod_note_add',{target_pseudo:$('cdPseudo').value.trim(),p_note:n});
+  if(error)return cdMsg('Impossible : '+errFr(error),false);$('cdNote').value='';cardLoad();});
+const tmsg=(id,t,ok)=>{const m=$(id);m.className='acsync '+(ok?'ok':'err');setText(m,t);};
+async function toolsLoad(){if(ACC.role!=='staff'||!ACC.sb)return;const {data,error}=await ACC.sb.rpc('mod_tools_get');if(error)return tmsg('anMsg','Impossible : '+errFr(error),false);
+  const a=data.announce||{},m=data.maint||{};
+  if(document.activeElement!==$('anText'))$('anText').value=a.text||'';
+  setText($('anMsg'),a.text&&(!a.until||new Date(a.until)>Date.now())?'Annonce en ligne'+(a.until?' jusqu\'au '+fmtDate(a.until):' sans fin')+(a.by?' · par '+a.by:'')+'.':'Aucune annonce en ligne.');$('anMsg').className='acsync';
+  $('mtOn').checked=!!m.on;if(document.activeElement!==$('mtMsg'))$('mtMsg').value=m.msg||'';setText($('mtTxt'),m.on?'Maintenance ACTIVE : seuls les membres du staff peuvent jouer.':'Le jeu est ouvert à tous.');$('mtTxt').className='acsync '+(m.on?'err':'ok');
+  const ps=$('psList');ps.textContent='';const pl=data.pseudos||[];
+  if(!pl.length)ps.append(Object.assign(document.createElement('li'),{innerHTML:'<div><small>Aucun pseudo refusé.</small></div>'}));
+  for(const x of pl){const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b');b.textContent=x;d.append(b);li.append(d);
+    if(can('rename')){const bt=document.createElement('button');bt.textContent='Autoriser à nouveau';bt.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_pseudo_unban',{p:x});if(!e)toolsLoad();});li.append(bt);}ps.append(li);}
+  if(can('lobbies'))lobbiesLoad();}
+async function lobbiesLoad(){const {data,error}=await ACC.sb.rpc('mod_lobbies_list');const ul=$('lbList');ul.textContent='';if(error)return;
+  if(!data.length)ul.append(Object.assign(document.createElement('li'),{innerHTML:'<div><small>Aucun salon public ouvert.</small></div>'}));
+  for(const l of data){const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');
+    b.textContent=l.code+' · '+(l.host_pseudo||'?');sm.textContent=(l.game==='zombie'?'Zombies':'Battle royale')+' · '+l.mode+' · '+l.players+' joueur'+(l.players>1?'s':'')+' · '+fmtAgo(l.updated_at);d.append(b,sm);li.append(d);
+    const x=document.createElement('button');x.textContent='Fermer';x.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_lobby_close',{p_code:l.code});if(!e)lobbiesLoad();});li.append(x);
+    if(l.host_pseudo&&can('kick')){const k=document.createElement('button');k.textContent='Expulser l\'hôte';k.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_kick',{target_pseudo:l.host_pseudo,why:'Salon fermé par le staff'});tmsg('anMsg',e?'Impossible : '+errFr(e):l.host_pseudo+' sera renvoyé au menu.',!e);lobbiesLoad();});li.append(k);}
+    ul.append(li);}}
+$('lbRefresh').addEventListener('click',lobbiesLoad);
+$('anPub').addEventListener('click',async()=>{const t=$('anText').value.trim();if(!t)return tmsg('anMsg','Écris le texte de l\'annonce.',false);
+  const {error}=await ACC.sb.rpc('announce_set',{p_text:t,minutes:+$('anDur').value});tmsg('anMsg',error?'Impossible : '+errFr(error):'Annonce publiée : tous les joueurs la voient dans les 10 s.',!error);if(!error){statusLoad();setTimeout(toolsLoad,300);}});
+$('anDel').addEventListener('click',async()=>{const {error}=await ACC.sb.rpc('announce_set',{p_text:'',minutes:0});$('anText').value='';tmsg('anMsg',error?'Impossible : '+errFr(error):'Annonce retirée.',!error);if(!error)statusLoad();});
+$('mtSave').addEventListener('click',async()=>{const on=$('mtOn').checked;if(on&&!confirm('Activer la maintenance ? Les joueurs (hors staff) ne pourront plus jouer.'))return;
+  const {error}=await ACC.sb.rpc('maintenance_set',{p_on:on,p_msg:$('mtMsg').value.trim()});tmsg('mtTxt',error?'Impossible : '+errFr(error):on?'Maintenance activée.':'Maintenance terminée : le jeu est ouvert à tous.',!error&&!on);if(!error){statusLoad();setTimeout(toolsLoad,300);}});
+// état envoyé à chaque joueur : expulsion, annonce, maintenance, pseudo refusé
+function modBox(title,lines){setText($('warnTitle'),title);const ul=$('warnList');ul.textContent='';for(const l of lines){const li=document.createElement('li');li.textContent=l;ul.append(li);}$('warnBox').hidden=false;}
+function annRender(){const b=$('annBar'),inGame=state.running&&!state.over;let txt='',maint=false;
+  if(ACC.maint&&ACC.role==='staff'){txt='Maintenance en cours : seuls les membres du staff peuvent jouer.';maint=true;}
+  else if(ACC.ann)txt='📢 '+ACC.ann.text+(ACC.ann.by?' — '+ACC.ann.by:'');
+  b.hidden=!txt||inGame;b.classList.toggle('maint',maint);setText(b,txt);
+  if(inGame&&ACC.ann&&ACC.annShown!==ACC.ann.text){ACC.annShown=ACC.ann.text;showBanner('Annonce du staff',ACC.ann.text,6);}}
+async function statusLoad(){if(!ACC.sb||!ACC.user||!ACC.ready)return;const {data:st,error}=await ACC.sb.rpc('my_status');if(error||!st)return;
+  if(st.kick){if(state.running)backToMenu();leaveNet();try{mmReset();}catch(err){}if($('lobby'))$('lobby').hidden=true;$('menu').hidden=false;
+    modBox('Expulsé par le staff',['Tu as été renvoyé de ta partie.'+(st.kick.reason?' Motif : '+st.kick.reason:'')]);setText($('warnTitle'),'Expulsé par le staff');}
+  ACC.ann=st.announce||null;const m=!!st.maint;if(m!==!!ACC.maint||(st.maint&&ACC.maint&&st.maint.msg!==ACC.maint.msg)){ACC.maint=st.maint||null;renderGate();}
+  if(!st.pseudo&&ACC.pseudo){ACC.pseudo=null;$('pseudo').readOnly=false;$('gPseudoIn').value='';renderGate();warnLoad();}
+  annRender();}
 async function timeoutsLoad(){if(ACC.role!=='staff'||!ACC.sb)return;const {data,error,stale}=await latestRpc('mod_timeouts_list');if(stale)return;const ul=$('toList');ul.textContent='';if(error)return;
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Personne n\'est exclu du chat.</small></div>';ul.append(li);return;}
   for(const x of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');

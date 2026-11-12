@@ -14,6 +14,21 @@ Mise à jour du 12 novembre 2026 (soir).
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## Encore plus d'outils de modération (12 novembre 2026)
+
+| Ajout | Détail |
+| --- | --- |
+| Expulser de sa partie | Le joueur revient au menu en 10 s (1 min s'il est en pleine partie) avec le motif ; s'il héberge un salon public, celui-ci est retiré |
+| Refuser un pseudo | Le joueur doit choisir un nouveau pseudo (avertissement avec le motif) ; l'ancien ne peut plus être pris par personne. Les mots interdits (liste de base et AutoMod) sont refusés dans les pseudos, vérifié par le serveur |
+| Fiche joueur | Compte, en ligne et salon, niveau et coquillages, bannissement et exclusion en cours, avertissements (lus ou non), signalements reçus, notes internes du staff (ajout, suppression), nombre d'actions ; raccourcis vers Modérer, Journal et Inventaire |
+| Annonce à tous | Bandeau en bas du menu et message en partie, pour 1 h, 6 h, 1 jour, 7 jours ou sans fin |
+| Mode maintenance | Seul le staff peut jouer ; les autres voient « Maintenance en cours » et le message (ceux en partie reviennent au menu) ; la page se rouvre seule à la fin |
+| Salons publics | Liste des parties rapides ouvertes avec Fermer et Expulser l'hôte |
+| Signalements | Bouton Tout vider |
+| Permissions | 6 nouveaux pouvoirs réglables : expulser, refuser un pseudo, notes, annonce, maintenance, salons publics. Tout est noté au journal |
+
+Base : `supabase/moderation_tools.sql`. Vérification : en base en tant que propriétaire puis joueur (transaction annulée : expulsion lue une seule fois, ancien pseudo et pseudo injurieux refusés, pseudo normal accepté) ; dans le jeu, fiche, outils, annonce, expulsion en pleine partie, maintenance puis fin, pseudo refusé, aucune erreur.
+
 ## Pouvoirs du staff dans les permissions (12 novembre 2026)
 
 | Demande | Ce qui a changé |
