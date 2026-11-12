@@ -9,7 +9,7 @@ FPS battle royale qui se joue directement dans le navigateur. 20 combattants sau
 - **Bus volant** : chaque partie commence dans un bus volant à rotors qui traverse l'île en ligne droite (trajet en pointillés sur la carte). Les portes s'ouvrent au-dessus de la côte : `Espace` pour sauter, éjection automatique avant qu'il ne quitte l'île. Les bots sautent au-dessus de l'endroit où ils veulent atterrir ; la zone attend que tout le monde soit sorti. En mode Zombies, seuls les vrais joueurs sont dans le bus.
 - **Solo, Duo, Escouade** : en duo et en escouade, un joueur à 0 PV tombe à terre et un coéquipier peut le réanimer (maintenir `E` pendant 5 s).
 - **Contre les bots** : tout seul, les bots complètent les 20 places.
-- **Zombies** : en solo ou dans un salon, par équipes de 1, 2 ou 4. Seuls les vrais joueurs sautent en planeur ; 30 zombies (dont 10 Zombies Soldats aussi rapides qu'un joueur) les traquent partout, cassent les constructions, prennent rampes, escaliers, portes et fenêtres, et reviennent 3 s après leur mort ailleurs sur l'île en lâchant un objet. Un coup sur 5 infecte : il faut boire une potion de bouclier dans les 60 s (elle soigne l'infection au lieu de donner du bouclier), sinon c'est la mort. Pas de zone : le but est de survivre le plus longtemps ; les autres équipes peuvent coopérer ou se tirer dessus.
+- **Zombies** : en solo ou dans un salon, par équipes de 1, 2 ou 4. Seuls les vrais joueurs sautent en planeur ; 30 zombies (dont 10 Zombies Soldats, plus rapides que la marche mais moins que le sprint) les traquent partout, font le tour des bâtiments quand un mur les bloque, montent par les rampes construites, cassent les constructions, prennent rampes, escaliers, portes et fenêtres, et reviennent 3 s après leur mort ailleurs sur l'île en lâchant un objet. Leurs coups partent avec un élan et peuvent rater (on peut esquiver en s'écartant). Un coup sur 5 infecte : il faut boire une potion de bouclier dans les 60 s (elle soigne l'infection au lieu de donner du bouclier), sinon c'est la mort. Pas de zone : le but est de survivre le plus longtemps ; les autres équipes peuvent coopérer ou se tirer dessus.
 - **Partie rapide en ligne** : rejoint automatiquement une partie publique du même jeu et du même mode (Battle royale ou Zombies, Solo, Duo ou Escouade), ou en ouvre une si aucune n'attend. Lancement automatique au bout de 45 s, ou 5 s après que le salon est plein (25 joueurs) ; les bots complètent. Les inconnus d'un même duo ou d'une même escouade jouent ensemble.
 - **Emotes** : maintenir `N` en partie ouvre la roue d'emotes (6 emplacements, choix à la souris ou avec 1 à 6). 12 emotes : 3 offertes, 6 en boutique, 3 dans le Gacha Fête (dont le Feu d'artifice, légendaire). Elles se jouent aussi dans le salon.
 - **Salon** : les personnages de tous les joueurs sont affichés sur une scène 3D avec leur tenue ; réglages, chat et invitations sur les côtés.
@@ -53,7 +53,10 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 
 ## En partie
 
-- **L'île** : relief avec collines, le Mont Zéro au centre, une rivière, des plages et 6 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. La carte change à chaque partie.
+- **L'île** : relief avec collines, une rivière, des plages et 12 lieux nommés (villages, port, ferme…) avec maisons à fenêtres, granges, tours de guet et conteneurs. **La carte est toujours la même** ; seuls le butin, le contenu des coffres et les largages changent à chaque partie.
+- **La Forteresse** : au sommet de la montagne aplanie, une forteresse de métal (enceinte de 7 m, tours d'angle, 4 portes) qui renferme un labyrinthe de 25 salles pleines de butin et de coffres. Au pied du versant sud, un parking creusé (voitures garées) relié par une route à l'est et une à l'ouest, et deux grands escaliers qui montent du parking jusque dans la forteresse.
+- **Leviers et seringue** : 5 leviers sont cachés dans une même salle de la forteresse. Chaque joueur a les siens (si un coéquipier les actionne, ils restent baissés pour toi). Les 5 actionnés, la grande boule de la salle centrale s'allume en mauve avec des éclairs : le bouton devant donne la **seringue de survie**. Touche `Y` : injection en 2 s (on la voit se planter dans l'avant-bras), bouclier et vie au maximum, puis 60 s de recharge. Avec une seringue prête, tu tombes à terre au lieu de mourir (même en solo) et tu peux te relever avec ; à terre tu peux encore être achevé. Elle se perd à la mort.
+- **Eau profonde** : quand on n'a plus pied, on nage la tête hors de l'eau (plus lentement) ; si la caméra passe sous l'eau, la vue devient bleu sombre.
 
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
 - **Une seule île** : Îlot Zéro, avec la ville du Quartier des Tours, des villages, des forêts, une rivière et une zone désert (ville de Mirage, cactus). Routes droites en quadrillage, plates en travers, toutes reliées, sans impasse et sans traverser de bâtiment ; ponts au-dessus de l'eau.
@@ -86,7 +89,7 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 | Maj / Espace | Sprinter / sauter |
 | Clic gauche / clic droit | Tirer / viser |
 | 1 à 4, molette | Pioche et armes |
-| X | S'accroupir (plus précis, plus discret) ; en plein sprint : glissade |
+| X | S'accroupir (plus précis, plus discret) ; en plein sprint : glissade ; Maj en avançant relève et fait sprinter |
 | Espace face à un obstacle | Escalader (murets, caisses, conteneurs jusqu'à 2,8 m) |
 | M | Grande carte (clic pour poser un marqueur d'équipe) |
 | N | Emote : salut, danse, danse robot (appuyer à nouveau pour changer) |
@@ -94,7 +97,9 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 | E | Ramasser, maintenir pour réanimer ou rappeler, monter dans une voiture ou en sortir, ouvrir ou fermer une porte |
 | Z/Q/S/D ou W/A/S/D en voiture | Accélérer, tourner, freiner et reculer ; Espace = frein à main |
 | R | Recharger |
-| A (Q en QWERTY) | Jeter son arme (elle part devant soi et retombe au sol) |
+| A (Q en QWERTY) | Jeter son arme (elle part devant soi et retombe au sol ; on peut la rattraper en l'air) |
+| Y | Seringue de survie (si tu l'as) |
+| H | Se soigner : bandages tant qu'il manque de la vie, puis potion de bouclier ; infecté : la potion d'abord |
 | Échap | Pause ; ferme aussi la grande carte, les paramètres ouverts depuis la pause et la pause elle-même |
 | F / C / V | Construire mur / sol / rampe |
 | G (ou clic droit en construction) | Changer de matériau |
