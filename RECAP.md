@@ -14,6 +14,17 @@ Mise à jour du 12 novembre 2026 (soir).
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## Rôles personnalisés et saisons d'avance (12 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Créer des rôles | Compte → **Rôles** : bouton « Créer un rôle », puis nom, couleur, niveau (1 à 99) et pouvoirs à cocher (les 18 pouvoirs de modération et les 12 du menu `O`). Les trois anciens rangs sont devenus trois rôles modifiables (Admin 30, Modérateur 20, Assistant 10), avec les mêmes pouvoirs qu'avant. Équipe staff : un menu pour donner un rôle à chaque membre, étiquette à la couleur du rôle. Le propriétaire a tout ; les autres ne gèrent que les rôles et les membres de niveau inférieur au leur et ne donnent que des pouvoirs qu'ils ont (vérifié par le serveur). Un rôle qui a encore des membres ne peut pas être supprimé. Tout est noté au journal |
+| Deux saisons d'avance, une par mois | Le passe change tout seul le 1er du mois selon la date. **Saison 3 « Givre »** (1er décembre 2026) : tenues Lutin, Patineur, Bûcheron des neiges, Ours polaire, Chasseur des neiges, Aurore boréale, Yéti, Reine des glaces, Père Hiver, Roi de l'hiver ; 15 camos (Flocon, Givre, Sapin, Sucre d'orge, Neige fraîche, Houx, Chocolat chaud, Papier cadeau, Traîneau, Blizzard, Guirlande, Glace noire, Étoile des neiges, Aurore, Cristal de glace). **Saison 4 « Néon »** (1er janvier 2027) : Livreur néon, Hacker, DJ Laser, Motard néon, Pilote de drone, Rōnin néon, Hologramme, Androïde, Synthwave, Empereur néon ; 15 camos (Néon rose, Néon bleu, Grille, Asphalte de nuit, Vaporwave, Laser, Matrice, Chrome néon, Glitch, Pixel, Ville de nuit, Ultraviolet, Coucher synthwave, Plasma, Néon doré). En-tête du passe : jours restants et saison suivante. Les objets d'une saison passée restent à ceux qui les ont gagnés |
+
+Base : `supabase/moderation_roles.sql`. Vérification : en base (transaction annulée), création du rôle « Testeur », attribution, le membre ne peut plus que ce que permet son rôle ; dans le jeu, éditeur de rôles en propriétaire et en Modérateur (rôles supérieurs en lecture seule, pouvoirs non possédés grisés), 20 nouvelles tenues et 30 camos construits sans erreur et vus en jeu, passe de chaque saison complet (10 tenues, 15 camos).
+
+À faire avant le 1er février 2027 : préparer la saison 5, sinon « Néon » continue.
+
 ## Encore plus d'outils de modération (12 novembre 2026)
 
 | Ajout | Détail |

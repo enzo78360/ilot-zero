@@ -32,12 +32,7 @@ Les données sont stockées dans [Supabase](https://supabase.com/) (serveurs à 
 
 ### Staff
 
-Le staff a trois **rangs**, comme sur Discord :
-- **Assistant** : avertir, exclure du chat jusqu'à 1 h, traiter les signalements, lire le journal ;
-- **Modérateur** : en plus, exclure du chat jusqu'à 7 jours, bannir et débannir, régler l'AutoMod ;
-- **Admin** : en plus, gérer le staff et les rangs, faire des cadeaux aux joueurs, créer des codes. Le propriétaire est toujours Admin et lui seul nomme ou rétrograde un Admin.
-
-Ce ne sont que les réglages de départ : dans Compte → **Permissions**, le propriétaire choisit pour chacun des 18 pouvoirs de modération, et pour chacun des 12 pouvoirs du menu `O` et de l'Espace staff (vie illimitée, munitions, matériaux, super vitesse, radar, soin, arme légendaire, kit, téléportation, redéploiement, coquillages et XP illimités), à partir de quel rang il est permis (Assistant et plus, Modérateur et plus, Admin seulement). Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
+Le staff fonctionne avec des **rôles**, comme sur Discord (Compte → **Rôles**) : on crée autant de rôles que l'on veut, chacun avec un nom, une couleur, un **niveau** (1 à 99) et ses pouvoirs cochés un par un (18 pouvoirs de modération et 12 pouvoirs du menu `O` et de l'Espace staff). Au départ : Admin (niveau 30), Modérateur (20) et Assistant (10). Le propriétaire a tous les pouvoirs. Un membre ne gère que les rôles et les membres de niveau inférieur au sien, et ne donne que des pouvoirs qu'il a lui-même. Personne n'agit sur un membre de niveau égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
 - l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
 - les **Comptes des joueurs** : liste avec recherche, en ligne ou non, niveau, coquillages, bannissement en cours ;
 - **Gérer un joueur** : ajouter, retirer ou régler ses coquillages et son XP ;
@@ -49,7 +44,7 @@ Ce ne sont que les réglages de départ : dans Compte → **Permissions**, le pr
 - le **Journal** : toutes les actions du staff (qui, quoi, à qui, quand, pourquoi), filtrable par pseudo ;
 - l'**AutoMod** : mots interdits en plus de la liste de base (variantes et lettres espacées comprises), liens retirés ou non, majuscules adoucies ou non, seuils de l'anti-spam (messages, durée, répétitions, durée du silence) et mode lent, appliqués dans tous les salons ;
 - les **Codes cadeaux** : créer un code (coquillages ou XP, durée de validité, utilisations maximum), suivre ses utilisations, le supprimer ;
-- les **Membres du staff** : ajouter une adresse Gmail (il arrive Assistant), changer le rang d'un membre ou le retirer. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
+- les **Membres du staff** : ajouter une adresse Gmail (il reçoit le rôle le plus bas), changer le rôle d'un membre ou le retirer. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
 
 En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent).
 
@@ -69,6 +64,7 @@ Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites 
 - **Leviers et seringue** : 5 leviers sont cachés dans une même salle de la forteresse. Chaque joueur a les siens (si un coéquipier les actionne, ils restent baissés pour toi). Les 5 actionnés, la grande boule de la salle centrale s'allume en mauve avec des éclairs : le bouton devant donne la **seringue de survie**. Touche `Y` : injection en 2 s (on la voit se planter dans l'avant-bras), bouclier et vie au maximum, puis 60 s de recharge. Avec une seringue prête, tu tombes à terre au lieu de mourir (même en solo) et tu peux te relever avec ; à terre tu peux encore être achevé. Elle se perd à la mort.
 - **Eau profonde** : quand on n'a plus pied, on nage la tête hors de l'eau (plus lentement) ; si la caméra passe sous l'eau, la vue devient bleu sombre.
 
+- **Saisons du passe de combat** : une nouvelle saison chaque mois, choisie automatiquement selon la date, avec 50 paliers, 10 tenues et 15 camos exclusifs. Saison 2 « Abysses » en novembre 2026, saison 3 « Givre » en décembre 2026, saison 4 « Néon » en janvier 2027. Le passe affiche les jours restants et le nom de la saison suivante ; les objets gagnés restent pour toujours.
 - **Matériaux** : bois (arbres), brique (rochers), métal (épaves de voitures). Le métal tient le plus longtemps.
 - **Une seule île** : Îlot Zéro, avec la ville du Quartier des Tours, des villages, des forêts, une rivière et une zone désert (ville de Mirage, cactus). Routes droites en quadrillage, plates en travers, toutes reliées, sans impasse et sans traverser de bâtiment ; ponts au-dessus de l'eau.
 - **Rendu réaliste** : textures photo avec relief (Poly Haven, CC0), routes avec marquages, trottoirs, passages piétons et lampadaires, façades variées (briques, crépi, bois, béton) avec balcons et commerces, montagne à crêtes. Personnage réaliste pour tous les joueurs et 4 voitures réalistes (modèles Sketchfab sous licence CC Attribution, auteurs cités dans Paramètres → Crédits).

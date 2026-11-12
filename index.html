@@ -57,7 +57,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .rkoff{display:none!important}
 #ivList h4{margin:12px 0 6px}#ivList .chips{display:flex;flex-wrap:wrap;gap:6px}#ivList .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:8px;background:rgba(255,255,255,.07);font-size:13px}
 #ivList .chip button{padding:2px 8px;font-size:11px}#ivList .chip.pend{outline:1px dashed rgba(255,200,80,.6)}
-#pmList select{min-width:190px}
+#pmList .rolecard{display:block!important;padding:12px}#pmList .rolehead{display:flex!important;flex-direction:row!important;gap:8px;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap;text-align:left}#pmList .rolehead>*{flex:0 0 auto;margin:0}
+#pmList .rolehead input[type=color]{width:40px;height:32px;padding:0;border:none;background:none}#pmList .rolehead input:not([type]){flex:1 1 180px!important;min-width:140px}
+#pmList .rolelv{width:64px}#pmList .rolegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 14px;margin:10px 0;font-size:13px}
+#pmList .rolegrid h4{grid-column:1/-1;margin:8px 0 2px}#pmList .rolegrid label{display:flex;gap:6px;align-items:flex-start}#pmList .rolegrid input{flex:0 0 auto;width:14px;height:14px;margin-top:2px}
 .rtag.r-admin{background:#c0392b}.rtag.r-mod{background:#2e86de}.rtag.r-helper{background:#16a085}
 #syrHud{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-align:center;color:#fff;background:linear-gradient(135deg,rgba(110,40,200,.92),rgba(180,108,255,.88));white-space:nowrap;margin-top:6px}
 #syrHud.cd{background:rgba(40,30,60,.85);color:#cdb8f0}
@@ -752,7 +755,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
       </div>
     </div></section>
-    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="fiche">Fiche joueur</button><button data-sec="journal">Journal</button><button data-sec="outils">Outils</button><button data-sec="automod">AutoMod</button><button data-sec="permissions">Permissions</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
+    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="fiche">Fiche joueur</button><button data-sec="journal">Journal</button><button data-sec="outils">Outils</button><button data-sec="automod">AutoMod</button><button data-sec="permissions">Rôles</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
       <div class="pane panel" data-sec="moi">
         <h3>Mon compte</h3>
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
@@ -860,10 +863,10 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <p class="acsync" id="amMsg"></p>
       </div>
       <div class="pane panel" id="permPane" data-sec="permissions" hidden>
-        <h3>Permissions des rangs</h3>
+        <h3>Rôles</h3>
         <p class="tag" id="pmTag">Choisis, pour chaque pouvoir, à partir de quel rang il est permis. Les Admins ont toujours tout ce qui est permis aux rangs en dessous. Personne n'agit sur un membre de rang égal ou supérieur.</p>
+        <button class="wide" id="pmNew">+ Créer un rôle</button>
         <ul class="salist" id="pmList"></ul>
-        <button class="wide" id="pmSave">Enregistrer les permissions</button>
         <p class="acsync" id="pmMsg"></p>
       </div>
       <div class="pane panel" id="invPane" data-sec="joueurs" hidden>
@@ -1198,13 +1201,76 @@ const WRAPS = {
   abysse: {name:'Abysses', dark:0x000814, mid:0x00f5d4, emis:0x00c4aa, pat:'circuit', rar:3, sp:1},
   cyber:  {name:'Cyber', dark:0x10002b, mid:0xff00a0, emis:0xc8007f, price:2400, rar:3},
 };
-// Saison 2 : Abysses. Une récompense à chaque palier : tenue tous les 5 paliers, revêtements exclusifs, coquillages
-const SEASON=2,SEASON_NAME='Abysses';
-const PASS=(()=>{const sk=['scaphandrier','phare','requin','triton','meduse','corsabysse','pieuvre','abyssal','kraken','neptune'],
-  wr=['bulles','algue','sable','phareraye','lagon','peau_requin','perle','recif','plancton','meduse_w','courant','tentacules','ecailles','tresor','abysse'],P={};let wi=0;
+// Saisons du passe de combat : une par mois, choisie selon la date (les prochaines sont prêtes d'avance).
+// Une récompense à chaque palier : tenue tous les 5 paliers, camos exclusifs, coquillages.
+Object.assign(SKINS,{
+  lutin:{name:"Lutin", shirt:0x2d6a4f, pants:0xc1121f, skin:0xf0c49a, hat:'band', hatc:0xc1121f, rar:1, sp:1},
+  patineur:{name:"Patineur", shirt:0x48cae4, pants:0x023e8a, skin:0xf0c49a, hat:'bucket', hatc:0xf8f9fa, rar:1, sp:1},
+  bucheron:{name:"Bûcheron des neiges", shirt:0xb5302a, pants:0x3a2a1a, skin:0xe0b090, hat:'cap', hatc:0x1d1d1f, rar:2, sp:1},
+  ours_polaire:{name:"Ours polaire", shirt:0xf1f1ee, pants:0xdcdcd8, skin:0xf1f1ee, rar:2, sp:1},
+  chasseur_neige:{name:"Chasseur des neiges", shirt:0xe9ecef, pants:0xadb5bd, skin:0xe8b48a, hat:'helmet', hatc:0xf8f9fa, rar:2, sp:1},
+  aurore_boreale:{name:"Aurore boréale", shirt:0x2d00f7, pants:0x0b0033, skin:0xe8c39e, hat:'visor', hatc:0x00f5d4, rar:2, sp:1},
+  yeti:{name:"Yéti", shirt:0xcfe8ef, pants:0xa9d6e5, skin:0x89c2d9, hat:'horns', hatc:0xe0fbfc, rar:3, sp:1},
+  reine_glace:{name:"Reine des glaces", shirt:0x90e0ef, pants:0x0077b6, skin:0xf0f4f8, hat:'crown', hatc:0xcaf0f8, rar:3, sp:1},
+  pere_hiver:{name:"Père Hiver", shirt:0xc1121f, pants:0xc1121f, skin:0xf0c49a, hat:'bucket', hatc:0xc1121f, rar:3, sp:1},
+  roi_hiver:{name:"Roi de l'hiver", shirt:0xf8f9fa, pants:0xadb5bd, skin:0xdbe9f6, hat:'crown', hatc:0x48cae4, rar:3, sp:1},
+  livreur_neon:{name:"Livreur néon", shirt:0x1a1a2e, pants:0x16213e, skin:0xf0c49a, hat:'cap', hatc:0xff00a0, rar:1, sp:1},
+  hacker:{name:"Hacker", shirt:0x0d0d0d, pants:0x1a1a1a, skin:0xe8b48a, hat:'band', hatc:0x39ff14, rar:1, sp:1},
+  dj_laser:{name:"DJ Laser", shirt:0x240046, pants:0x10002b, skin:0xc68642, hat:'visor', hatc:0x00f5ff, rar:2, sp:1},
+  motard_neon:{name:"Motard néon", shirt:0x111111, pants:0x1a1a1a, skin:0xe0b090, hat:'helmet', hatc:0xff006e, rar:2, sp:1},
+  pilote_drone:{name:"Pilote de drone", shirt:0x2b2d42, pants:0x14213d, skin:0xf0c49a, hat:'antenna', hatc:0x00f5ff, rar:2, sp:1},
+  ronin_neon:{name:"Rōnin néon", shirt:0x10002b, pants:0x0b0014, skin:0xe8b48a, hat:'knight', hatc:0x7b2cbf, rar:2, sp:1},
+  hologramme:{name:"Hologramme", shirt:0x4cc9f0, pants:0x4361ee, skin:0x90e0ef, rar:3, sp:1},
+  androide:{name:"Androïde", shirt:0xe0e1dd, pants:0x778da9, skin:0xdee2e6, hat:'antenna', hatc:0xff00a0, rar:3, sp:1},
+  synthwave:{name:"Synthwave", shirt:0xff006e, pants:0x3a0ca3, skin:0xf0c49a, hat:'visor', hatc:0xffbe0b, rar:3, sp:1},
+  empereur_neon:{name:"Empereur néon", shirt:0x10002b, pants:0x000000, skin:0xe2b896, hat:'crown', hatc:0x00f5ff, rar:3, sp:1}
+});
+Object.assign(WRAPS,{
+  flocon:{name:"Flocon", dark:0x023e8a, mid:0xcaf0f8, pat:'cristal', rar:1, sp:1},
+  givre:{name:"Givre", dark:0xade8f4, mid:0xf8f9fa, pat:'marbre', rar:1, sp:1},
+  sapin:{name:"Sapin", dark:0x081c15, mid:0x2d6a4f, pat:'jungle', rar:1, sp:1},
+  sucre_orge:{name:"Sucre d'orge", dark:0xf8f9fa, mid:0xd00000, pat:'bonbon', rar:1, sp:1},
+  neige:{name:"Neige fraîche", dark:0xdee2e6, mid:0xffffff, pat:'corail', rar:1, sp:1},
+  houx:{name:"Houx", dark:0x1b4332, mid:0xc1121f, pat:'jungle', rar:2, sp:1},
+  chocolat:{name:"Chocolat chaud", dark:0x3d1f0f, mid:0x9c6644, pat:'rouille', rar:2, sp:1},
+  papier_cadeau:{name:"Papier cadeau", dark:0xc1121f, mid:0xffd60a, pat:'bonbon', rar:2, sp:1},
+  traineau:{name:"Traîneau", dark:0x370617, mid:0xc9a227, pat:'carbone', rar:2, sp:1},
+  blizzard:{name:"Blizzard", dark:0x415a77, mid:0xe0e1dd, pat:'ocean', rar:2, sp:1},
+  guirlande:{name:"Guirlande", dark:0x0b090a, mid:0xffd60a, emis:0xff9e00, pat:'circuit', rar:2, sp:1},
+  glace_noire:{name:"Glace noire", dark:0x03071e, mid:0x90e0ef, pat:'hexa', rar:2, sp:1},
+  etoile_neige:{name:"Étoile des neiges", dark:0x10002b, mid:0xe0fbfc, emis:0x90e0ef, pat:'galaxie', rar:3, sp:1},
+  aurore_w:{name:"Aurore", dark:0x0b0033, mid:0x00f5d4, emis:0x7209b7, pat:'galaxie', rar:3, sp:1},
+  cristal_glace:{name:"Cristal de glace", dark:0x48cae4, mid:0xffffff, emis:0x90e0ef, pat:'cristal', rar:3, sp:1},
+  neon_rose:{name:"Néon rose", dark:0x10002b, mid:0xff00a0, emis:0xff00a0, pat:'circuit', rar:1, sp:1},
+  neon_bleu:{name:"Néon bleu", dark:0x03071e, mid:0x00f5ff, emis:0x00b4d8, pat:'circuit', rar:1, sp:1},
+  grille_neon:{name:"Grille", dark:0x0b0014, mid:0x7b2cbf, emis:0x9d4edd, pat:'hexa', rar:1, sp:1},
+  asphalte_nuit:{name:"Asphalte de nuit", dark:0x111111, mid:0x2b2d42, pat:'carbone', rar:1, sp:1},
+  vapeur:{name:"Vaporwave", dark:0xff99c8, mid:0xa9def9, pat:'marbre', rar:1, sp:1},
+  laser:{name:"Laser", dark:0x000000, mid:0xff006e, emis:0xff006e, pat:'foudre', rar:2, sp:1},
+  matrice:{name:"Matrice", dark:0x001100, mid:0x39ff14, emis:0x39ff14, pat:'circuit', rar:2, sp:1},
+  chrome_neon:{name:"Chrome néon", dark:0xadb5bd, mid:0x00f5ff, pat:'carbone', rar:2, sp:1},
+  glitch:{name:"Glitch", dark:0x0d0d0d, mid:0x00f5ff, emis:0xff00a0, pat:'foudre', rar:2, sp:1},
+  pixel_neon:{name:"Pixel", dark:0x240046, mid:0xffbe0b, pat:'hexa', rar:2, sp:1},
+  ville_nuit:{name:"Ville de nuit", dark:0x03071e, mid:0xffbe0b, emis:0xff9e00, pat:'circuit', rar:2, sp:1},
+  uv:{name:"Ultraviolet", dark:0x10002b, mid:0xc77dff, emis:0x9d4edd, pat:'cristal', rar:2, sp:1},
+  synth_w:{name:"Coucher synthwave", dark:0x3a0ca3, mid:0xff006e, emis:0xffbe0b, pat:'galaxie', rar:3, sp:1},
+  plasma:{name:"Plasma", dark:0x03071e, mid:0xf72585, emis:0x4cc9f0, pat:'foudre', rar:3, sp:1},
+  neon_or:{name:"Néon doré", dark:0x1a1300, mid:0xffd60a, emis:0xffb703, pat:'circuit', rar:3, sp:1}
+});
+const SEASONS=[
+  {n:2,name:'Abysses',from:'2026-11-01',sk:['scaphandrier','phare','requin','triton','meduse','corsabysse','pieuvre','abyssal','kraken','neptune'],
+    wr:['bulles','algue','sable','phareraye','lagon','peau_requin','perle','recif','plancton','meduse_w','courant','tentacules','ecailles','tresor','abysse']},
+  {n:3,name:'Givre',from:'2026-12-01',sk:['lutin','patineur','bucheron','ours_polaire','chasseur_neige','aurore_boreale','yeti','reine_glace','pere_hiver','roi_hiver'],wr:['flocon','givre','sapin','sucre_orge','neige','houx','chocolat','papier_cadeau','traineau','blizzard','guirlande','glace_noire','etoile_neige','aurore_w','cristal_glace']},
+  {n:4,name:'Néon',from:'2027-01-01',sk:['livreur_neon','hacker','dj_laser','motard_neon','pilote_drone','ronin_neon','hologramme','androide','synthwave','empereur_neon'],wr:['neon_rose','neon_bleu','grille_neon','asphalte_nuit','vapeur','laser','matrice','chrome_neon','glitch','pixel_neon','ville_nuit','uv','synth_w','plasma','neon_or']}];
+const seasonStart=s=>new Date(s.from+'T00:00:00').getTime();
+const SEASON_CUR=(()=>{const t=Date.now();let c=SEASONS[0];for(const s of SEASONS)if(t>=seasonStart(s))c=s;return c;})();
+const SEASON_NEXT=SEASONS.find(s=>seasonStart(s)>seasonStart(SEASON_CUR))||null;
+const SEASON=SEASON_CUR.n,SEASON_NAME=SEASON_CUR.name;
+function buildPass(se){const sk=se.sk,wr=se.wr,P={};let wi=0;
   for(let t=1;t<=50;t++){if(t%5===0)P[t]={skin:sk[t/5-1]};else if((t%5===2||(t%5===4&&t<25))&&wi<wr.length)P[t]={wrap:wr[wi++]};else P[t]={coins:t===1?300:Math.round((150+t*6)/10)*10};}
-  for(const t in P){const r=P[t];if(r.skin)SKINS[r.skin].pass=+t;if(r.wrap)WRAPS[r.wrap].pass=+t;}
-  return P;})();
+  return P;}
+const PASS=buildPass(SEASON_CUR);
+for(const t in PASS){const r=PASS[t];if(r.skin)SKINS[r.skin].pass=+t;if(r.wrap)WRAPS[r.wrap].pass=+t;}
 function tierReward(t){return PASS[t]||{coins:100};}
 function passXp(){return Math.max(0,prof.xp-(prof.sxp||0));}
 function passLv(){return levelOf(passXp());}
@@ -2941,6 +3007,26 @@ const OUTFIT={
   abyssal:{shirt:0x0a0f1a,accent:0x00f5d4,pants:0x05070d,skin:0x1b263b,hair:null,boots:0x05070d,gloves:0x0a0f1a,sleeve:'long',metal:true,face:'robot',pack:'box',packc:0x00f5d4},
   kraken:{shirt:0x2d0a3e,accent:0x9d4edd,pants:0x14051c,skin:0x5a2a6e,hair:null,boots:0x14051c,gloves:0x2d0a3e,sleeve:'long',metal:true,face:'mask',facec:0x3c096c,cape:0x5a189a},
   neptune:{shirt:0x0077b6,accent:0xffd60a,pants:0x03045e,skin:0xe8c39e,hair:0xf1faee,boots:0xc9a227,gloves:0xffd60a,sleeve:'short',metal:true,beard:0xf1faee,cape:0x023e8a},
+  lutin:{shirt:0x2d6a4f,pants:0xc1121f,skin:0xf0c49a,hair:0x8a5a2b,boots:0x2d6a4f,sleeve:'long',accent:0xffd60a,vest:0xc1121f,gloves:0x2d6a4f},
+  patineur:{shirt:0x48cae4,pants:0x023e8a,skin:0xf0c49a,hair:0x3b2a1e,boots:0xf8f9fa,sleeve:'long',accent:0xf8f9fa,gloves:0xf8f9fa},
+  bucheron:{shirt:0xb5302a,pants:0x3a2a1a,skin:0xe0b090,hair:0x5a3e2b,boots:0x2a1d14,sleeve:'long',accent:0x1d1d1f,vest:0x1d1d1f,beard:0x5a3e2b,pack:'bag',packc:0x6b4a2b},
+  ours_polaire:{shirt:0xf1f1ee,pants:0xdcdcd8,skin:0xf1f1ee,hair:null,boots:0xdcdcd8,gloves:0xf1f1ee,sleeve:'long',face:'mask',facec:0xf1f1ee,accent:0x1d1d1f},
+  chasseur_neige:{shirt:0xe9ecef,pants:0xadb5bd,skin:0xe8b48a,hair:0x3b2a1e,boots:0xced4da,gloves:0xced4da,sleeve:'long',vest:0xdee2e6,pack:'bag',packc:0xadb5bd,accent:0x6c757d},
+  aurore_boreale:{shirt:0x2d00f7,pants:0x0b0033,skin:0xe8c39e,hair:0x00f5d4,boots:0x0b0033,gloves:0x2d00f7,sleeve:'long',accent:0x00f5d4,cape:0x7209b7,metal:true},
+  yeti:{shirt:0xcfe8ef,pants:0xa9d6e5,skin:0x89c2d9,hair:null,boots:0xa9d6e5,gloves:0xcfe8ef,sleeve:'long',face:'mask',facec:0xe0fbfc,beard:0xffffff,accent:0x61a5c2},
+  reine_glace:{shirt:0x90e0ef,pants:0x0077b6,skin:0xf0f4f8,hair:0xf8f9fa,boots:0x0077b6,gloves:0xcaf0f8,sleeve:'long',metal:true,accent:0x48cae4,cape:0xade8f4},
+  pere_hiver:{shirt:0xc1121f,pants:0xc1121f,skin:0xf0c49a,hair:0xf8f9fa,boots:0x111111,gloves:0x111111,sleeve:'long',coat:true,beard:0xf8f9fa,accent:0xf8f9fa,pack:'bag',packc:0x6b4a2b},
+  roi_hiver:{shirt:0xf8f9fa,pants:0xadb5bd,skin:0xdbe9f6,hair:0xdbe9f6,boots:0x6c757d,gloves:0x48cae4,sleeve:'long',metal:true,accent:0x48cae4,cape:0x023e8a,beard:0xdbe9f6},
+  livreur_neon:{shirt:0x1a1a2e,pants:0x16213e,skin:0xf0c49a,hair:0x111111,boots:0xff00a0,gloves:0x1a1a2e,sleeve:'short',accent:0xff00a0,pack:'box',packc:0x00f5ff},
+  hacker:{shirt:0x0d0d0d,pants:0x1a1a1a,skin:0xe8b48a,hair:0x111111,boots:0x0d0d0d,gloves:0x0d0d0d,sleeve:'long',coat:true,accent:0x39ff14},
+  dj_laser:{shirt:0x240046,pants:0x10002b,skin:0xc68642,hair:0xff00a0,boots:0x00f5ff,gloves:0x240046,sleeve:'short',accent:0x00f5ff,vest:0xff00a0},
+  motard_neon:{shirt:0x111111,pants:0x1a1a1a,skin:0xe0b090,hair:0x111111,boots:0x111111,gloves:0xff006e,sleeve:'long',accent:0xff006e,vest:0x2b2d42,metal:true},
+  pilote_drone:{shirt:0x2b2d42,pants:0x14213d,skin:0xf0c49a,hair:0x3b2a1e,boots:0x14213d,gloves:0x2b2d42,sleeve:'long',accent:0x00f5ff,pack:'box',packc:0x8d99ae},
+  ronin_neon:{shirt:0x10002b,pants:0x0b0014,skin:0xe8b48a,hair:0x111111,boots:0x0b0014,gloves:0x7b2cbf,sleeve:'long',metal:true,accent:0xff00a0,cape:0x3c096c},
+  hologramme:{shirt:0x4cc9f0,pants:0x4361ee,skin:0x90e0ef,hair:0x4cc9f0,boots:0x4361ee,gloves:0x4cc9f0,sleeve:'long',metal:true,face:'robot',accent:0xf72585},
+  androide:{shirt:0xe0e1dd,pants:0x778da9,skin:0xdee2e6,hair:null,boots:0x415a77,gloves:0x778da9,sleeve:'long',metal:true,face:'robot',pack:'box',packc:0xff00a0,accent:0x00f5ff},
+  synthwave:{shirt:0xff006e,pants:0x3a0ca3,skin:0xf0c49a,hair:0xffbe0b,boots:0x3a0ca3,gloves:0xff006e,sleeve:'short',accent:0xffbe0b,coat:true,cape:0x7209b7},
+  empereur_neon:{shirt:0x10002b,pants:0x000000,skin:0xe2b896,hair:0xff00a0,boots:0x00f5ff,gloves:0xff00a0,sleeve:'long',metal:true,accent:0x00f5ff,cape:0xff00a0,beard:0xff00a0},
   mecha:{shirt:0xc1121f,accent:0xffd60a,pants:0x3d0a0f,skin:0xa4a9b0,hair:null,boots:0x2b2d30,gloves:0x2b2d30,sleeve:'long',metal:true,face:'robot',pack:'box',packc:0x3d0a0f},
 };
 const charMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.78,metalness:0,bumpMap:TEX.fabric,bumpScale:.0012});
@@ -7020,7 +7106,8 @@ function renderStore(){
     const pl=passLv(),px=passXp()%XP_LVL,done=Math.min(pl,PASS_TIERS);
     const nObj=Object.values(PASS).filter(r=>r.skin||r.wrap).length,gotObj=Object.entries(PASS).filter(([t,r])=>(r.skin||r.wrap)&&+t<=pl).length;
     const hd=document.createElement('div');hd.className='passhead';
-    hd.innerHTML=`<div class="phTop"><div><small>Saison ${SEASON}</small><b></b></div><div class="phTier"><span>Palier</span><b>${done}</b><i>/ ${PASS_TIERS}</i></div></div>
+    const endTxt=SEASON_NEXT?(()=>{const d=Math.max(0,Math.ceil((seasonStart(SEASON_NEXT)-Date.now())/864e5));return ' · fin dans '+d+' jour'+(d>1?'s':'')+' · prochaine : '+SEASON_NEXT.name;})():'';
+    hd.innerHTML=`<div class="phTop"><div><small>Saison ${SEASON}${endTxt}</small><b></b></div><div class="phTier"><span>Palier</span><b>${done}</b><i>/ ${PASS_TIERS}</i></div></div>
       <div class="phBar"><i style="width:${pl>=PASS_TIERS?100:px/XP_LVL*100}%"></i></div>
       <div class="phInfo"><span></span><span>${gotObj} / ${nObj} objets exclusifs obtenus</span></div><div class="phTrack" id="phTrack"></div>`;
     hd.querySelector('.phTop b').textContent=SEASON_NAME;
@@ -7328,39 +7415,58 @@ const chatMutedP=new Set();
 setInterval(async()=>{if(NET.role!=='host'||!NET.conns.length||!ACC.sb||!ACC.user)return;
   const ps=NET.conns.map(c=>c.pname).filter(Boolean).slice(0,40);if(!ps.length)return;
   const {data,error}=await ACC.sb.rpc('chat_muted',{pseudos:ps});if(error)return;chatMutedP.clear();for(const n of data||[])chatMutedP.add(String(n).toLowerCase());},20000);
-const RANK_N={admin:3,mod:2,helper:1},RANK_NAME={admin:'Admin',mod:'Modérateur',helper:'Assistant'};
-const rankN=()=>ACC.role==='staff'?(RANK_N[ACC.rank]||1):0;
+const rankN=()=>ACC.role==='staff'?(MYLEVEL||1):0;
 const PERM_DEF={warn:1,timeout:1,timeout_long:2,reports:1,log:1,ban:2,automod:2,players:1,inventory:3,economy:3,codes:3,staff:3,
   kick:1,rename:2,notes:1,announce:2,maintenance:3,lobbies:2,
   pw_god:1,pw_ammo:1,pw_mats:1,pw_speed:1,pw_radar:1,pw_coins:1,pw_xp:1,pw_heal:1,pw_gun:1,pw_kit:1,pw_tp:1,pw_sky:1};
 const PERM_TXT=[['warn','Avertir un joueur'],['timeout','Exclure du chat (jusqu\'à 1 h) et lever une exclusion'],['timeout_long','Exclure du chat plus d\'1 h (jusqu\'à 7 jours)'],
   ['reports','Voir et traiter les signalements'],['log','Lire le journal de modération'],['ban','Bannir et débannir'],['automod','Régler l\'AutoMod'],
   ['players','Voir la liste des comptes des joueurs'],['inventory','Donner ou retirer des objets (inventaire)'],['economy','Coquillages et XP des joueurs'],
-  ['codes','Codes cadeaux'],['staff','Ajouter ou retirer du staff, changer les rangs'],
+  ['codes','Codes cadeaux'],['staff','Ajouter ou retirer du staff, changer leur rôle'],
   ['kick','Expulser un joueur de sa partie'],['rename','Refuser un pseudo (le joueur doit en choisir un autre)'],['notes','Notes internes sur les joueurs'],
   ['announce','Annonce à tous les joueurs'],['maintenance','Mode maintenance'],['lobbies','Voir et fermer les salons publics'],
   ['_','Pouvoirs du staff (menu O en partie et Espace staff)'],
   ['pw_god','Vie illimitée'],['pw_ammo','Munitions illimitées'],['pw_mats','Matériaux illimités'],['pw_speed','Super vitesse'],['pw_radar','Radar des ennemis'],
   ['pw_heal','Soin complet'],['pw_gun','Arme légendaire'],['pw_kit','Kit : soins, trampolines, feux'],['pw_tp','Aller au marqueur de la carte'],['pw_sky','Redéployer en planeur'],
   ['pw_coins','Coquillages illimités (pour soi)'],['pw_xp','XP illimitée : débloquer tout le passe (pour soi)']];
-let PERMS=Object.assign({},PERM_DEF),PERM_OWNER=false;
-const can=k=>rankN()>=(PERMS[k]||3);
+PERM_TXT.splice(PERM_TXT.findIndex(x=>x[0]==='staff')+1,0,['roles','Créer et modifier les rôles (en dessous du sien)']);
+// rôles personnalisés : chaque rôle a un nom, une couleur, un niveau (hiérarchie) et ses pouvoirs ; le propriétaire a tout
+let MYPERMS=new Set(),PERM_OWNER=false,MYLEVEL=0,MYROLE=null,ROLES=[];
+const can=k=>ACC.role==='staff'&&(PERM_OWNER||MYPERMS.has(k));
 async function permsLoad(){if(!ACC.sb||ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('perms_get');if(error||!data)return;
-  PERMS=Object.assign({},PERM_DEF,data.perms||{});PERM_OWNER=!!data.owner;permsRender();rankRender();}
-function permsRender(){const ul=$('pmList');if(document.activeElement&&ul.contains(document.activeElement))return;ul.textContent='';
-  for(const [k,lab] of PERM_TXT){if(k==='_'){const h=document.createElement('h4');h.className='lbl';h.style.margin='14px 0 4px';h.textContent=lab;ul.append(h);continue;}
-    const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b');b.textContent=lab;d.append(b);
-    const sel=document.createElement('select');sel.dataset.k=k;sel.disabled=!PERM_OWNER;sel.setAttribute('aria-label',lab);
-    for(const [v,t] of [[1,'Assistant et plus'],[2,'Modérateur et plus'],[3,'Admin seulement']]){const o=document.createElement('option');o.value=v;o.textContent=t;if(+PERMS[k]===v)o.selected=true;sel.append(o);}
-    li.append(d,sel);ul.append(li);}
-  $('pmSave').hidden=!PERM_OWNER;setText($('pmTag'),'Choisis, pour chaque pouvoir, à partir de quel rang il est permis. Personne n\'agit sur un membre de rang égal ou supérieur.'+(PERM_OWNER?'':' Seul le propriétaire peut modifier ce tableau.'));}
-$('pmSave').addEventListener('click',async()=>{const cfg={};$('pmList').querySelectorAll('select').forEach(x=>cfg[x.dataset.k]=+x.value);
-  const {error}=await ACC.sb.rpc('perms_set',{cfg:JSON.stringify(cfg)});const m=$('pmMsg');m.className='acsync '+(error?'err':'ok');
-  setText(m,error?'Impossible : '+errFr(error):'Permissions enregistrées : elles s\'appliquent tout de suite.');if(!error){PERMS=Object.assign({},PERM_DEF,cfg);rankRender();}});
+  PERM_OWNER=!!data.owner;MYPERMS=new Set(data.perms||[]);MYLEVEL=+data.level||1;MYROLE=data.role||null;ROLES=data.roles||[];rolesRender();rankRender();}
+const roleEditable=r=>PERM_OWNER||(can('roles')&&(r.id==null||r.level<MYLEVEL));
+function rolesRender(force){const ul=$('pmList');if(!force&&document.activeElement&&ul.contains(document.activeElement))return;ul.textContent='';
+  $('pmNew').hidden=!(PERM_OWNER||can('roles'));
+  setText($('pmTag'),'Crée autant de rôles que tu veux : nom, couleur, niveau et pouvoirs. Plus le niveau est haut, plus le rôle est élevé : on ne gère que les rôles et les membres de niveau inférieur au sien, et on ne donne que des pouvoirs que l\'on a.'+(PERM_OWNER?' Tu es propriétaire : tu as tous les pouvoirs.':' Ton niveau : '+MYLEVEL+'.'));
+  for(const r of ROLES){const ed=roleEditable(r),li=document.createElement('li');li.className='rolecard';
+    const top=document.createElement('div');top.className='rolehead';
+    const col=Object.assign(document.createElement('input'),{type:'color',value:r.color||'#7f8c8d',disabled:!ed});col.setAttribute('aria-label','Couleur du rôle');
+    const nm=Object.assign(document.createElement('input'),{value:r.name||'',maxLength:24,placeholder:'Nom du rôle',disabled:!ed});nm.setAttribute('aria-label','Nom du rôle');
+    const lv=Object.assign(document.createElement('input'),{type:'number',min:1,max:99,value:r.level||10,disabled:!ed});lv.setAttribute('aria-label','Niveau du rôle');lv.className='rolelv';
+    const info=document.createElement('small');info.textContent=r.id==null?'nouveau rôle':(r.members||0)+' membre'+((r.members||0)>1?'s':'');
+    top.append(col,nm,Object.assign(document.createElement('span'),{textContent:'niveau'}),lv,info);li.append(top);
+    const grid=document.createElement('div');grid.className='rolegrid';
+    for(const [k,lab] of PERM_TXT){if(k==='_'){grid.append(Object.assign(document.createElement('h4'),{className:'lbl',textContent:lab}));continue;}
+      const l=document.createElement('label'),cb=Object.assign(document.createElement('input'),{type:'checkbox',checked:(r.perms||[]).includes(k),disabled:!ed||(!PERM_OWNER&&!MYPERMS.has(k))});cb.dataset.k=k;
+      l.append(cb,document.createTextNode(' '+lab));grid.append(l);}
+    li.append(grid);
+    if(ed){const bar=document.createElement('div');bar.className='row';
+      const sv=document.createElement('button');sv.textContent=r.id==null?'Créer le rôle':'Enregistrer';
+      sv.addEventListener('click',async()=>{const perms=[...grid.querySelectorAll('input[type=checkbox]')].filter(x=>x.checked).map(x=>x.dataset.k);
+        const {error}=await ACC.sb.rpc('role_save',{p_id:r.id,p_name:nm.value.trim(),p_color:col.value,p_level:Math.round(+lv.value),p_perms:perms});
+        const m=$('pmMsg');m.className='acsync '+(error?'err':'ok');setText(m,error?'Impossible : '+errFr(error):'Rôle « '+nm.value.trim()+' » enregistré.');if(!error){await permsLoad();rolesRender(true);staffAdminLoad();}});
+      bar.append(sv);
+      if(r.id!=null){const dl=document.createElement('button');dl.textContent='Supprimer';dl.addEventListener('click',async()=>{if(!confirm('Supprimer le rôle « '+r.name+' » ?'))return;
+        const {error}=await ACC.sb.rpc('role_delete',{p_id:r.id});const m=$('pmMsg');m.className='acsync '+(error?'err':'ok');setText(m,error?'Impossible : '+errFr(error):'Rôle supprimé.');if(!error){await permsLoad();rolesRender(true);}});bar.append(dl);}
+      else{const an=document.createElement('button');an.textContent='Annuler';an.addEventListener('click',()=>{ROLES=ROLES.filter(x=>x!==r);rolesRender(true);});bar.append(an);}
+      li.append(bar);}
+    ul.append(li);}}
+$('pmNew').addEventListener('click',()=>{if(ROLES.some(r=>r.id==null))return;ROLES.unshift({id:null,name:'',color:'#9b59b6',level:Math.max(1,Math.min(15,(PERM_OWNER?99:MYLEVEL)-1)),perms:[]});rolesRender(true);$('pmList').querySelector('input:not([type])').focus();});
 async function rankLoad(){if(!ACC.sb||ACC.role!=='staff')return;const [{data,error}]=await Promise.all([ACC.sb.rpc('my_rank'),permsLoad()]);if(error)return;const ch=ACC.rank!==(data||null);ACC.rank=data||null;rankRender();if(ch){staffAdminLoad();playersLoad();reportsLoad();}}
 function rankRender(){const r=rankN();
   const list=PERM_TXT.filter(([k])=>k!=='_'&&!k.startsWith('pw_')&&can(k)).map(([,t])=>t.charAt(0).toLowerCase()+t.slice(1));
-  setText($('mdRankTxt'),r?'Ton rang : '+(RANK_NAME[ACC.rank]||'Assistant')+(PERM_OWNER?' (propriétaire)':'')+'. Tes pouvoirs : '+(list.join(', ')||'aucun')+'.':'');
+  setText($('mdRankTxt'),r?'Ton rôle : '+(PERM_OWNER?'Propriétaire (tous les pouvoirs)':(MYROLE?MYROLE.name+' (niveau '+MYROLE.level+')':'aucun'))+'. Tes pouvoirs : '+(PERM_OWNER?'tous':(list.join(', ')||'aucun'))+'.':'');
   $('mdBanRow').hidden=!can('ban');$('acNavCodes').hidden=!can('codes');$('saAddRow').hidden=!can('staff');$('managePane').classList.toggle('rkoff',!can('economy'));
   $('invPane').classList.toggle('rkoff',!can('inventory'));$('accountsPane').classList.toggle('rkoff',!can('players'));
   $('mdWarn').hidden=!can('warn');$('mdTo').hidden=$('mdUnTo').hidden=$('mdToDur').hidden=!can('timeout');
@@ -7494,12 +7600,12 @@ async function staffAdminLoad(cached){
   const me=(ACC.user&&ACC.user.email||'').toLowerCase();
   for(const r of data||[]){
     const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');
-    b.textContent=r.email;b.append(Object.assign(document.createElement('span'),{className:'rtag r-'+(r.rank||'helper'),textContent:RANK_NAME[r.rank]||'Assistant'}));
+    b.textContent=r.email;{const tg=Object.assign(document.createElement('span'),{className:'rtag',textContent:r.owner?'Propriétaire':(r.role_name||'Sans rôle')});tg.style.background=r.owner?'#b8860b':(r.role_color||'#555');b.append(tg);}
     sm.textContent=(r.owner?'Propriétaire · ':'')+(r.connected?(r.name||'Compte créé'):'Pas encore connecté');d.append(b,sm);li.append(d);
-    if(!r.owner&&r.email!==me&&can('staff')){const sel=document.createElement('select');sel.setAttribute('aria-label','Rang de '+r.email);
-      for(const k of ['helper','mod','admin']){const o=document.createElement('option');o.value=k;o.textContent=RANK_NAME[k];if(k===r.rank)o.selected=true;sel.append(o);}
-      sel.addEventListener('change',async()=>{const {error:e}=await ACC.sb.rpc('staff_set_rank',{target_email:r.email,p_rank:sel.value});const m=$('saMsg');m.className='acsync '+(e?'err':'ok');
-        setText(m,e?'Impossible : '+errFr(e):'Nouveau rang : '+RANK_NAME[sel.value]+'.');staffAdminLoad();});li.append(sel);
+    if(!r.owner&&r.email!==me&&can('staff')&&(PERM_OWNER||(r.role_level||1)<MYLEVEL)){const sel=document.createElement('select');sel.setAttribute('aria-label','Rôle de '+r.email);
+      for(const x of ROLES){if(x.id==null||(!PERM_OWNER&&x.level>=MYLEVEL))continue;const o=document.createElement('option');o.value=x.id;o.textContent=x.name+' ('+x.level+')';if(x.id===r.role_id)o.selected=true;sel.append(o);}
+      sel.addEventListener('change',async()=>{const {error:e}=await ACC.sb.rpc('staff_set_role',{target_email:r.email,p_role:+sel.value});const m=$('saMsg');m.className='acsync '+(e?'err':'ok');
+        setText(m,e?'Impossible : '+errFr(e):'Nouveau rôle : '+sel.options[sel.selectedIndex].textContent+'.');staffAdminLoad();permsLoad();});li.append(sel);
       const bt=document.createElement('button');bt.textContent='Retirer';bt.addEventListener('click',()=>staffAdminRemove(r.email));li.append(bt);}
     ul.append(li);}
 }
@@ -7812,7 +7918,7 @@ async function cardLoad(){const p=$('cdPseudo').value.trim();if(!p)return cdMsg(
   const el=(tag,txt,cls)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
   const g=el('div',null,'cdgrid');box.append(g);
   const cell=(lab,val)=>{const d=el('div');d.append(el('small',lab),el('b',val));g.append(d);};
-  cell('Pseudo',c.pseudo+(c.rank?' · '+RANK_NAME[c.rank]:''));cell('État',c.online?'En ligne'+(c.lobby?' · salon '+c.lobby:''):'Vu '+fmtAgo(c.last_seen));
+  cell('Pseudo',c.pseudo+(c.rank?' · '+c.rank:''));cell('État',c.online?'En ligne'+(c.lobby?' · salon '+c.lobby:''):'Vu '+fmtAgo(c.last_seen));
   cell('Compte créé',fmtDate(c.created_at));cell('Niveau',levelOf(c.xp)+' · '+fmtN(c.coins)+' coquillages');
   cell('Bannissement',c.ban?(c.ban.until?'jusqu\'au '+fmtDate(c.ban.until):'définitif')+(c.ban.reason?' · '+c.ban.reason:''):'Non');
   cell('Exclusion du chat',c.timeout?'jusqu\'au '+fmtDate(c.timeout.until)+(c.timeout.reason?' · '+c.timeout.reason:''):'Non');
