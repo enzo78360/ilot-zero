@@ -14,6 +14,17 @@ Mise à jour du 12 novembre 2026 (soir).
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
 
+## Modération façon Discord (12 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Rangs du staff | Assistant, Modérateur, Admin. Assistant : avertir, exclure du chat jusqu'à 1 h, traiter les signalements, lire le journal. Modérateur : en plus exclure jusqu'à 7 jours, bannir, débannir, régler l'AutoMod. Admin : en plus gérer le staff et les rangs, cadeaux et codes. On n'agit jamais sur un rang égal ou supérieur ; le propriétaire est toujours Admin et lui seul nomme les Admins. Les membres du staff déjà en place sont Admin (à ajuster dans Compte → Équipe staff) ; un nouveau membre arrive Assistant |
+| Exclusion temporaire et avertissements | Exclure du chat 5 min, 15 min, 1 h, 6 h, 1 jour ou 7 jours : le joueur continue de jouer mais ne peut plus écrire nulle part (son jeu refuse, et l'hôte du salon ignore ses messages, vérifié toutes les 20 s). Avertissement avec motif : le joueur le voit dans une fenêtre en ouvrant le menu. Bouton Historique par joueur |
+| Journal de modération | Avertissements, exclusions, bannissements, débannissements, signalements traités, staff ajouté ou retiré, rangs, AutoMod, cadeaux et codes : qui, quoi, à qui, quand et pourquoi, filtrable par pseudo |
+| AutoMod réglable | Mots interdits en plus (variantes c0nn4rd et lettres espacées comprises), liens retirés ou non, majuscules adoucies ou non, anti-spam réglable (nombre de messages, durée, répétitions, durée du silence), mode lent. Chargé par chaque joueur et par l'hôte |
+
+Base : `supabase/moderation.sql` (tables d'exclusions, d'avertissements et de journal, rangs, fonctions vérifiées par le serveur). Vérification : fonctions testées en base en tant que propriétaire puis en tant que joueur (refus corrects), dans une transaction annulée ; interface et chat testés dans le jeu (rangs Assistant et Admin, exclusion, mode lent, anti-spam, mot ajouté filtré même espacé, avertissement affiché), aucune erreur.
+
 ## Sixième liste et Forteresse (12 novembre 2026)
 
 | Demande | Ce qui a changé |

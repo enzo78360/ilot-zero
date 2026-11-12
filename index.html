@@ -44,6 +44,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .stat b{font-family:var(--display);font-size:22px;line-height:1.1}
 #stormTxt{padding:6px 10px;border-radius:6px;font-size:13px;text-align:center;letter-spacing:.04em}
 #stormTxt.warn{color:#fff;background:rgba(110,50,200,.7)}
+#warnBox{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;max-width:min(440px,92vw);padding:20px 22px;border:2px solid #ffb347}
+#warnBox ul{margin:10px 0;padding-left:18px}#warnBox li{margin:4px 0}#warnBox button{margin-top:8px;width:100%}
+#amWords{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;background:rgba(0,0,0,.28);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;font:inherit;margin:6px 0 10px}
+.amgrid{display:grid;gap:8px;margin:10px 0}.amgrid input{width:64px;margin:0 4px}
+.rkoff{display:none!important}
+.rtag.r-admin{background:#c0392b}.rtag.r-mod{background:#2e86de}.rtag.r-helper{background:#16a085}
 #syrHud{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-align:center;color:#fff;background:linear-gradient(135deg,rgba(110,40,200,.92),rgba(180,108,255,.88));white-space:nowrap;margin-top:6px}
 #syrHud.cd{background:rgba(40,30,60,.85);color:#cdb8f0}
 #infect{padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-align:center;color:#fff;background:linear-gradient(135deg,rgba(60,140,30,.92),rgba(150,190,40,.88));animation:infp 1s ease-in-out infinite;white-space:nowrap}
@@ -565,6 +571,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
 
 </head>
 <body>
+<div id="warnBox" class="panel" hidden role="alertdialog" aria-labelledby="warnTitle"><h3 id="warnTitle">Avertissement du staff</h3><ul id="warnList"></ul><p class="tag">Respecte les autres joueurs : la prochaine fois, ce peut être une exclusion du chat ou un bannissement.</p><button id="warnOk">J'ai compris</button></div>
 <div id="game"></div>
 
 <div class="hud" id="hud" hidden>
@@ -735,7 +742,7 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
         <div class="pane panel gsside"><h3 id="gsSideT"></h3><div id="gsOpts"></div><h4 class="lbl">Statistiques</h4><div id="armStats"></div></div>
       </div>
     </div></section>
-    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="codes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
+    <section class="hubleft" id="tabCompte" hidden><div class="acwrap"><nav class="acnav panel" id="acNav" aria-label="Sections du compte"><button data-sec="moi" class="sel">Mon compte</button><button data-sec="amis" id="acNavAmis">Amis</button><div class="acnavst" id="acNavSt" hidden><small>Staff</small><button data-sec="joueurs">Joueurs</button><button data-sec="moderation">Modération</button><button data-sec="journal">Journal</button><button data-sec="automod">AutoMod</button><button data-sec="codes" id="acNavCodes">Codes cadeaux</button><button data-sec="equipe">Équipe staff</button><button data-sec="pouvoirs">Pouvoirs</button></div></nav><div class="acbody" id="acBody">
       <div class="pane panel" data-sec="moi">
         <h3>Mon compte</h3>
         <p class="tag" id="acTxt">Connecte-toi avec Google pour sauvegarder ta progression (niveau, XP, coquillages, tenues, accessoires) et la retrouver sur n'importe quel appareil.</p>
@@ -768,18 +775,48 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
       </div>
       <div class="pane panel" id="modPane" data-sec="moderation" hidden>
         <h3>Modération</h3>
+        <p class="tag" id="mdRankTxt"></p>
         <div class="pfield">
-          <div class="row"><input id="mdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur à bannir">
-          </div>
-          <div class="row"><input id="mdNum" type="number" min="1" max="99999" value="24" aria-label="Durée" style="max-width:110px">
-            <select id="mdUnit" aria-label="Unité"><option value="1">minutes</option><option value="60" selected>heures</option><option value="1440">jours</option><option value="0">définitif</option></select></div>
-          <div class="row"><input id="mdWhy" maxlength="200" placeholder="Motif (visible par le joueur)" autocomplete="off" aria-label="Motif"><button id="mdBan">Bannir</button></div>
+          <div class="row"><input id="mdPseudo" maxlength="14" placeholder="Pseudo du joueur" autocomplete="off" aria-label="Pseudo du joueur"></div>
+          <div class="row"><input id="mdWhy" maxlength="200" placeholder="Motif (visible par le joueur)" autocomplete="off" aria-label="Motif"></div>
+          <div class="row"><button id="mdWarn">Avertir</button>
+            <select id="mdToDur" aria-label="Durée de l'exclusion"><option value="5">5 min</option><option value="15">15 min</option><option value="60" selected>1 h</option><option value="360">6 h</option><option value="1440">1 jour</option><option value="10080">7 jours</option></select>
+            <button id="mdTo">Exclure du chat</button><button id="mdUnTo">Lever l'exclusion</button><button id="mdHist">Historique</button></div>
+          <div class="row" id="mdBanRow"><input id="mdNum" type="number" min="1" max="99999" value="24" aria-label="Durée" style="max-width:110px">
+            <select id="mdUnit" aria-label="Unité"><option value="1">minutes</option><option value="60" selected>heures</option><option value="1440">jours</option><option value="0">définitif</option></select><button id="mdBan">Bannir</button></div>
         </div>
         <p class="acsync" id="mdMsg"></p>
+        <h4 class="lbl" style="margin-top:16px">Exclus du chat</h4>
+        <p class="tag">Ils jouent normalement mais ne peuvent plus écrire dans aucun chat (salon ou partie) jusqu'à la fin de l'exclusion.</p>
+        <ul class="salist" id="toList"></ul>
+        <h4 class="lbl" style="margin-top:16px">Bannis</h4>
         <ul class="salist" id="mdList"></ul>
         <h4 class="lbl" style="margin-top:16px">Signalements du chat</h4>
         <p class="tag">Messages signalés par les joueurs (les plus récents en premier). Le message est déjà masqué par le filtre si besoin.</p>
         <ul class="salist" id="rpList"></ul>
+      </div>
+      <div class="pane panel" id="logPane" data-sec="journal" hidden>
+        <h3>Journal de modération</h3>
+        <p class="tag">Qui a fait quoi, à qui, quand et pourquoi : avertissements, exclusions, bannissements, signalements traités, changements de rang, AutoMod, cadeaux et codes.</p>
+        <div class="pfield"><div class="row"><input id="lgSearch" maxlength="14" placeholder="Pseudo (vide : tout le journal)" autocomplete="off" aria-label="Filtrer le journal par pseudo"><button id="lgGo">Afficher</button></div></div>
+        <p class="acsync" id="lgMsg"></p>
+        <ul class="salist" id="lgList"></ul>
+      </div>
+      <div class="pane panel" id="amPane" data-sec="automod" hidden>
+        <h3>AutoMod</h3>
+        <p class="tag" id="amTag">Appliqué partout : dans le salon et en partie, par l'hôte et par chaque joueur. Les Modérateurs et les Admins peuvent le régler.</p>
+        <label class="lbl" for="amWords">Mots interdits en plus de la liste de base (séparés par des virgules ; variantes c0nn4rd et lettres espacées comprises)</label>
+        <textarea id="amWords" rows="3" maxlength="4000" placeholder="mot1, mot2, …"></textarea>
+        <label class="srow"><span>Retirer les liens</span><input type="checkbox" id="amLinks"></label>
+        <label class="srow"><span>Adoucir les messages tout en majuscules</span><input type="checkbox" id="amCaps"></label>
+        <div class="amgrid">
+          <label>Anti-spam : plus de <input type="number" id="amSpamN" min="2" max="20"> messages en <input type="number" id="amSpamWin" min="2" max="60"> s</label>
+          <label>Même message <input type="number" id="amDupN" min="2" max="10"> fois de suite</label>
+          <label>Silence pour spam : <input type="number" id="amMuteS" min="5" max="3600"> s</label>
+          <label>Mode lent : un message toutes les <input type="number" id="amSlow" min="0" max="120"> s (0 = désactivé)</label>
+        </div>
+        <button class="wide" id="amSave">Enregistrer l'AutoMod</button>
+        <p class="acsync" id="amMsg"></p>
       </div>
       <div class="pane panel" id="accountsPane" data-sec="joueurs" hidden>
         <h3>Comptes des joueurs</h3>
@@ -814,7 +851,8 @@ h3{font-size:12px;letter-spacing:.18em;color:var(--accent)}
       <div class="pane panel" id="staffAdmin" data-sec="equipe" hidden>
         <h3>Membres du staff</h3>
         <p class="tag">Ajoute l'adresse Gmail d'un joueur : il devient staff tout de suite, ou à sa première connexion.</p>
-        <div class="joinrow"><input id="saEmail" type="email" placeholder="adresse@gmail.com" autocomplete="off" aria-label="Adresse e-mail du nouveau membre du staff"><button id="saAdd">Ajouter</button></div>
+        <p class="tag">Rangs comme sur Discord. <b>Assistant</b> : avertir, exclure du chat jusqu'à 1 h, traiter les signalements, lire le journal. <b>Modérateur</b> : en plus, exclure jusqu'à 7 jours, bannir, régler l'AutoMod. <b>Admin</b> : en plus, gérer le staff et les rangs, cadeaux et codes. Personne n'agit sur un rang égal ou supérieur ; seul le propriétaire nomme les Admins.</p>
+        <div class="joinrow" id="saAddRow"><input id="saEmail" type="email" placeholder="adresse@gmail.com" autocomplete="off" aria-label="Adresse e-mail du nouveau membre du staff"><button id="saAdd">Ajouter</button></div>
         <p class="acsync" id="saMsg"></p>
         <ul class="salist" id="saList"></ul>
       </div>
@@ -6404,10 +6442,12 @@ setInterval(()=>{
 function onHostData(conn,m){
   conn.lastRx=performance.now();
   if(!m||typeof m!=='object'||m.t==='ping')return;
-  if(m.t==='chat'){if(!NET.conns.includes(conn)||performance.now()-(conn._chatT||0)<700)return;conn._chatT=performance.now();const x=modFilter(m.x);if(!x)return;
+  if(m.t==='chat'){if(!NET.conns.includes(conn)||performance.now()-(conn._chatT||0)<Math.max(650,AM.slow*1000-300))return;conn._chatT=performance.now();
+    if(chatMutedP.has(String(conn.pname||'').toLowerCase())){send(conn,{t:'chat',n:'',x:'Tu es exclu du chat par le staff.',s:1});return;}
+    const x=modFilter(m.x);if(!x)return;
     const o=conn._mod||(conn._mod={}),r=spamCheck(o,x);
     if(r==='mute'){send(conn,{t:'chat',n:'',x:'Tu es réduit au silence encore '+Math.ceil((o.mute-performance.now())/1000)+' s.',s:1});return;}
-    if(r==='spam'){chatPost('',(conn.pname||'?')+' est réduit au silence 30 s (spam).',null,true);return;}
+    if(r==='spam'){chatPost('',(conn.pname||'?')+' est réduit au silence '+AM.muteS+' s (spam).',null,true);return;}
     chatPost(conn.pname||'?',x,conn);return;}
   if(m.t==='lem'){const i=NET.conns.indexOf(conn);if(i<0||state.running||performance.now()-(conn._lemT||0)<800)return;conn._lemT=performance.now();const e=cleanEmote(m.e);if(!e)return;lobbyEmote(i+1,e);broadcast({t:'lem',i:i+1,e});return;}
   if(m.t==='join'){
@@ -7225,14 +7265,44 @@ async function latestRpc(fn,args){const my=LSEQ[fn]=(LSEQ[fn]||0)+1;const r=awai
 const LC={k(){return 'ilotzero-cache-'+(ACC.user&&ACC.user.id||'x');},get(){try{return JSON.parse(localStorage.getItem(this.k())||'{}');}catch(err){return {};}},
   set(o){try{localStorage.setItem(this.k(),JSON.stringify(Object.assign(this.get(),o)));}catch(err){}}};
 // rafraîchissement groupé : tout part en même temps
+// exclus du chat parmi les joueurs de mon salon (je suis l'hôte : j'ignore leurs messages)
+const chatMutedP=new Set();
+setInterval(async()=>{if(NET.role!=='host'||!NET.conns.length||!ACC.sb||!ACC.user)return;
+  const ps=NET.conns.map(c=>c.pname).filter(Boolean).slice(0,40);if(!ps.length)return;
+  const {data,error}=await ACC.sb.rpc('chat_muted',{pseudos:ps});if(error)return;chatMutedP.clear();for(const n of data||[])chatMutedP.add(String(n).toLowerCase());},20000);
+const RANK_N={admin:3,mod:2,helper:1},RANK_NAME={admin:'Admin',mod:'Modérateur',helper:'Assistant'};
+const rankN=()=>ACC.role==='staff'?(RANK_N[ACC.rank]||1):0;
+async function rankLoad(){if(!ACC.sb||ACC.role!=='staff')return;const {data,error}=await ACC.sb.rpc('my_rank');if(error)return;const ch=ACC.rank!==(data||null);ACC.rank=data||null;rankRender();if(ch){staffAdminLoad();playersLoad();reportsLoad();}}
+function rankRender(){const r=rankN();
+  setText($('mdRankTxt'),r?'Ton rang : '+(RANK_NAME[ACC.rank]||'Assistant')+'. '+(r>=3?'Tu as tous les pouvoirs.':r>=2?'Tu peux avertir, exclure du chat jusqu\'à 7 jours, bannir et régler l\'AutoMod.':'Tu peux avertir, exclure du chat jusqu\'à 1 h et traiter les signalements.'):'');
+  $('mdBanRow').hidden=r<2;$('acNavCodes').hidden=r<3;$('saAddRow').hidden=r<3;$('managePane').classList.toggle('rkoff',r<3);
+  for(const o of $('mdToDur').options)o.disabled=r<2&&+o.value>60;if(r<2&&+$('mdToDur').value>60)$('mdToDur').value='60';
+  for(const id of ['amWords','amLinks','amCaps','amSpamN','amSpamWin','amDupN','amMuteS','amSlow','amSave'])$(id).disabled=r<2;
+  setText($('amTag'),'Appliqué partout : dans le salon et en partie, par l\'hôte et par chaque joueur.'+(r<2?' Seuls les Modérateurs et les Admins peuvent le modifier.':''));
+  if(acSec==='codes'&&r<3){acSec='moderation';acNavRender();}}
+async function amLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('automod_get');if(!error&&data){amApply(data);amRender();}}
+function amRender(){if(document.activeElement&&$('amPane').contains(document.activeElement))return;
+  $('amWords').value=(AM.words||[]).join(', ');$('amLinks').checked=!!AM.links;$('amCaps').checked=!!AM.caps;
+  $('amSpamN').value=AM.spamN;$('amSpamWin').value=AM.spamWin;$('amDupN').value=AM.dupN;$('amMuteS').value=AM.muteS;$('amSlow').value=AM.slow;}
+$('amSave').addEventListener('click',async()=>{const m=$('amMsg');
+  const words=[...new Set($('amWords').value.split(/[,;\n]/).map(w=>w.trim().toLowerCase()).filter(w=>w.length>=2&&w.length<=30))].slice(0,300);
+  const cfg={words,links:$('amLinks').checked,caps:$('amCaps').checked,spamN:+$('amSpamN').value,spamWin:+$('amSpamWin').value,dupN:+$('amDupN').value,muteS:+$('amMuteS').value,slow:+$('amSlow').value};
+  const {error}=await ACC.sb.rpc('automod_set',{cfg:JSON.stringify(cfg)});m.className='acsync '+(error?'err':'ok');
+  setText(m,error?'Impossible : '+errFr(error):'AutoMod enregistré ('+words.length+' mot'+(words.length>1?'s':'')+'). Les salons l\'appliquent dans la minute.');if(!error){amApply(cfg);amRender();}});
+async function timeoutLoad(){if(!ACC.sb||!ACC.user)return;const {data,error}=await ACC.sb.rpc('my_timeout');if(!error)ACC.timeout=data&&data.length?data[0]:null;}
+async function warnLoad(){if(!ACC.sb||!ACC.user||(state.running&&!state.over))return;const {data,error}=await ACC.sb.rpc('my_warnings');if(error||!data||!data.length)return;
+  const ul=$('warnList');ul.textContent='';for(const w of data){const li=document.createElement('li');li.textContent=w.reason+' ('+fmtDate(w.created_at)+')';ul.append(li);}$('warnBox').hidden=false;}
+$('warnOk').addEventListener('click',()=>{$('warnBox').hidden=true;});
 let accRefreshT=0;
 async function accRefresh(all){
   if(!ACC.sb||!ACC.user||!ACC.ready||ACC.ban)return;accRefreshT=Date.now();
   const jobs=[friendsLoad(),invitesLoad()];
-  jobs.push(grantsLoad());
-  if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),reportsLoad(),codesLoad(),playersLoad());
+  jobs.push(grantsLoad(),timeoutLoad(),warnLoad());if(all||!(accRefresh.n++%6))jobs.push(amLoad());
+  if(ACC.role==='staff')jobs.push(rankLoad());
+  if(ACC.role==='staff'&&(all||hubTab==='compte'))jobs.push(staffAdminLoad(),modLoad(),reportsLoad(),codesLoad(),playersLoad(),timeoutsLoad());
   await Promise.all(jobs);
 }
+accRefresh.n=0;
 async function accFail(msg){try{await ACC.sb.auth.signOut({scope:'local'});}catch(err){}ACC.user=null;ACC.ready=false;ACC.state=msg;renderAccount();renderGate();}
 function accPushSoon(){if(!ACC.user||!ACC.ready)return;clearTimeout(ACC.pushT);ACC.pushT=setTimeout(accPush,1500);}
 async function accPush(){
@@ -7302,8 +7372,13 @@ async function staffAdminLoad(cached){
   const me=(ACC.user&&ACC.user.email||'').toLowerCase();
   for(const r of data||[]){
     const li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');
-    b.textContent=r.email;sm.textContent=(r.owner?'Propriétaire · ':'')+(r.connected?(r.name||'Compte créé'):'Pas encore connecté');d.append(b,sm);li.append(d);
-    if(!r.owner&&r.email!==me){const bt=document.createElement('button');bt.textContent='Retirer';bt.addEventListener('click',()=>staffAdminRemove(r.email));li.append(bt);}
+    b.textContent=r.email;b.append(Object.assign(document.createElement('span'),{className:'rtag r-'+(r.rank||'helper'),textContent:RANK_NAME[r.rank]||'Assistant'}));
+    sm.textContent=(r.owner?'Propriétaire · ':'')+(r.connected?(r.name||'Compte créé'):'Pas encore connecté');d.append(b,sm);li.append(d);
+    if(!r.owner&&r.email!==me&&rankN()>=3){const sel=document.createElement('select');sel.setAttribute('aria-label','Rang de '+r.email);
+      for(const k of ['helper','mod','admin']){const o=document.createElement('option');o.value=k;o.textContent=RANK_NAME[k];if(k===r.rank)o.selected=true;sel.append(o);}
+      sel.addEventListener('change',async()=>{const {error:e}=await ACC.sb.rpc('staff_set_rank',{target_email:r.email,p_rank:sel.value});const m=$('saMsg');m.className='acsync '+(e?'err':'ok');
+        setText(m,e?'Impossible : '+errFr(e):'Nouveau rang : '+RANK_NAME[sel.value]+'.');staffAdminLoad();});li.append(sel);
+      const bt=document.createElement('button');bt.textContent='Retirer';bt.addEventListener('click',()=>staffAdminRemove(r.email));li.append(bt);}
     ul.append(li);}
 }
 async function staffAdminAdd(){
@@ -7364,7 +7439,7 @@ setInterval(async()=>{
   if(!ACC.sb||!ACC.user||!ACC.ready)return;pollN++;
   const inGame=state.running&&!state.over;
   if(inGame&&pollN%6)return; // en partie : une fois par minute seulement
-  const [b]=await Promise.all([ACC.sb.rpc('my_ban'),pollN%6===0||NET.role==='host'?accHeartbeat():null]);
+  const [b]=await Promise.all([ACC.sb.rpc('my_ban'),pollN%6===0||NET.role==='host'?accHeartbeat():null,inGame?timeoutLoad():null,inGame&&NET.role==='host'&&pollN%6===0?amLoad():null]);
   const nb=b.data&&b.data.length?b.data[0]:null;
   if(!!nb!==!!ACC.ban){ACC.ban=nb;renderGate();renderAccount();}
   if(!inGame)accRefresh(false);
@@ -7413,24 +7488,30 @@ function chatClean(x){return String(x||'').replace(/[\u0000-\u001f\u007f]/g,'').
 const LEET={'0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','8':'b','@':'a','$':'s','!':'i','€':'e'};
 function normTxt(w){return String(w).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[0134578@$!€]/g,c=>LEET[c]).replace(/[^a-z]/g,'').replace(/(.)\1+/g,'$1');}
 const BADW=['connard','connasse','salope','salaud','pute','putain','encule','enculer','batard','fdp','ntm','nique','niquer','niktamer','pd','pede','tapette','gouine','negre','negro','bougnoul','youpin','bicot','abruti','debile','con','conne','tg','merde','fuck','fucking','fucker','motherfucker','shit','bitch','asshole','cunt','nigger','nigga','faggot','fag','whore','slut','dick','pussy','bastard','kys'].map(normTxt);
-const isBad=n=>!!n&&BADW.some(b=>n===b||(b.length>=4&&n.startsWith(b)));
+// AutoMod réglé par le staff (base Supabase) : mots en plus, liens, majuscules, anti-spam, mode lent
+const AM_DEF={words:[],links:true,caps:true,spamN:4,spamWin:6,dupN:3,muteS:30,slow:0};
+let AM=Object.assign({},AM_DEF),amWordsN=[];
+function amApply(j){let o=null;try{o=typeof j==='string'?JSON.parse(j):j;}catch(err){}AM=Object.assign({},AM_DEF,o&&typeof o==='object'?o:{});
+  for(const [k,lo,hi] of [['spamN',2,20],['spamWin',2,60],['dupN',2,10],['muteS',5,3600],['slow',0,120]])AM[k]=clamp(Math.round(+AM[k])||AM_DEF[k],lo,hi);
+  amWordsN=(Array.isArray(AM.words)?AM.words:[]).map(normTxt).filter(w=>w&&w.length>=2);}
+const isBad=n=>!!n&&(BADW.some(b=>n===b||(b.length>=4&&n.startsWith(b)))||amWordsN.some(b=>n===b||(b.length>=4&&n.startsWith(b))));
 function modFilter(x){
   x=chatClean(x);if(!x)return x;
-  x=x.replace(/\b(?:https?:\/\/|www\.)\S+|\b[\w-]+\.(?:com|fr|net|org|io|gg|xyz|ru|be|me|tv|ly|co)\b\S*/gi,'[lien retiré]');
+  if(AM.links)x=x.replace(/\b(?:https?:\/\/|www\.)\S+|\b[\w-]+\.(?:com|fr|net|org|io|gg|xyz|ru|be|me|tv|ly|co)\b\S*/gi,'[lien retiré]');
   x=x.replace(/(.)\1{6,}/g,'$1$1$1$1$1$1');
-  const letters=x.replace(/[^A-Za-zÀ-ÿ]/g,'');if(letters.length>=8&&letters.replace(/[^A-ZÀ-Þ]/g,'').length/letters.length>.7)x=x.charAt(0)+x.slice(1).toLowerCase();
+  const letters=x.replace(/[^A-Za-zÀ-ÿ]/g,'');if(AM.caps&&letters.length>=8&&letters.replace(/[^A-ZÀ-Þ]/g,'').length/letters.length>.7)x=x.charAt(0)+x.slice(1).toLowerCase();
   const tok=x.split(/(\s+)/);
   for(let i=0;i<tok.length;i++){if(/^\s+$/.test(tok[i]))continue;if(isBad(normTxt(tok[i])))tok[i]='*'.repeat(Math.max(3,tok[i].length));}
   // lettres espacées pour contourner le filtre (« c o n n a r d »)
-  let run=[];const flush=()=>{if(run.length>=3){const w=run.map(i=>tok[i]).join('');if(isBad(normTxt(w))||BADW.some(b=>b.length>=5&&normTxt(w).includes(b)))for(const i of run)tok[i]='*';}run=[];};
+  let run=[];const flush=()=>{if(run.length>=3){const w=run.map(i=>tok[i]).join('');if(isBad(normTxt(w))||BADW.concat(amWordsN).some(b=>b.length>=5&&normTxt(w).includes(b)))for(const i of run)tok[i]='*';}run=[];};
   for(let i=0;i<tok.length;i++){if(/^\s+$/.test(tok[i]))continue;if(tok[i].length<=2&&/[A-Za-z0-9@$]/.test(tok[i]))run.push(i);else flush();}flush();
   return tok.join('');
 }
 // anti-spam (appliqué par l'hôte) : plus de 4 messages en 6 s ou 3 fois le même message → réduit au silence 30 s
 const hostMod={};
 function spamCheck(o,x){const now=performance.now();if(now<(o.mute||0))return 'mute';
-  o.t=(o.t||[]).filter(t=>now-t<6000);o.t.push(now);const n=normTxt(x);if(n&&n===o.last)o.rep=(o.rep||0)+1;else{o.rep=0;o.last=n;}
-  if(o.t.length>4||o.rep>=2){o.mute=now+30000;o.t=[];o.rep=0;return 'spam';}return '';}
+  o.t=(o.t||[]).filter(t=>now-t<AM.spamWin*1000);o.t.push(now);const n=normTxt(x);if(n&&n===o.last)o.rep=(o.rep||0)+1;else{o.rep=0;o.last=n;}
+  if(o.t.length>AM.spamN||o.rep>=AM.dupN-1){o.mute=now+AM.muteS*1000;o.t=[];o.rep=0;return 'spam';}return '';}
 // joueurs masqués (pour soi seulement)
 const chatIgnore=new Set((()=>{try{return JSON.parse(localStorage.getItem('ilotzero-masques')||'[]');}catch(err){return [];}})());
 function chatIgnoreToggle(n){const k=String(n).toLowerCase();if(chatIgnore.has(k))chatIgnore.delete(k);else chatIgnore.add(k);try{localStorage.setItem('ilotzero-masques',JSON.stringify([...chatIgnore]));}catch(err){}chatRender();}
@@ -7443,10 +7524,12 @@ function chatAdd(n,x,sys){if(!x)return;if(!sys&&chatIgnore.has(String(n).toLower
 function chatPost(n,x,from,sys){chatAdd(n,x,sys);if(NET.role==='host')for(const c of NET.conns)if(c!==from)send(c,{t:'chat',n,x,s:sys?1:0});}
 function chatSend(txt){
   const x=modFilter(txt);if(!x||NET.role==='solo')return false;
-  if(performance.now()-chatLastSend<700){chatAdd('','Doucement : un message toutes les secondes.',true);return false;}
+  if(ACC.timeout&&new Date(ACC.timeout.until)>Date.now()){chatAdd('','Tu es exclu du chat par le staff jusqu\'à '+fmtDate(ACC.timeout.until)+(ACC.timeout.reason?' · '+ACC.timeout.reason:'')+'.',true);return false;}
+  const gap=Math.max(700,AM.slow*1000);
+  if(performance.now()-chatLastSend<gap){chatAdd('',AM.slow?'Mode lent : un message toutes les '+AM.slow+' s.':'Doucement : un message toutes les secondes.',true);return false;}
   chatLastSend=performance.now();
   if(NET.role==='host'){const r=spamCheck(hostMod,x);if(r==='mute'){chatAdd('','Tu es réduit au silence encore '+Math.ceil((hostMod.mute-performance.now())/1000)+' s.',true);return false;}
-    if(r==='spam'){chatPost('',NET.name+' est réduit au silence 30 s (spam).',null,true);return false;}chatPost(NET.name,x);}
+    if(r==='spam'){chatPost('',NET.name+' est réduit au silence '+AM.muteS+' s (spam).',null,true);return false;}chatPost(NET.name,x);}
   else{sendHost({t:'chat',x});chatAdd(NET.name,x);}
   return true;
 }
@@ -7523,9 +7606,9 @@ async function playersLoad(){
     sm.textContent=(x.banned?(x.banned_until?'banni encore '+fmtDur(new Date(x.banned_until)-Date.now()):'banni définitivement')+' · ':'')+fmtAgo(x.last_seen)+' · niveau '+levelOf(x.xp)+' · '+fmtN(x.coins)+' coquillages';
     d.append(t,sm);li.append(d,btns);
     const btn=(lab,fn)=>{const b=document.createElement('button');b.textContent=lab;b.addEventListener('click',fn);btns.append(b);};
-    btn('Gérer',()=>{$('mgPseudo').value=x.pseudo;$('mgCoins').value=x.coins;$('mgXp').value=x.xp;$('managePane').scrollIntoView({behavior:'smooth',block:'nearest'});setText($('mgMsg'),'');});
-    if(x.role!=='staff'){if(x.banned)btn('Débannir',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:x.pseudo});modMsg(e?'Impossible : '+errFr(e):x.pseudo+' est débanni.',!e);playersLoad();modLoad();});
-      else btn('Bannir',()=>{$('mdPseudo').value=x.pseudo;$('modPane').scrollIntoView({behavior:'smooth',block:'nearest'});$('mdWhy').focus();});}
+    if(rankN()>=3)btn('Gérer',()=>{$('mgPseudo').value=x.pseudo;$('mgCoins').value=x.coins;$('mgXp').value=x.xp;$('managePane').scrollIntoView({behavior:'smooth',block:'nearest'});setText($('mgMsg'),'');});
+    if(x.role!=='staff'){if(x.banned&&rankN()>=2)btn('Débannir',async()=>{const {error:e}=await ACC.sb.rpc('mod_unban',{target_pseudo:x.pseudo});modMsg(e?'Impossible : '+errFr(e):x.pseudo+' est débanni.',!e);playersLoad();modLoad();});
+      else btn('Modérer',()=>{$('mdPseudo').value=x.pseudo;acSec='moderation';acNavRender();$('mdWhy').focus();});}
     ul.append(li);}
 }
 $('apSearch').addEventListener('input',()=>{clearTimeout(apT);apT=setTimeout(playersLoad,350);});
@@ -7566,11 +7649,34 @@ async function reportsLoad(){
   if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Aucun signalement.</small></div>';ul.append(li);return;}
   for(const r of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
     t.textContent=r.target_pseudo+' : « '+r.msg+' »';sm.textContent=fmtDate(r.created_at)+(r.ctx?' · '+r.ctx:'')+(r.reporter?' · signalé par '+r.reporter:'');d.append(t,sm);li.append(d);
-    const ban=document.createElement('button');ban.textContent='Bannir 1 h';ban.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_ban',{target_pseudo:r.target_pseudo,hours:1,why:'Chat : '+r.msg.slice(0,80)});modMsg(e?'Impossible : '+errFr(e):r.target_pseudo+' est banni 1 h.',!e);modLoad();});
+    const why='Chat : '+r.msg.slice(0,80),mk=(lab,fn)=>{const b=document.createElement('button');b.textContent=lab;b.addEventListener('click',fn);li.append(b);};
+    mk('Avertir',()=>modAct('mod_warn',{target_pseudo:r.target_pseudo,why:'Message inapproprié dans le chat'},r.target_pseudo+' est averti.'));
+    mk('Exclure 1 h',()=>modAct('mod_timeout',{target_pseudo:r.target_pseudo,minutes:60,why},r.target_pseudo+' est exclu du chat 1 h.'));
+    const ban=document.createElement('button');ban.textContent='Bannir 1 h';ban.hidden=rankN()<2;ban.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_ban',{target_pseudo:r.target_pseudo,hours:1,why});modMsg(e?'Impossible : '+errFr(e):r.target_pseudo+' est banni 1 h.',!e);modLoad();});
     const del=document.createElement('button');del.textContent='Traité';del.addEventListener('click',async()=>{const {error:e}=await ACC.sb.rpc('mod_report_delete',{rid:r.id});if(!e)li.remove();else modMsg('Impossible : '+errFr(e),false);});
     li.append(ban,del);ul.append(li);}
 }
 function modMsg(t,ok){const m=$('mdMsg');m.className='acsync '+(ok?'ok':'err');setText(m,t);}
+const DUR_TXT=m=>m<60?m+' min':m<1440?(m/60)+' h':(m/1440)+' j';
+async function modAct(fn,args,okTxt){const {error}=await ACC.sb.rpc(fn,args);modMsg(error?'Impossible : '+errFr(error):okTxt,!error);if(!error){timeoutsLoad();modLoad();}return !error;}
+$('mdWarn').addEventListener('click',()=>{const p=$('mdPseudo').value.trim(),w=$('mdWhy').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);if(!w)return modMsg('Indique le motif de l\'avertissement.',false);
+  modAct('mod_warn',{target_pseudo:p,why:w},p+' est averti : il verra le message à sa prochaine visite du menu.');});
+$('mdTo').addEventListener('click',()=>{const p=$('mdPseudo').value.trim(),m=+$('mdToDur').value;if(!p)return modMsg('Entre le pseudo du joueur.',false);
+  modAct('mod_timeout',{target_pseudo:p,minutes:m,why:$('mdWhy').value.trim()},p+' est exclu du chat pour '+DUR_TXT(m)+'.');});
+$('mdUnTo').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);modAct('mod_untimeout',{target_pseudo:p},'Exclusion de '+p+' levée.');});
+$('mdHist').addEventListener('click',()=>{const p=$('mdPseudo').value.trim();if(!p)return modMsg('Entre le pseudo du joueur.',false);$('lgSearch').value=p;acSec='journal';acNavRender();logLoad();});
+async function timeoutsLoad(){if(ACC.role!=='staff'||!ACC.sb)return;const {data,error,stale}=await latestRpc('mod_timeouts_list');if(stale)return;const ul=$('toList');ul.textContent='';if(error)return;
+  if(!data.length){const li=document.createElement('li');li.innerHTML='<div><small>Personne n\'est exclu du chat.</small></div>';ul.append(li);return;}
+  for(const x of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
+    t.textContent=x.pseudo;sm.textContent='Encore '+fmtDur(new Date(x.until)-Date.now())+(x.reason?' · '+x.reason:'')+(x.by_pseudo?' · par '+x.by_pseudo:'');d.append(t,sm);
+    const b=document.createElement('button');b.textContent='Lever';b.addEventListener('click',()=>modAct('mod_untimeout',{target_pseudo:x.pseudo},'Exclusion de '+x.pseudo+' levée.'));li.append(d,b);ul.append(li);}}
+async function logLoad(){if(ACC.role!=='staff'||!ACC.sb)return;const q=$('lgSearch').value.trim();const {data,error,stale}=await latestRpc('mod_log_list',{lim:150,target_pseudo:q||null});if(stale)return;
+  const ul=$('lgList');ul.textContent='';const m=$('lgMsg');m.className='acsync '+(error?'err':'');setText(m,error?'Impossible : '+errFr(error):(data.length?data.length+' action'+(data.length>1?'s':''):'Aucune action')+(q?' concernant '+q:'')+'.');if(error)return;
+  for(const r of data){const li=document.createElement('li'),d=document.createElement('div'),t=document.createElement('b'),sm=document.createElement('small');
+    t.textContent=(r.actor||'?')+' · '+r.action+(r.target?' → '+r.target:'');sm.textContent=fmtDate(r.created_at)+(r.detail?' · '+r.detail:'');d.append(t,sm);li.append(d);
+    if(r.target){const b=document.createElement('button');b.textContent='Historique';b.addEventListener('click',()=>{$('lgSearch').value=r.target;logLoad();});li.append(b);}
+    ul.append(li);}}
+$('lgGo').addEventListener('click',logLoad);$('lgSearch').addEventListener('keydown',e=>{if(e.key==='Enter')logLoad();});
 $('mdBan').addEventListener('click',async()=>{
   const p=$('mdPseudo').value.trim();if(!p){modMsg('Entre le pseudo du joueur.',false);return;}
   const unit=+$('mdUnit').value,n=Math.round(+$('mdNum').value);
@@ -7810,6 +7916,7 @@ function frame(){
 frame();
 })();
 </script>
+
 
 </body>
 </html>

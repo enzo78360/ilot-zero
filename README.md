@@ -32,13 +32,20 @@ Les données sont stockées dans [Supabase](https://supabase.com/) (serveurs à 
 
 ### Staff
 
-Un compte staff voit en plus, dans l'onglet **Compte** :
+Le staff a trois **rangs**, comme sur Discord :
+- **Assistant** : avertir, exclure du chat jusqu'à 1 h, traiter les signalements, lire le journal ;
+- **Modérateur** : en plus, exclure du chat jusqu'à 7 jours, bannir et débannir, régler l'AutoMod ;
+- **Admin** : en plus, gérer le staff et les rangs, faire des cadeaux aux joueurs, créer des codes. Le propriétaire est toujours Admin et lui seul nomme ou rétrograde un Admin.
+
+Personne n'agit sur un membre de rang égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
 - l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
 - les **Comptes des joueurs** : liste avec recherche, en ligne ou non, niveau, coquillages, bannissement en cours ;
 - **Gérer un joueur** : ajouter, retirer ou régler ses coquillages et son XP ;
-- la **Modération** : bannir un joueur par son pseudo pour une durée libre (minutes, heures, jours) ou définitivement avec un motif, et le débannir. Un joueur banni voit la date de fin et le motif, et ne peut plus jouer ni sauvegarder. Un membre du staff ne peut pas être banni ;
+- la **Modération** : pour un pseudo et un motif, **avertir** (le joueur voit l'avertissement en ouvrant le menu), **exclure du chat** de 5 min à 7 jours (il joue mais ne peut plus écrire dans aucun chat, l'hôte du salon ignore aussi ses messages), lever l'exclusion, voir l'**historique** du joueur, **bannir** pour une durée libre ou définitivement. Listes des exclus et des bannis. Signalements du chat avec Avertir, Exclure 1 h, Bannir 1 h et Traité ;
+- le **Journal** : toutes les actions du staff (qui, quoi, à qui, quand, pourquoi), filtrable par pseudo ;
+- l'**AutoMod** : mots interdits en plus de la liste de base (variantes et lettres espacées comprises), liens retirés ou non, majuscules adoucies ou non, seuils de l'anti-spam (messages, durée, répétitions, durée du silence) et mode lent, appliqués dans tous les salons ;
 - les **Codes cadeaux** : créer un code (coquillages ou XP, durée de validité, utilisations maximum), suivre ses utilisations, le supprimer ;
-- les **Membres du staff** : ajouter une adresse Gmail ou retirer un membre. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
+- les **Membres du staff** : ajouter une adresse Gmail (il arrive Assistant), changer le rang d'un membre ou le retirer. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
 
 En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent).
 
