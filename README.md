@@ -30,26 +30,6 @@ Le menu est organisé en onglets : **Salon** (jouer seul ou avec des amis), **In
 
 Les données sont stockées dans [Supabase](https://supabase.com/) (serveurs à Paris). Chaque joueur ne peut lire et modifier que son propre profil.
 
-### Staff
-
-Le staff fonctionne avec des **rôles**, comme sur Discord (Compte → **Rôles**) : on crée autant de rôles que l'on veut, chacun avec un nom, une couleur, un **niveau** (1 à 99) et ses pouvoirs cochés un par un (18 pouvoirs de modération et 12 pouvoirs du menu `O` et de l'Espace staff). Au départ : Admin (niveau 30), Modérateur (20) et Assistant (10). Le propriétaire a tous les pouvoirs. Un membre ne gère que les rôles et les membres de niveau inférieur au sien, et ne donne que des pouvoirs qu'il a lui-même. Personne n'agit sur un membre de niveau égal ou supérieur. Un compte staff voit en plus, dans l'onglet **Compte** :
-- l'**Espace staff** : coquillages illimités, XP illimitée, vie, munitions et matériaux illimités ;
-- les **Comptes des joueurs** : liste avec recherche, en ligne ou non, niveau, coquillages, bannissement en cours ;
-- **Gérer un joueur** : ajouter, retirer ou régler ses coquillages et son XP ;
-- l'**Inventaire d'un joueur** : voir ses skins, camos, pioches, voitures et emotes, lui en donner ou lui en retirer (livré dès qu'il est connecté ; un objet équipé qu'on retire est remplacé par celui de base) ;
-- la **Modération** : pour un pseudo et un motif, **avertir** (le joueur voit l'avertissement en ouvrant le menu), **exclure du chat** de 5 min à 7 jours (il joue mais ne peut plus écrire dans aucun chat, l'hôte du salon ignore aussi ses messages), lever l'exclusion, voir l'**historique** du joueur, **bannir** pour une durée libre ou définitivement. Listes des exclus et des bannis. Signalements du chat avec Avertir, Exclure 1 h, Bannir 1 h et Traité ;
-- **Expulser de sa partie** (le joueur revient au menu, son salon public est fermé), **Refuser son pseudo** (il doit en choisir un autre et personne ne peut reprendre l'ancien ; les mots interdits sont aussi refusés dans les pseudos), **Fiche du joueur** ;
-- la **Fiche joueur** : compte, en ligne ou non et dans quel salon, niveau, bannissement et exclusion en cours, avertissements (lus ou non), signalements reçus, **notes internes** du staff (ajouter, supprimer), nombre d'actions du staff ;
-- les **Outils** : **annonce** à tous les joueurs (bandeau dans le menu, message en partie, durée au choix), **mode maintenance** (seul le staff peut jouer, message affiché aux autres), **salons publics** ouverts (fermer, expulser l'hôte), **pseudos refusés** (autoriser à nouveau), et dans la Modération, **vider tous les signalements** ;
-- le **Journal** : toutes les actions du staff (qui, quoi, à qui, quand, pourquoi), filtrable par pseudo ;
-- l'**AutoMod** : mots interdits en plus de la liste de base (variantes et lettres espacées comprises), liens retirés ou non, majuscules adoucies ou non, seuils de l'anti-spam (messages, durée, répétitions, durée du silence) et mode lent, appliqués dans tous les salons ;
-- les **Codes cadeaux** : créer un code (coquillages ou XP, durée de validité, utilisations maximum), suivre ses utilisations, le supprimer ;
-- les **Membres du staff** : ajouter une adresse Gmail (il reçoit le rôle le plus bas), changer le rôle d'un membre ou le retirer. Le propriétaire ne peut pas être retiré, et personne ne peut se retirer lui-même.
-
-En partie, la touche `O` ouvre le **menu staff** : vie, munitions et matériaux illimités, super vitesse, radar des ennemis sur la carte, soin complet, arme légendaire, kit de soins, téléportation au marqueur et redéploiement en planeur. Ces pouvoirs marchent en solo et quand le staff héberge le salon (chez un ami, seuls la vitesse, le radar et la téléportation marchent).
-
-Toutes les vérifications (rôle staff, bannissements, codes, amis) sont faites par le serveur : un joueur ne peut pas se donner le rôle staff, ni utiliser un code deux fois.
-
 ## Progression
 
 - **Niveaux** : chaque partie rapporte de l'XP (éliminations, mises à terre, réanimations, rappels, récolte, temps de survie, classement). 1 000 XP par niveau.
