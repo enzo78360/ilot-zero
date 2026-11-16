@@ -1,6 +1,6 @@
 # Îlot Zéro : récapitulatif
 
-Mise à jour du 12 novembre 2026 (soir).
+Mise à jour du 16 novembre 2026 (version 2.6.0).
 
 ## Liens utiles
 
@@ -13,6 +13,19 @@ Mise à jour du 12 novembre 2026 (soir).
 | Identifiant Google (connexion) | https://console.cloud.google.com/auth/clients |
 | Confidentialité | https://enzo78360.github.io/ilot-zero/confidentialite.html |
 | Conditions d'utilisation | https://enzo78360.github.io/ilot-zero/conditions.html |
+
+## Pouvoirs du staff partout, touches, multijoueur, leviers et voitures (16 novembre 2026)
+
+| Demande | Ce qui a changé |
+| --- | --- |
+| Le menu `O` ne marchait que si le staff créait le salon | Les pouvoirs marchent aussi dans le salon de n'importe qui, même si l'hôte n'est pas du staff : vie, munitions et matériaux illimités, soin complet, arme légendaire et kit sont appliqués par l'hôte ; vitesse, radar, téléportation et planeur comme avant. L'hôte vérifie auprès de la base que le joueur est bien du staff (par sa connexion au salon, impossible à imiter avec un faux pseudo) et ne lui accorde que les pouvoirs de son rôle |
+| Des touches pour les pouvoirs | Par défaut : `J` vie illimitée, `K` munitions, `L` matériaux, `U` super vitesse, `I` radar (chacune allume ou éteint), `P` soin complet, `6` arme légendaire, `7` kit, `8` aller au marqueur, `9` redéployer en planeur. Un bandeau confirme chaque action. Modifiables dans Paramètres → Touches (visibles seulement pour le staff), rappelées dans le menu `O` |
+| Multijoueur : celui qui rejoint ne peut ni ouvrir les portes, ni ramasser d'armes, ni ouvrir de coffres | Cause : chaque joueur crée la carte de son côté à partir de la même graine, et cette création dépend des modèles 3D (meubles, rochers…). Un invité qui entrait avec un code avant la fin du chargement avait une carte différente (même terrain, mais portes, armes et coffres ailleurs : aucun des 353 objets ne correspondait), et l'hôte refusait tout ce qu'il faisait. Maintenant, l'hôte attend que chaque invité ait fini de charger (« chargement… » dans la liste du salon, message dans le chat, 90 s au plus) ; un invité qui reçoit quand même le lancement trop tôt attend ses modèles avant de construire la carte |
+| Leviers de la forteresse pas tous accessibles | Deux des cinq leviers étaient posés à l'intérieur de la tour d'angle, qui occupe les 3 premiers mètres de la salle des leviers. Ils sont maintenant sur la partie libre des murs. Vérifié en partie : les 5 leviers actionnés à pied, puis l'orbe et la seringue |
+| Voitures qui apparaissent dans les murs | Les 4 voitures du parking de la forteresse étaient garées en épi dans une allée de 3,15 m (contre le mur et les piliers), et l'une apparaissait sous la dalle. Elles sont maintenant garées en créneau dans les allées le long des murs, posées sur la dalle, sans gêner les escaliers, avec de nouveaux marquages au sol. Vérifié sur 3 parties : plus aucune des 26 voitures ne touche un mur, et chaque voiture du parking repart en marche avant |
+| Héberger le multijoueur gratuitement et correctement (1re étape) | Les joueurs se trouvent maintenant par **Supabase Realtime** (déjà utilisé pour les comptes) au lieu du serveur public de PeerJS : l'invité envoie une offre sur le canal du salon, l'hôte répond, puis ils se connectent directement (WebRTC). Connexion en 1,2 à 1,7 s. PeerJS reste en secours si Supabase ne répond pas, et pour les hôtes qui ont encore l'application 2.3.0. Le staff est reconnu par un jeton secret donné à l'hôte dans la connexion chiffrée (plus par l'identifiant PeerJS). Constaté pendant les tests : les relais publics de PeerJS (TURN) ne donnent aucune adresse ; les joueurs dont le réseau bloque la connexion directe ne peuvent donc pas jouer ensemble. Prochaine étape conseillée : un relais gratuit (Cloudflare) |
+
+Base : `supabase/staff_remote.sql`. Vérification : en base (transaction annulée), un non-staff ne peut pas se déclarer, un hôte joueur normal voit les 12 pouvoirs de l'Admin, aucun pour un rôle qui ne les a pas ; banc Electron à deux fenêtres reliées par PeerJS (hôte non staff, client staff) : 23 contrôles réussis (vie, matériaux, kit, arme, soin, touches `J` et `7`, refus sans vérification de la base ou sans le pouvoir) ; mise en relation testée avec le vrai Supabase dans 4 cas (Supabase seul, PeerJS seul, les deux, hôte en ancienne version) : entrée dans le salon, lancement, mouvements, chat et départ ; invité qui n'a pas fini de charger : l'hôte attend, puis carte, butin, portes et coffres identiques des deux côtés (avant : tous différents), porte, ramassage et tir de l'invité acceptés par l'hôte ; aucune erreur dans la console. Publié : site à jour et Release 2.6.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v2.6.0).
 
 ## Rôles personnalisés et saisons d'avance (12 novembre 2026)
 
@@ -311,7 +324,7 @@ Le menu Récompense propose aussi **Skin secret : Rebeca (voiture)**.
 4. **Exporter seulement** crée le fichier sans le publier.
 
 ### Menu staff en partie
-Touche `O` : vie, munitions et matériaux illimités, super vitesse, radar des ennemis, soin complet, arme légendaire, kit, téléportation au marqueur de la carte, redéploiement en planeur. Ces pouvoirs marchent en solo et quand tu héberges le salon.
+Touche `O` : vie, munitions et matériaux illimités, super vitesse, radar des ennemis, soin complet, arme légendaire, kit, téléportation au marqueur de la carte, redéploiement en planeur. Raccourcis : `J`, `K`, `L`, `U`, `I`, `P`, `6`, `7`, `8`, `9` (Paramètres → Touches). Ces pouvoirs marchent en solo et dans tous les salons, selon ton rôle.
 
 ### Sans le jeu (secours)
 Dans Supabase, l'**éditeur SQL** (https://supabase.com/dashboard/project/kweiabsweqxwoiiqbkpa/sql/new) permet de faire les mêmes actions, par exemple :
@@ -342,7 +355,7 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## État au moment de cette mise à jour
 
 - **Site** : à jour avec tout ce qui précède.
-- **Applications Windows et Mac** : Release **1.6.0** (https://github.com/enzo78360/ilot-zero/releases/tag/v1.6.0) ; avant : 1.5.0, 1.4.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v1.4.0), avec les corrections du 7 novembre, et avant cela : style cartoon et coffres, correction des salons, roues et ponts, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
+- **Applications Windows et Mac** : Release **2.6.0** (https://github.com/enzo78360/ilot-zero/releases/tag/v2.6.0) ; les 2.4.0 et 2.5.0 n'ont pas eu de Release ; avant : 2.3.0 à 1.7.0, 1.6.0, 1.5.0, 1.4.0 (https://github.com/enzo78360/ilot-zero/releases/tag/v1.4.0), avec les corrections du 7 novembre, et avant cela : style cartoon et coffres, correction des salons, roues et ponts, personnages et voitures réalistes, Rebeca, refonte des 3 cartes, voitures, bots, son, touches, filtres d'inventaire.
 - **Base de données** : protection du compte propriétaire en place (fonctions `staff_grant` et `grant_claim`). Les codes cadeaux peuvent donner un objet (le code `REBECA` existe, sans limite d'utilisation ni de durée).
 - **Voitures (1.3.2)** : les roues se posent sur la route (le ruban de route est 13 cm au-dessus du terrain) et ne s'enfoncent plus dans les pentes ; les voitures ne sont plus repoussées au milieu des ponts au-dessus de l'eau profonde (131 passages sur 132 réussis sur les 3 cartes, le dernier bloqué par une voiture garée).
 - **Salons** : la 1.3.0 avait un bug qui éjectait les amis au lancement de la partie. Il est corrigé depuis la 1.3.1 et sur le site : tout le monde doit utiliser le site ou la dernière version.
@@ -351,6 +364,6 @@ update public.profiles set role = 'staff' where id = (select id from auth.users 
 ## Limites connues
 
 - Le jeu tourne dans le navigateur ou dans l'application : un joueur très doué peut modifier sa copie locale. Le serveur protège les comptes, le rôle staff, les bannissements, les codes et les amis, mais pas une partie solo jouée hors ligne.
-- En multijoueur, l'hôte doit garder le jeu ouvert. Les pouvoirs staff (vie, munitions, objets) ne marchent que si c'est le staff qui héberge.
+- En multijoueur, l'hôte doit garder le jeu ouvert. Les pouvoirs staff marchent dans tous les salons, à condition que l'hôte soit connecté à son compte (c'est obligatoire pour jouer).
 - Les applications ne sont pas signées : au premier lancement, clic droit, puis « Ouvrir » sur Mac ; « Exécuter quand même » sur Windows.
 - L'écran de connexion Google affiche « kweiabsweqxwoiiqbkpa.supabase.co » au lieu de « Îlot Zéro ». Pour afficher le nom et un logo, il faut faire valider le branding par Google (et prouver la propriété du site dans la Search Console).
